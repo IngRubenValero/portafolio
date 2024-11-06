@@ -1,0 +1,553 @@
+:root {
+    --primary-color: #3498db;
+    --secondary-color: #2c3e50;
+    --text-color: #333;
+    --bg-color: #f8f9fa;
+    --card-bg: #ffffff;
+}
+
+body {
+    font-family: 'Poppins', sans-serif;
+    line-height: 1.6;
+    color: var(--text-color);
+    background-color: var(--bg-color);
+}
+
+header {
+    background-color: var(--secondary-color);
+    color: #fff;
+    padding: 4rem 0;
+    position: relative;
+    overflow: hidden;
+}
+
+header::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(45deg, rgba(52, 152, 219, 0.7), rgba(44, 62, 80, 0.7)),
+                url('blueprint-bg.jpg') center/cover no-repeat;
+    z-index: 0;
+    filter: blur(3px);
+}
+
+.header-content {
+    position: relative;
+    z-index: 1;
+    text-align: center;
+}
+
+h1 {
+    margin: 0;
+    font-size: 3rem;
+    font-weight: 600;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+}
+
+.header-content p {
+    font-size: 1.2rem;
+    margin-top: 1rem;
+    font-weight: 300;
+}
+
+.header-content .contact-info {
+    margin-top: 1rem;
+    font-size: 1rem;
+}
+
+.header-content .social-links {
+    margin-top: 0.5rem;
+}
+
+.header-content .social-links a {
+    color: #fff;
+    font-size: 1.2rem;
+    margin: 0 10px;
+    transition: all 0.3s ease;
+}
+
+.header-content .social-links a:hover {
+    color: var(--primary-color);
+    transform: translateY(-3px);
+}
+
+.container {
+    width: 90%;
+    max-width: 1200px;
+    margin: auto;
+    padding: 2rem 0;
+}
+
+.project-gallery {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    grid-gap: 2rem;
+}
+
+.project-card {
+    background: var(--card-bg);
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    transition: all 0.3s ease;
+    overflow: hidden;
+    cursor: pointer;
+}
+
+.project-card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 15px 40px rgba(0,0,0,0.2);
+}
+
+.project-image {
+    width: 100%;
+    height: 250px;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+}
+
+.project-card:hover .project-image {
+    transform: scale(1.05);
+}
+
+.project-info {
+    padding: 2rem;
+}
+
+.project-title {
+    font-size: 1.5rem;
+    margin: 0 0 1rem 0;
+    color: var(--secondary-color);
+}
+
+.project-description {
+    font-size: 1rem;
+    color: #666;
+    line-height: 1.6;
+}
+
+.personal-info {
+    background-color: var(--secondary-color);
+    color: #fff;
+    padding: 4rem 0;
+    text-align: center;
+}
+
+.profile-pic {
+    width: 200px;
+    height: 200px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-bottom: 2rem;
+    border: 6px solid var(--primary-color);
+    box-shadow: 0 0 30px rgba(52, 152, 219, 0.7);
+}
+
+.social-links {
+    margin-top: 1.5rem;
+}
+
+.social-links a {
+    color: #fff;
+    font-size: 1.5rem;
+    margin: 0 15px;
+    transition: all 0.3s ease;
+}
+
+.social-links a:hover {
+    color: var(--primary-color);
+    transform: translateY(-3px);
+}
+
+.btn {
+    display: inline-block;
+    padding: 0.8rem 1.5rem;
+    background-color: var(--primary-color);
+    color: #fff;
+    text-decoration: none;
+    border-radius: 5px;
+    transition: all 0.3s ease;
+    margin-top: 1rem;
+}
+
+.btn:hover {
+    background-color: #2980b9;
+    transform: translateY(-2px);
+}
+
+.skills {
+    background-color: var(--bg-color);
+    padding: 4rem 0;
+}
+
+.skill-list {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 1rem;
+    padding: 0;
+    list-style-type: none;
+}
+
+.skill-list li {
+    background-color: var(--primary-color);
+    color: #fff;
+    padding: 0.7rem 1.5rem;
+    border-radius: 25px;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+}
+
+.skill-list li:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 5px 15px rgba(52, 152, 219, 0.4);
+}
+
+.colored-section {
+    background-color: var(--secondary-color);
+    color: #fff;
+    padding: 4rem 0;
+    position: relative;
+    overflow: hidden;
+    text-align: center;
+}
+
+.colored-section::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(45deg, rgba(52, 152, 219, 0.7), rgba(44, 62, 80, 0.7)),
+                url('blueprint-bg.jpg') center/cover no-repeat;
+    z-index: 0;
+    filter: blur(3px);
+}
+
+.colored-section .container {
+    position: relative;
+    z-index: 1;
+}
+
+.colored-section h2 {
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+}
+
+.colored-section p {
+    font-size: 1.2rem;
+    margin-bottom: 2rem;
+}
+
+.colored-section .btn {
+    background-color: var(--primary-color);
+    color: #fff;
+    padding: 0.8rem 1.5rem;
+    text-decoration: none;
+    border-radius: 5px;
+    transition: all 0.3s ease;
+    display: inline-block;
+}
+
+.colored-section .btn:hover {
+    background-color: #2980b9;
+    transform: translateY(-2px);
+}
+
+.colored-section .social-links {
+    margin-top: 1rem;
+}
+
+.colored-section .social-links a {
+    color: #fff;
+    font-size: 1.5rem;
+    margin: 0 15px;
+    transition: all 0.3s ease;
+}
+
+.colored-section .social-links a:hover {
+    color: var(--primary-color);
+    transform: translateY(-3px);
+}
+
+#projectModal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0,0,0,0.8);
+}
+
+.modal-content {
+    background-color: #fefefe;
+    margin: 5% auto;
+    padding: 30px;
+    border: none;
+    width: 90%;
+    max-width: 1000px;
+    border-radius: 15px;
+    box-shadow: 0 15px 50px rgba(0,0,0,0.3);
+}
+
+.close {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.close:hover,
+.close:focus {
+    color: #000;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.modal-gallery-container {
+    margin-bottom: 20px;
+}
+
+.main-image-container {
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    position: relative;
+    width: 100%;
+    height: 400px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+#mainImage {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+}
+
+.nav-btn {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background-color: rgba(0, 0, 0, 0.5);
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    font-size: 18px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.nav-btn:hover {
+    background-color: rgba(0, 0, 0, 0.8);
+}
+
+.prev-btn {
+    left: 10px;
+}
+
+.next-btn {
+    right: 10px;
+}
+
+.thumbnail-gallery {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.thumbnail {
+    width: 80px;
+    height: 80px;
+    object-fit: cover;
+    cursor: pointer;
+    border: 2px solid transparent;
+    transition: all 0.3s ease;
+    border-radius: 8px;
+}
+
+.thumbnail:hover {
+    transform: scale(1.1);
+}
+
+.thumbnail.active {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 15px rgba(52, 152, 219, 0.5);
+}
+
+@media (max-width: 768px) {
+    .project-gallery {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Agregar estos estilos al archivo CSS existente */
+
+.main-image-container {
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
+
+#mainImage {
+    transition: transform 0.3s ease;
+    cursor: zoom-in;
+}
+
+.image-controls {
+    position: absolute;
+    bottom: 20px;
+    right: 20px;
+    display: flex;
+    gap: 10px;
+    z-index: 1000;
+}
+
+.control-btn {
+    background-color: rgba(0, 0, 0, 0.5);
+    color: white;
+    border: none;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: all 0.3s ease;
+}
+
+.control-btn:hover {
+    background-color: rgba(0, 0, 0, 0.8);
+}
+
+/* Estilos para pantalla completa */
+.main-image-container:fullscreen {
+    background-color: black;
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.main-image-container:fullscreen #mainImage {
+    max-height: 90vh;
+    max-width: 90vw;
+}
+
+/* Ajustes responsive */
+@media (max-width: 768px) {
+    .image-controls {
+        bottom: 10px;
+        right: 10px;
+    }
+
+    .control-btn {
+        width: 35px;
+        height: 35px;
+    }
+}
+
+@media (max-width: 768px) {
+    .project-card {
+        width: 100%;
+        margin: 10px 0;
+    }
+
+    .modal-content {
+        width: 95%;
+        margin: 10px auto;
+    }
+
+    .thumbnail {
+        width: 60px;
+        height: 40px;
+    }
+
+    .image-controls {
+        flex-direction: column;
+        right: 10px;
+    }
+}
+
+@media (hover: none) {
+    .project-card:hover {
+        transform: none;
+    }
+
+    .control-btn {
+        min-width: 44px;
+        min-height: 44px;
+    }
+}
+
+/* Añade estos estilos para el spinner de carga */
+.loading-spinner {
+    border: 4px solid #f3f3f3;
+    border-top: 4px solid #3498db;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    animation: spin 1s linear infinite;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    margin-top: -20px;
+    margin-left: -20px;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Estilo para elementos solo visibles para lectores de pantalla */
+.sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+
+.filter-container {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 20px;
+    gap: 10px;
+}
+
+.filter-btn {
+    padding: 10px 20px;
+    border: none;
+    background-color: #f0f0f0;
+    cursor: pointer;
+    border-radius: 5px;
+    transition: all 0.3s ease;
+}
+
+.filter-btn.active {
+    background-color: #007bff;
+    color: white;
+}
+
+.filter-btn:hover {
+    background-color: #007bff;
+    color: white;
+}

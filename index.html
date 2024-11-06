@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    
+    <title>Ruben Valero - Portafolio</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">    
+    <!-- Enlazar el CSS externo -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <header>
+        <div class="header-content">
+            <h1>Portafolio de Proyectos</h1>
+            <p>Dando vida a visiones a través del diseño ingenieril innovador</p>
+            
+        </div>
+    </header>
+
+    <section class="personal-info">
+        <img src="img/Ruben_traje.jpg" alt="Ruben Valero, Ingeniero Estructural" class="profile-pic" width="200" height="200">
+        <h2>Ruben Valero</h2>
+        <p>Ingeniero Civil | +3 Años de Experiencia</p>
+        <p>Especializado en Cálculo Estructural y BIM</p>
+        <div class="contact-info">
+            <p>Email: Ing.RubenValero@outlook.com | Teléfono: (591) 76982955</p>
+            <div class="social-links">
+                <a href="https://www.linkedin.com/in/ruben-valero-33868b335/" target="_blank"><i class="fab fa-linkedin"></i></a>
+                <a href="mailto:Ing.RubenValero@outlook.com" target="_blank" aria-label="Email"><i class="fas fa-envelope"></i></a>
+                <a href="https://wa.me/59176982955" target="_blank" aria-label="WhatsApp"><i class="fab fa-whatsapp"></i></a>
+            </div>
+        </div>
+        <a href="juan-perez-cv.pdf" class="btn" download>Descargar CV</a>
+    </section>
+
+    <section id="skills" class="skills">
+        <div class="container">
+            <h2>Habilidades y Experiencia</h2>
+            <ul class="skill-list">
+                <li>Análisis y Diseño Estructural</li>
+                <li>Ingeniería Sísmica</li>
+                <li>Ingeniería Eólica</li>
+                <!--<li>Diseño Sostenible</li>-->
+                <li>Modelado de Información de Construcción (BIM)</li>
+                <!--<li>Gestión de Proyectos</li>-->
+                <li>Presupuestos</li>
+                <li>Instalaciones Hidrosanitarias</li>
+            </ul>
+        </div>
+    </section>
+
+    <!-- Añade filtros de proyectos -->
+    <div class="filter-container">
+        <button class="filter-btn active" data-filter="all">Todos</button>
+        <button class="filter-btn" data-filter="arquitectura">Arquitectura</button>
+        <button class="filter-btn" data-filter="ingenieria">Ingeniería</button>
+        <button class="filter-btn" data-filter="programacion">Programación</button>
+    </div>
+
+    <div class="container">
+        <div class="project-gallery" id="projectGallery">
+            <!-- Project cards will be dynamically inserted here -->
+        </div>
+    </div>
+
+    <section class="colored-section">
+        <div class="container">
+            <h2>Contactar a Ruben Valero</h2>
+            <p>Email: Ing.RubenValero@outlook.com | Teléfono: (591) 76982955</p>
+            <div class="social-links">
+                <a href="https://www.linkedin.com/in/ruben-valero-33868b335/" target="_blank"><i class="fab fa-linkedin"></i></a>
+                <a href="mailto:Ing.RubenValero@outlook.com" target="_blank" aria-label="Email"><i class="fas fa-envelope"></i></a>
+                <a href="https://wa.me/59176982955" target="_blank" aria-label="WhatsApp"><i class="fab fa-whatsapp"></i></a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Modal -->
+    <div id="projectModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2 id="modalTitle"></h2>
+            <div class="modal-gallery-container">
+                <div class="main-image-container">
+                    <button class="nav-btn prev-btn">&lt;</button>
+                    <img id="mainImage" src="" alt="Main project image">
+                    <button class="nav-btn next-btn">&gt;</button>
+                </div>
+                <div id="thumbnailGallery" class="thumbnail-gallery"></div>
+            </div>
+            <p id="modalDescription"></p>
+            <div id="modalDetails"></div>
+        </div>
+    </div>
+
+    <footer>
+        <div class="container">
+            <p>© 2024 Ruben Valero. Todos los derechos reservados.</p>
+        </div>
+    </footer>
+
+    <!-- Enlazar el archivo JavaScript externo -->
+    <script src="js/script.js"></script>
+</body>
+</html>
