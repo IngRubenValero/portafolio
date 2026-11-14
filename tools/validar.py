@@ -71,7 +71,7 @@ def main():
                 problems.append(f"proyecto {pid}: no existe {path}")
 
     # Referencias directas desde el HTML y el CSS (hero, retrato, CTA...)
-    for source in ["index.html"] + [
+    for source in ["index.html", os.path.join("js", "script.js")] + [
         os.path.join("css", f) for f in sorted(os.listdir(os.path.join(ROOT, "css")))
         if f.endswith(".css") and "backup" not in f and "_v1" not in f
     ]:

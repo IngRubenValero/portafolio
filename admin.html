@@ -292,6 +292,16 @@
             box-shadow: 0 6px 24px rgba(52, 211, 153, 0.3);
         }
 
+        .btn-warning {
+            background: linear-gradient(135deg, #b45309, #f59e0b);
+            color: #fff;
+            box-shadow: 0 4px 16px rgba(245, 158, 11, 0.2);
+        }
+
+        .btn-warning:hover {
+            transform: translateY(-1px);
+        }
+
         .btn-danger {
             background: rgba(248, 113, 113, 0.1);
             color: var(--danger);
@@ -1057,7 +1067,7 @@
                             </div>
                             <div class="form-group">
                                 <label for="pImage">Imagen Principal <span class="label-hint">(se autocompleta con la primera importada)</span></label>
-                                <input type="text" class="form-control" id="pImage" placeholder="img/mi-proyecto.jpg" required>
+                                <input type="text" class="form-control" id="pImage" placeholder="img/mi-proyecto.webp" required>
                             </div>
                         </div>
 
@@ -1145,7 +1155,7 @@
                                     <!-- Dynamic gallery items -->
                                 </div>
                                 <div class="gallery-add-row">
-                                    <input type="text" class="form-control" id="galleryInput" placeholder="img/nueva-imagen.jpg">
+                                    <input type="text" class="form-control" id="galleryInput" placeholder="img/nueva-imagen.webp">
                                     <button type="button" class="btn btn-ghost btn-sm" id="addGalleryImg">
                                         <i class="fas fa-plus"></i> Agregar
                                     </button>
@@ -1183,18 +1193,26 @@
                         <button class="btn btn-success" id="btnDownloadJSON">
                             <i class="fas fa-download"></i> Descargar projects.json
                         </button>
+                        <button class="btn btn-warning" id="btnRestoreBackup">
+                            <i class="fas fa-undo"></i> Restaurar respaldo
+                        </button>
                     </div>
+                    <p class="inline-note" style="margin-top:12px">
+                        Antes de cada escritura se guarda el estado anterior en
+                        <code>data/projects.respaldo.json</code>. Ese archivo está en
+                        <code>.gitignore</code> (nunca se publica) y este botón lo recupera.
+                    </p>
                 </div>
 
                 <div class="export-card">
                     <h3><i class="fas fa-question-circle" style="color:var(--warning);margin-right:8px"></i> ¿Cómo actualizar el portafolio?</h3>
-                    <p>Sigue estos pasos para publicar los cambios en GitHub Pages:</p>
+                    <p>Con la carpeta conectada, el panel escribe <code>data/projects.json</code> por ti. Para publicar:</p>
                     <ol style="color:var(--text-muted);font-size:0.9rem;padding-left:20px;line-height:2">
-                        <li>Descarga el archivo <code>projects.json</code> usando el botón de arriba</li>
-                        <li>Reemplaza el archivo <code>data/projects.json</code> en tu repositorio</li>
-                        <li>Asegúrate de subir las imágenes a la carpeta <code>img/</code></li>
-                        <li>Haz commit y push a tu repositorio de GitHub</li>
-                        <li>¡GitHub Pages actualizará automáticamente tu portafolio! 🎉</li>
+                        <li>Conectar «Carpeta del proyecto»: la raíz donde están <code>data/</code> e <code>img/</code></li>
+                        <li>Crear o editar proyectos y pulsar Guardar (el panel valida antes de escribir)</li>
+                        <li>Ejecutar <code>python tools/validar.py</code></li>
+                        <li>Ejecutar <code>bash publicar.sh</code> y dejar que Git pida credenciales</li>
+                        <li>GitHub Pages actualiza <code>https://ingrubenvalero.github.io/portafolio/</code> en 1–2 min</li>
                     </ol>
                 </div>
             </div>
@@ -1232,8 +1250,10 @@
     let importedImages = [];
     let imageDirectoryHandle = null;
     let projectsFileHandle = null;
+    let dataDirectoryHandle = null;
     let currentEditId = null;
     let draggingGalleryIndex = null;
+    let convertingImages = false;
 
     // ===== FILE SYSTEM HANDLE CACHE (IndexedDB) =====
     function openHandlesDB() {
@@ -1311,9 +1331,22 @@
                 const permission = await workspaceHandle.queryPermission({ mode: 'readwrite' });
                 if (permission === 'granted') {
                     const imgHandle = await workspaceHandle.getDirectoryHandle('img', { create: true });
-                    const dataHandle = await workspaceHandle.getDirectoryHandle('data', { create: true });
-                    const projectsHandle = await dataHandle.getFileHandle('projects.json', { create: true });
+                    const dataHandle = await workspaceHandle.getDirectoryHandle('data');
+                    // Sin { create: true }: si el JSON no existe, NO se crea uno vacío.
+                    const projectsHandle = await dataHandle.getFileHandle('projects.json');
+                    const diskText = await (await projectsHandle.getFile()).text();
+                    const diskData = JSON.parse(diskText);
+                    if (validateProjectsPayload(diskData && diskData.projects)) {
+                        throw new Error('data/projects.json no contiene proyectos válidos');
+                    }
+                    // Restaurar la conexión también adopta el disco como fuente de verdad.
+                    if (JSON.stringify(adminProjects) !== JSON.stringify(diskData.projects)) {
+                        adminProjects = diskData.projects;
+                        saveToStorage();
+                        renderProjectList();
+                    }
                     imageDirectoryHandle = imgHandle;
+                    dataDirectoryHandle = dataHandle;
                     projectsFileHandle = projectsHandle;
                     setConnectedNotes(true, true);
                     return;
@@ -1344,12 +1377,18 @@
             const res = await fetch(`data/projects.json?t=${new Date().getTime()}`, { cache: 'no-store' });
             if (res.ok) {
                 const data = await res.json();
-                adminProjects = data.projects || [];
-                loadedFromJson = true;
-                if (storedBefore && storedBefore !== JSON.stringify(adminProjects)) {
-                    showToast('data/projects.json es la fuente de verdad: se descartaron cambios locales sin publicar', 'warning');
+                // Nunca adoptar un JSON vacío o malformado como fuente de verdad:
+                // eso es lo que hacía que un guardado posterior borrara todos los proyectos.
+                if (data && Array.isArray(data.projects) && data.projects.length > 0) {
+                    adminProjects = data.projects;
+                    loadedFromJson = true;
+                    if (storedBefore && storedBefore !== JSON.stringify(adminProjects)) {
+                        showToast('data/projects.json es la fuente de verdad: se descartaron cambios locales sin publicar', 'warning');
+                    }
+                    saveToStorage(); // actualiza el localStorage con la fuente real
+                } else {
+                    showToast('data/projects.json está vacío o no tiene el formato esperado. No se adoptó su contenido.', 'error');
                 }
-                saveToStorage(); // actualiza el localStorage con la fuente real
             }
         } catch(e) {
             console.log('No existing projects.json found or fetch failed', e);
@@ -1482,6 +1521,13 @@
     async function saveProject(e, quiet = false) {
         if (e) e.preventDefault();
 
+        // No guardar a medias mientras se convierten las imágenes a WebP:
+        // el proyecto apuntaría a rutas que todavía no existen en img/.
+        if (convertingImages) {
+            showToast('Espera a que terminen de convertirse las imágenes a WebP', 'warning');
+            return;
+        }
+
         const isEditing = !!currentEditId;
         const category = document.getElementById('pCategory').value;
         const isProduct = category === 'producto';
@@ -1520,30 +1566,56 @@
             if (ytUrl) projectData.youtubeUrl = ytUrl;
         }
 
+        // 1) Validar campos obligatorios ANTES de modificar adminProjects.
+        // Antes se mutaba el array primero: si la validación fallaba, el proyecto
+        // "fantasma" quedaba en memoria y se escribía en el siguiente guardado.
+        const fieldError = validateProjectsPayload([projectData]);
+        if (fieldError) {
+            if (!quiet) showToast(`No se guardó: ${fieldError}`, 'error');
+            return false;
+        }
+
+        // 2) Verificar que las imágenes referenciadas existen antes de tocar el JSON
+        const check = await validateProjectAssets(projectData);
+        if (!check.ok) {
+            if (!quiet) showToast(`Hay ${check.missing.length} imagen(es) que no existen: ${check.missing.slice(0, 2).join(', ')}${check.missing.length > 2 ? '…' : ''}. Corrige las rutas antes de guardar.`, 'error');
+            return false;
+        }
+
+        const snapshot = [...adminProjects];
         const successLabel = isEditing ? 'Proyecto actualizado' : 'Proyecto agregado';
 
         if (isEditing) {
             const idx = adminProjects.findIndex(p => p.id === currentEditId);
-            if (idx !== -1) adminProjects[idx] = projectData;
+            if (idx === -1) {
+                if (!quiet) showToast('No se guardó: el proyecto que editabas ya no existe.', 'error');
+                return false;
+            }
+            adminProjects[idx] = projectData;
         } else {
             adminProjects.push(projectData);
-            if(currentEditId === null) currentEditId = projectData.id; // mantenernos modo edición si es quiet
+            if (currentEditId === null) currentEditId = projectData.id; // mantener modo edición si es quiet
         }
 
-        // 1) Verificar que las imágenes referenciadas existen antes de tocar el JSON
-        const check = await validateProjectAssets(projectData);
-        if (!check.ok) {
-            showToast(`Hay ${check.missing.length} imagen(es) que no existen: ${check.missing.slice(0, 2).join(', ')}${check.missing.length > 2 ? '…' : ''}. Corrige las rutas antes de guardar.`, 'error');
-            return;
+        // 3) Validar el conjunto completo, no solo el proyecto nuevo
+        const allError = validateProjectsPayload(adminProjects);
+        if (allError) {
+            adminProjects = snapshot;
+            if (!quiet) showToast(`No se guardó: ${allError}`, 'error');
+            return false;
         }
 
         saveToStorage();
 
-        // 2) Escribir en disco. Si no hay carpeta conectada, avisar con claridad y NO fingir éxito
+        // 4) Escribir en disco. Si falla, se revierte TODO (memoria + localStorage).
         const written = await persistProjectsJSON();
         if (!written) {
-            showToast('NO se guardó en disco: conecta «Carpeta del proyecto» o usa «Descargar projects.json»', 'error');
-            return;
+            adminProjects = snapshot;
+            saveToStorage();
+            renderProjectList();
+            // Aunque sea un autoguardado silencioso, un fallo de disco SIEMPRE se avisa.
+            showToast('NO se guardó en disco: el JSON no se modificó. Conecta «Carpeta del proyecto».', 'error');
+            return false;
         }
 
         if (!quiet) {
@@ -1551,6 +1623,7 @@
             resetForm();
             switchView('list');
         }
+        return true;
     }
 
     function editProject(id) {
@@ -1569,11 +1642,18 @@
             '¿Eliminar proyecto?',
             `Se eliminará "${project.title}" permanentemente.`,
             async () => {
+                const snapshot = [...adminProjects];
                 adminProjects = adminProjects.filter(p => p.id !== id);
                 saveToStorage();
-                await persistProjectsJSON();
+                const written = await persistProjectsJSON();
+                if (!written) {
+                    adminProjects = snapshot;
+                    saveToStorage();
+                    showToast('No se eliminó: el JSON no se modificó. Conecta «Carpeta del proyecto».', 'error');
+                } else {
+                    showToast('Proyecto eliminado de data/projects.json. Falta publicar.sh.', 'info');
+                }
                 renderProjectList();
-                showToast('Proyecto eliminado', 'info');
             }
         );
     }
@@ -1787,7 +1867,7 @@
 
         const currentName = getFileName(oldPath);
         const dirPath = getDirectoryPath(oldPath) || 'img/';
-        const requestedName = prompt('Nuevo nombre de archivo (ej: proyecto-01.jpg):', currentName);
+        const requestedName = prompt('Nuevo nombre de archivo (ej: proyecto-01.webp):', currentName);
         if (!requestedName) return;
 
         const cleanName = sanitizeFileName(requestedName);
@@ -1869,7 +1949,7 @@
                 for (let i = 0; i < originalGallery.length; i++) {
                     const oldPath = originalGallery[i];
                     const currentName = getFileName(oldPath);
-                    const ext = (currentName.split('.').pop() || 'jpg').toLowerCase();
+                    const ext = (currentName.split('.').pop() || 'webp').toLowerCase();
                     
                     const baseSlug = buildProjectSlug();
                     const order = String(i + 1).padStart(2, '0');
@@ -1932,7 +2012,7 @@
     }
 
     function buildAutoFileName(file, index) {
-        const ext = (file.name.split('.').pop() || 'jpg').toLowerCase();
+        const ext = (file.name.split('.').pop() || 'webp').toLowerCase();
         const baseSlug = buildProjectSlug();
         const order = String(index + 1).padStart(2, '0');
         return `${baseSlug}-${order}.${ext}`;
@@ -1966,32 +2046,96 @@
         updateImportedFilesUI();
     }
 
-    function processImportedFiles(fileList) {
+    const WEBP_MAX_SIDE = 2400;
+
+    function needsWebPConversion(file) {
+        if (/\.webp$/i.test(file.name) || file.type === 'image/webp') return false;
+        // SVG y GIF animado no se deben rasterizar: perderían vector/animación.
+        if (/\.(svg|gif)$/i.test(file.name) || file.type === 'image/svg+xml' || file.type === 'image/gif') return false;
+        return file.type.startsWith('image/');
+    }
+
+    /* Convierte en el navegador antes de escribir en img/. Los PNG (planos,
+       líneas finas) van a calidad 90; los renders JPG a 82. Si el WebP sale
+       más grande, o el navegador no lo soporta, se conserva el original. */
+    async function convertToWebP(file) {
+        if (!needsWebPConversion(file) || typeof createImageBitmap !== 'function') {
+            return { file, converted: false };
+        }
+        let bitmap = null;
+        try {
+            bitmap = await createImageBitmap(file);
+            const scale = Math.min(1, WEBP_MAX_SIDE / Math.max(bitmap.width, bitmap.height));
+            const width = Math.max(1, Math.round(bitmap.width * scale));
+            const height = Math.max(1, Math.round(bitmap.height * scale));
+            const canvas = document.createElement('canvas');
+            canvas.width = width;
+            canvas.height = height;
+            const ctx = canvas.getContext('2d');
+            if (!ctx) return { file, converted: false };
+            ctx.drawImage(bitmap, 0, 0, width, height);
+            if (bitmap.close) bitmap.close();
+
+            const isPng = file.type === 'image/png' || /\.png$/i.test(file.name);
+            const quality = isPng ? 0.90 : 0.82;
+            const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/webp', quality));
+            if (!blob || blob.type !== 'image/webp') return { file, converted: false };
+            if (!isPng && blob.size >= file.size) return { file, converted: false };
+
+            const base = file.name.replace(/\.[^.]+$/, '') || 'imagen';
+            return {
+                file: new File([blob], `${base}.webp`, { type: 'image/webp' }),
+                converted: true
+            };
+        } catch (error) {
+            console.warn('No se pudo convertir a WebP; se conserva el original', error);
+            if (bitmap && bitmap.close) bitmap.close();
+            return { file, converted: false };
+        }
+    }
+
+    async function processImportedFiles(fileList) {
+        if (convertingImages) {
+            showToast('Ya hay imágenes convirtiéndose a WebP, espera un momento', 'warning');
+            return;
+        }
         const files = Array.from(fileList || []).filter(file => file.type.startsWith('image/'));
         if (files.length === 0) {
             showToast('No se detectaron imágenes válidas', 'error');
             return;
         }
 
+        convertingImages = true;
+        showToast('Convirtiendo imágenes a WebP…', 'info');
         const startIndex = galleryImages.length;
-        files.forEach((file, fileOffset) => {
-            const finalIndex = startIndex + fileOffset;
-            const fileName = buildAutoFileName(file, finalIndex);
-            const relativePath = `img/${fileName}`;
+        let convertedCount = 0;
+        try {
+            for (let fileOffset = 0; fileOffset < files.length; fileOffset++) {
+                const result = await convertToWebP(files[fileOffset]);
+                if (result.converted) convertedCount++;
+                const finalIndex = startIndex + fileOffset;
+                // buildAutoFileName toma la extensión del archivo: si se convirtió,
+                // el nombre ya termina en .webp y la ruta del JSON también.
+                const fileName = buildAutoFileName(result.file, finalIndex);
+                const relativePath = `img/${fileName}`;
 
-            const importedItem = {
-                file,
-                previewUrl: URL.createObjectURL(file),
-                originalName: file.name,
-                fileName,
-                relativePath
-            };
+                const importedItem = {
+                    file: result.file,
+                    previewUrl: URL.createObjectURL(result.file),
+                    originalName: files[fileOffset].name,
+                    fileName,
+                    relativePath,
+                    convertedToWebP: result.converted
+                };
 
-            importedImages.push(importedItem);
-            if (!galleryImages.includes(relativePath)) {
-                galleryImages.push(relativePath);
+                importedImages.push(importedItem);
+                if (!galleryImages.includes(relativePath)) {
+                    galleryImages.push(relativePath);
+                }
             }
-        });
+        } finally {
+            convertingImages = false;
+        }
 
         if (!document.getElementById('pImage').value.trim() && importedImages[0]) {
             document.getElementById('pImage').value = importedImages[0].relativePath;
@@ -1999,7 +2143,7 @@
 
         renderGallery();
         updateImportedFilesUI();
-        showToast(`${files.length} imagen(es) importadas con nombre automático`, 'success');
+        showToast(`${files.length} imagen(es) importadas · ${convertedCount} convertidas a WebP`, 'success');
     }
 
     function updateImportedFilesUI() {
@@ -2027,7 +2171,8 @@
             </div>
         `).join('');
 
-        importedMeta.textContent = `${importedImages.length} imágenes importadas con renombrado automático`;
+        const webpCount = importedImages.filter(item => item.convertedToWebP).length;
+        importedMeta.textContent = `${importedImages.length} imágenes con nombre automático · ${webpCount} convertidas a WebP`;
     }
 
     function removeImportedImage(index) {
@@ -2058,9 +2203,12 @@
         try {
             imageDirectoryHandle = await window.showDirectoryPicker({ mode: 'readwrite' });
             await saveHandle(IMG_HANDLE_KEY, imageDirectoryHandle);
-            projectsFileHandle = null;
-            setConnectedNotes(true, false);
-            showToast('Carpeta conectada correctamente', 'success');
+            // No desactivar la conexión del JSON: conectar solo img/ no debe
+            // convertir el siguiente guardado en un "no se guardó en disco".
+            setConnectedNotes(true, !!projectsFileHandle);
+            showToast(projectsFileHandle
+                ? 'Carpeta img/ conectada. El JSON sigue sincronizándose.'
+                : 'Carpeta img/ conectada. Falta conectar la carpeta del proyecto para escribir el JSON.', 'success');
         } catch (error) {
             if (error && error.name !== 'AbortError') {
                 showToast('No se pudo conectar la carpeta', 'error');
@@ -2077,20 +2225,39 @@
         try {
             const workspaceHandle = await window.showDirectoryPicker({ mode: 'readwrite' });
             const imgHandle = await workspaceHandle.getDirectoryHandle('img', { create: true });
-            const dataHandle = await workspaceHandle.getDirectoryHandle('data', { create: true });
-            const projectsHandle = await dataHandle.getFileHandle('projects.json', { create: true });
+            const dataHandle = await workspaceHandle.getDirectoryHandle('data');
+            // Sin { create: true }: elegir una carpeta equivocada ya no crea un
+            // projects.json vacío que después se escribiría encima del real.
+            const projectsHandle = await dataHandle.getFileHandle('projects.json');
 
+            const diskText = await (await projectsHandle.getFile()).text();
+            const diskData = JSON.parse(diskText);
+            const diskError = validateProjectsPayload(diskData && diskData.projects);
+            if (diskError) {
+                showToast(`No se conectó: data/projects.json no es válido (${diskError}). El archivo no se modificó.`, 'error');
+                return;
+            }
+
+            const hadLocal = adminProjects.length;
             imageDirectoryHandle = imgHandle;
+            dataDirectoryHandle = dataHandle;
             projectsFileHandle = projectsHandle;
             await saveHandle(WORKSPACE_HANDLE_KEY, workspaceHandle);
 
+            // CONECTAR ES SOLO LECTURA: el disco manda y NO se escribe nada.
+            // Antes aquí se llamaba a persistProjectsJSON() y, si la memoria
+            // venía de un localStorage viejo o vacío, vaciaba el JSON real.
+            if (JSON.stringify(adminProjects) !== JSON.stringify(diskData.projects)) {
+                showToast(`Se cargaron ${diskData.projects.length} proyectos desde disco (había ${hadLocal} en memoria).`, 'info');
+            }
+            adminProjects = diskData.projects;
+            saveToStorage();
+            renderProjectList();
             setConnectedNotes(true, true);
-
-            showToast('Carpeta del proyecto conectada. Auto-sync activado.', 'success');
-            await persistProjectsJSON();
+            showToast('Carpeta conectada. data/projects.json se leyó SIN modificarlo.', 'success');
         } catch (error) {
             if (error && error.name !== 'AbortError') {
-                showToast('No se pudo conectar la carpeta del proyecto', 'error');
+                showToast('No se pudo conectar: selecciona la RAÍZ del proyecto (donde están data/ e img/). El JSON no se modificó.', 'error');
             }
         }
     }
@@ -2134,11 +2301,86 @@
         return { ok: missing.length === 0, missing, skipped: false };
     }
 
-    async function persistProjectsJSON() {
+    /* Validación dura: si algo de esto falla, NO se abre el writable.
+       createWritable() trunca el archivo, así que validar después ya es tarde. */
+    function validateProjectsPayload(projects) {
+        if (!Array.isArray(projects)) return 'el contenido no es una lista de proyectos';
+        if (projects.length === 0) return 'la lista está vacía (0 proyectos): no se permite borrar todo el JSON';
+        const seen = new Set();
+        for (const p of projects) {
+            if (!p || typeof p !== 'object') return 'hay una entrada que no es un proyecto válido';
+            if (p.id === undefined || p.id === null || p.id === '') return 'hay un proyecto sin id';
+            if (seen.has(p.id)) return `id duplicado: ${p.id}`;
+            seen.add(p.id);
+            for (const field of ['title', 'image', 'category']) {
+                if (!p[field] || !String(p[field]).trim()) return `proyecto ${p.id}: falta '${field}'`;
+            }
+            if (!Array.isArray(p.gallery) || p.gallery.length === 0) return `proyecto ${p.id}: galería vacía`;
+            if (p.gallery.some(path => !path || !String(path).trim())) return `proyecto ${p.id}: hay una ruta de imagen vacía`;
+        }
+        return null;
+    }
+
+    async function readProjectsFromDisk() {
+        if (!projectsFileHandle) return null;
+        try {
+            const text = await (await projectsFileHandle.getFile()).text();
+            if (!text.trim()) return null;
+            const data = JSON.parse(text);
+            return Array.isArray(data.projects) ? data.projects : null;
+        } catch (e) {
+            return null;
+        }
+    }
+
+    /* Copia el JSON válido actual a data/projects.respaldo.json ANTES de escribir.
+       Ese archivo está excluido en .gitignore, así que nunca se publica. */
+    async function writeProjectsBackup() {
+        if (!dataDirectoryHandle || !projectsFileHandle) return false;
+        try {
+            const text = await (await projectsFileHandle.getFile()).text();
+            if (!text.trim()) return false;
+            const parsed = JSON.parse(text);
+            if (!parsed || !Array.isArray(parsed.projects) || parsed.projects.length === 0) return false;
+            const backupHandle = await dataDirectoryHandle.getFileHandle('projects.respaldo.json', { create: true });
+            const writable = await backupHandle.createWritable();
+            await writable.write(text);
+            await writable.close();
+            return true;
+        } catch (e) {
+            console.warn('No se pudo crear data/projects.respaldo.json', e);
+            return false;
+        }
+    }
+
+    async function persistProjectsJSON(options = {}) {
         if (!projectsFileHandle) {
             setConnectedNotes(!!imageDirectoryHandle, false);
             return false;
         }
+
+        const payloadError = validateProjectsPayload(adminProjects);
+        if (payloadError) {
+            showToast(`No se escribió el JSON: ${payloadError}.`, 'error');
+            return false;
+        }
+
+        const previous = await readProjectsFromDisk();
+        // Guardia contra pérdidas masivas. Borrar 1 proyecto de 11 NO avisa.
+        if (previous && previous.length > 0 &&
+            (adminProjects.length === 0 || adminProjects.length < Math.ceil(previous.length * 0.5))) {
+            const confirmed = window.confirm(
+                `El JSON en disco tiene ${previous.length} proyectos y vas a dejar ${adminProjects.length}. ` +
+                '¿Seguro que quieres continuar? Cancela y usa «Restaurar respaldo» si fue un error.'
+            );
+            if (!confirmed) {
+                showToast('Escritura cancelada. data/projects.json no se tocó.', 'info');
+                return false;
+            }
+        }
+
+        // Respaldo ANTES de abrir el writable, porque createWritable trunca.
+        if (!options.skipBackup) await writeProjectsBackup();
 
         try {
             const writable = await projectsFileHandle.createWritable();
@@ -2147,8 +2389,48 @@
             return true;
         } catch (error) {
             console.error(error);
-            showToast('No se pudo actualizar data/projects.json automáticamente', 'error');
+            showToast('No se pudo actualizar data/projects.json. Hay una copia en data/projects.respaldo.json.', 'error');
             return false;
+        }
+    }
+
+    async function restoreProjectsBackup() {
+        if (!dataDirectoryHandle) {
+            showToast('Conecta primero la «Carpeta del proyecto».', 'error');
+            return;
+        }
+        try {
+            const backupHandle = await dataDirectoryHandle.getFileHandle('projects.respaldo.json');
+            const text = await (await backupHandle.getFile()).text();
+            const data = JSON.parse(text);
+            const err = validateProjectsPayload(data && data.projects);
+            if (err) {
+                showToast(`El respaldo no es válido: ${err}.`, 'error');
+                return;
+            }
+            showConfirm(
+                '¿Restaurar el respaldo?',
+                `Se reemplazarán los ${adminProjects.length} proyectos actuales por los ${data.projects.length} de data/projects.respaldo.json.`,
+                async () => {
+                    const snapshot = [...adminProjects];
+                    adminProjects = data.projects;
+                    saveToStorage();
+                    const ok = await persistProjectsJSON({ skipBackup: true });
+                    if (!ok) {
+                        adminProjects = snapshot;
+                        saveToStorage();
+                        showToast('No se pudo restaurar; se mantiene el estado anterior.', 'error');
+                        return;
+                    }
+                    renderProjectList();
+                    updateJSONPreview();
+                    showToast(`Respaldo restaurado: ${data.projects.length} proyectos.`, 'success');
+                },
+                'Restaurar',
+                'btn-success'
+            );
+        } catch (e) {
+            showToast('No hay un respaldo válido en data/projects.respaldo.json.', 'error');
         }
     }
 
@@ -2190,21 +2472,40 @@
     function importJSON(file) {
         const reader = new FileReader();
         reader.onload = async (e) => {
+            let data;
             try {
-                const data = JSON.parse(e.target.result);
-                if (data.projects && Array.isArray(data.projects)) {
-                    adminProjects = data.projects;
-                    saveToStorage();
-                    await persistProjectsJSON();
-                    renderProjectList();
-                    showToast(`${data.projects.length} proyectos importados`, 'success');
-                    switchView('list');
-                } else {
-                    showToast('El archivo no tiene formato válido', 'error');
-                }
-            } catch(err) {
-                showToast('Error al leer el archivo JSON', 'error');
+                data = JSON.parse(e.target.result);
+            } catch (err) {
+                showToast('No es un JSON válido. data/projects.json no se tocó.', 'error');
+                return;
             }
+
+            // Antes un {"projects": []} pasaba el filtro y vaciaba el JSON real.
+            const err = validateProjectsPayload(data && data.projects);
+            if (err) {
+                showToast(`Importación rechazada: ${err}. data/projects.json no se tocó.`, 'error');
+                return;
+            }
+            if (!projectsFileHandle) {
+                showToast('Importación cancelada: conecta «Carpeta del proyecto» para poder escribir el JSON.', 'error');
+                return;
+            }
+
+            const snapshot = [...adminProjects];
+            adminProjects = data.projects;
+            saveToStorage();
+            const written = await persistProjectsJSON();
+            if (!written) {
+                adminProjects = snapshot;
+                saveToStorage();
+                renderProjectList();
+                showToast('No se importó: data/projects.json no se modificó.', 'error');
+                return;
+            }
+            renderProjectList();
+            updateJSONPreview();
+            showToast(`${data.projects.length} proyectos importados en data/projects.json. Falta publicar.sh.`, 'success');
+            switchView('list');
         };
         reader.readAsText(file);
     }
@@ -2384,6 +2685,7 @@
         // Export
         document.getElementById('btnCopyJSON').addEventListener('click', copyJSON);
         document.getElementById('btnDownloadJSON').addEventListener('click', downloadJSON);
+        document.getElementById('btnRestoreBackup').addEventListener('click', restoreProjectsBackup);
 
         // Import
         document.getElementById('btnImportJSON').addEventListener('click', () => {

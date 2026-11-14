@@ -5,6 +5,13 @@ RESPALDO/
 # Fuente de verdad única: las copias antiguas de datos NO se publican
 data/projects copy*.json
 
+# Respaldo automático que crea admin.html antes de cada escritura (solo local)
+data/projects.respaldo.json
+
+# Originales JPG/PNG previos a la optimización WebP: se conservan en local,
+# pero NO se publican (GitHub Pages solo sirve lo que está en el repo).
+img/_originales/
+
 # Versiones antiguas de estilos y scripts
 *_v1.*
 
@@ -13,6 +20,10 @@ publicar.local.conf
 
 # Datos de trabajo del asistente: no forman parte del sitio publicado
 .workbuddy-ai/
+
+# Bytecode de Python (generado al ejecutar/compilar las herramientas)
+__pycache__/
+*.pyc
 
 # Archivos del sistema
 .DS_Store

@@ -105,7 +105,7 @@ function createProjectCard(project, index) {
                  width="300" 
                  height="200"
                  loading="lazy"
-                 onerror="this.src='img/placeholder.jpg'">
+                 onerror="this.src='img/placeholder.webp'">
             <div class="project-info">
                 <h3 class="project-title">${project.title}</h3>
                 <p class="project-description">${project.description}</p>

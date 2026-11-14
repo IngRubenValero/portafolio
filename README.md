@@ -89,8 +89,13 @@ WebPortafolioEstructural/
 │   ├── viewer.js          # Visor: swipe, pinch, doble toque, zoom, teclado
 │   ├── design.js          # Navegación, contadores y menú móvil
 │   └── script_backup.js   # Respaldo
-├── data/projects.json      # Contenido de los proyectos
-├── img/                    # Imágenes de proyectos
+├── data/projects.json      # Contenido de los proyectos (única fuente de verdad)
+├── img/                    # Imágenes publicadas, en WebP
+│   └── _originales/        # JPG/PNG previos: solo locales, excluidos por .gitignore
+├── tools/
+│   ├── validar.py          # Comprueba rutas antes de publicar
+│   └── optimizar_imagenes.py  # Conversión JPG/PNG -> WebP (Pillow)
+├── publicar.sh             # Valida, confirma y sube a GitHub Pages
 └── README.md              # Este archivo
 ```
 
@@ -168,6 +173,55 @@ sin `backdrop-filter` (evita tirones en móvil) y con soporte de teclado en escr
 `lightboxNavigate`, `lightboxZoom` y `lightboxResetZoom` como puente, para no tocar
 `openModal()` ni la navegación con teclado.
 
+### Imágenes ligeras: WebP
+
+Las imágenes publicadas están en **WebP**. Es el formato que mejor equilibra peso y
+calidad en móvil: mismos píxeles percibidos con un 25–35 % menos de bytes que JPEG,
+admite transparencia y lo soportan Chrome/Edge/Firefox y Safari desde iOS 14 (~97 %
+de los navegadores). GitHub Pages sirve `.webp` con el MIME correcto sin configurar
+nada.
+
+**Resultado medido en este portafolio:** 63 imágenes referenciadas,
+`24,54 MB → 9,48 MB` (**−61 %**); el hero de portada pasó de 917 KB a 90 KB y el
+primer pintado en móvil de ~1,95 MB a ~0,4 MB.
+
+Reglas aplicadas en `tools/optimizar_imagenes.py`:
+
+| Origen | Destino | Motivo |
+|---|---|---|
+| PNG (planos, renders de líneas finas) | WebP calidad **90** | La pérdida a q82 deja halos en texto y líneas |
+| JPG (renders fotográficos) | WebP calidad **82** | Ahorro sin pérdida visible |
+| Cualquiera | Lado mayor **≤ 2400 px** | 19 imágenes venían a 4967 px; 2400 mantiene 2× de zoom en el visor |
+
+- Se corrige la orientación EXIF y se conserva el canal alfa.
+- Si el WebP saliera **más grande** que el original, se conserva el original
+  (quedaron 2 PNG en ese caso).
+- **`img/Ruben_traje.jpg` se mantiene en JPG a propósito**: es el `og:image` y los
+  rastreadores de WhatsApp/LinkedIn/X no manejan WebP de forma fiable. El retrato
+  de la página sí usa `Ruben_traje.webp`.
+- Los 75 JPG/PNG originales se movieron a `img/_originales/`: siguen en tu disco,
+  pero `.gitignore` los excluye para que no se publiquen ni inflen el repo.
+- `img/placeholder.webp` sustituye al `placeholder.jpg` que `js/script.js` referenciaba
+  y que **no existía**.
+
+**Para no repetir el problema:** `admin.html` convierte automáticamente a WebP en el
+navegador (`createImageBitmap` + `canvas.toBlob`) al importar imágenes, antes de
+escribir en `img/`. PNG → q90, JPG → q82, máximo 2400 px; SVG, GIF y WebP se respetan
+tal cual. Mientras convierte no se puede guardar el proyecto, para que el JSON nunca
+apunte a rutas que aún no existen. Si el navegador no soporta la conversión, se
+conserva el archivo original con su extensión.
+
+Para reoptimizar un lote nuevo de imágenes (idempotente, nunca borra nada):
+
+```bash
+python tools/optimizar_imagenes.py --dry-run   # solo informa
+python tools/optimizar_imagenes.py             # convierte y reenlaza
+python tools/validar.py
+```
+
+Requiere Pillow (`python -m pip install Pillow`). No hace falta para los proyectos
+nuevos creados desde el panel.
+
 ### Respaldos
 
 Los respaldos completos se guardan **fuera del proyecto** para que no se publiquen
@@ -178,6 +232,62 @@ en GitHub Pages:
 - `../WebPortafolioEstructuralV2026_backup_20261111_093832/` (antes de quitar Tecnología y rehacer la ficha)
 - `../WebPortafolioEstructuralV2026_backup_20261111_105013/` (antes de la cabecera integrada y el doble toggle de tema)
 - `../WebPortafolioEstructuralV2026_backup_20261112_162153/` (antes de preparar el flujo de publicación)
+- `../WebPortafolioEstructuralV2026_backup_20261114_160346/` (antes de la conversión a WebP; 79 archivos verificados por MD5)
+
+Además, `admin.html` crea **`data/projects.respaldo.json`** con el estado anterior
+antes de cada escritura. Está en `.gitignore`, así que nunca se publica; se recupera
+con el botón **Restaurar respaldo** de la vista *Exportar*.
+
+## 🔁 Checklist: cada vez que cambies algo
+
+**La regla que evita confusiones:** `admin.html` escribe en **tu disco**, no en GitHub.
+Añadir un proyecto desde el panel **NO actualiza la web pública** hasta que ejecutas
+`publicar.sh`. Guardar ≠ publicar.
+
+### A) Añadir o editar un proyecto (vía `admin.html`)
+
+1. Levantar el servidor local y abrir el panel **en local**:
+   ```bash
+   python -m http.server 8766
+   ```
+   → `http://localhost:8766/admin.html` (si el puerto está ocupado, `8767`).
+   **Nunca** con `file://` ni desde la URL pública: sin servidor no se pueden validar
+   las rutas de imagen. Usar Chrome o Edge (Firefox/Safari no soportan la conexión
+   a carpetas).
+2. Pulsar **Conectar carpeta del proyecto** y elegir la **raíz** (donde están
+   `data/` e `img/`). Conectar **solo lee** `data/projects.json`; no lo modifica.
+   El estado debe quedar en verde: `Conectado · listo para publicar`.
+3. Crear/editar el proyecto. Importar las imágenes desde el propio panel: las
+   **convierte a WebP automáticamente**, las renombra y las escribe en `img/`.
+   Espera a que desaparezca el aviso «Convirtiendo imágenes a WebP…».
+   Respetar el orden de la galería: define los huecos de la ficha.
+   **No renombrar imágenes a mano.**
+4. Pulsar **Guardar Proyecto**. El panel valida campos y rutas **antes** de escribir,
+   guarda el respaldo y actualiza `data/projects.json`. Si ves un aviso rojo o el
+   estado dice `SIN CONEXIÓN`, **el JSON no se tocó**: no continúes.
+5. Comprobar: `python tools/validar.py` → debe terminar con `Listo para publicar`.
+6. Publicar: `bash publicar.sh` (Git pedirá credenciales la primera vez).
+7. Esperar 1–2 min y revisar `https://ingrubenvalero.github.io/portafolio/`.
+   La portada usa `cache: 'no-store'`, así que no hace falta limpiar caché.
+
+### B) Cambiar diseño, textos fijos o código
+
+Editar `index.html` / `css/` / `js/` directamente → paso 5 → paso 6 → paso 7.
+**No hace falta abrir el admin** si no cambia `data/projects.json`.
+
+### C) Solo añadir o renombrar imágenes
+
+Hacerlo desde el panel (recomendado) o a mano actualizando también las rutas del
+JSON → paso 5 (el validador detecta rutas rotas y huérfanas) → paso 6 → paso 7.
+
+### Herramientas de rescate (no son el flujo normal)
+
+- **Restaurar respaldo** (vista *Exportar*): vuelve al `data/projects.json`
+  anterior a la última escritura.
+- **Importar JSON**: rechaza archivos vacíos, malformados o con proyectos
+  incompletos, y pide confirmación si reduces drásticamente el número de proyectos.
+- **Descargar projects.json**: útil solo si trabajas sin conexión a carpetas;
+  entonces tendrás que reemplazar el archivo a mano antes de publicar.
 
 ## 🔄 Flujo de actualización (de dónde sale cada cosa)
 
@@ -194,9 +304,10 @@ en tu disco, nunca en la web publicada.
    Si el puerto está ocupado, usar `8767` y abrir `http://localhost:8767/admin.html`.
 2. Pulsar **Conectar carpeta del proyecto** una vez y elegir la raíz. El panel muestra
    `Conectado · listo para publicar`. Sin eso, ahora **avisa en rojo y no finge que guardó**.
-3. Crear/editar el proyecto e importar imágenes. El renombrado automático genera
-   `<slug-del-título>-<id>-<nn>.<ext>` y reescribe archivo y JSON a la vez.
-   **No renombrar imágenes a mano**: las rutas del JSON dejarían de existir.
+3. Crear/editar el proyecto e importar imágenes. El panel las convierte a WebP y
+   el renombrado automático genera `<slug-del-título>-<nn>.webp`, reescribiendo
+   archivo y JSON a la vez. **No renombrar imágenes a mano**: las rutas del JSON
+   dejarían de existir.
    La portada (#1) debe dejar el motivo a la derecha por el desvanecimiento.
 4. Guardar. El panel valida por HTTP que cada ruta existe y escribe `data/projects.json`.
 5. Ejecutar `bash publicar.sh` (abajo). Valida activos, hace `commit` y `push`.
@@ -208,11 +319,12 @@ Comprobación rápida en cualquier momento:
 python tools/validar.py
 ```
 
-Informa de rutas rotas e imágenes huérfanas y **no borra nada**. Ahora mismo hay
-15 huérfanas de la versión simple (`VIVIENDA-PG1.*`, `CUBIERTA-AGRO4/5`,
-`COBERTIZO1`…); se conservan a propósito y solo se limpiarán con confirmación
-explícita. `Ruben_traje.jpg`, `CUBIERTA-AGRO3-min.png` y dos renders del hero sí
-se usan directamente desde el HTML, aunque no estén en el JSON.
+Informa de rutas rotas e imágenes huérfanas y **no borra nada**. Tras la conversión
+WebP quedan **65 imágenes referenciadas y 0 huérfanas**: las 15 sobrantes de la
+versión simple se movieron a `img/_originales/` junto con los originales JPG/PNG.
+`img/Ruben_traje.jpg` se conserva solo para `og:image`; el retrato, el hero y los
+bloques decorativos del HTML usan ya `.webp`. El validador ahora revisa también
+`js/script.js`, para detectar si falta el `placeholder.webp`.
 
 ### Estado actual: ✅ repositorio definido, listo para publicar
 
@@ -224,11 +336,11 @@ para que la URL pública no cambie:
 - Correo de contacto: `Ing.RubenValero@outlook.com` (confirmado activo; se deja tal cual)
 - `og:url` y `og:image` de `index.html` ya apuntan a la URL real.
 
-`publicar.sh` ya tiene `REPO_URL` rellena. **No se ha hecho ningún commit ni push**:
-el script lo ejecuta el usuario desde Git Bash, y el primer `push` pide credenciales
-mediante Git Credential Manager / GitHub Desktop / token personal. No hay tokens ni
-contraseñas guardados en el proyecto. `GIT_NAME` y `GIT_EMAIL` son solo la firma
-local del commit.
+`publicar.sh` ya tiene `REPO_URL` rellena y **el sitio está publicado**: el primer
+`push` se ejecutó correctamente tras recuperar el acceso. Cada actualización se sube
+con el mismo `bash publicar.sh`; Git puede pedir credenciales mediante Git Credential
+Manager / GitHub Desktop / token personal. No hay tokens ni contraseñas guardados en
+el proyecto. `GIT_NAME` y `GIT_EMAIL` son solo la firma local del commit.
 
 El repo remoto **ya tiene historial** del sitio anterior. Por eso el script:
 
@@ -253,7 +365,7 @@ el script detecta el historial existente y solo sube los cambios nuevos.
 
 ## 📝 Mejoras Futuras Sugeridas
 
-- [ ] Optimizar imágenes a formato WebP
+- [x] Optimizar imágenes a formato WebP (hecho: −61 % de peso, conversión automática en el admin)
 - [ ] Agregar Progressive Web App (PWA)
 - [ ] Implementar Service Worker para offline
 - [ ] Agregar sección de testimonios
@@ -285,10 +397,10 @@ Usar `admin.html` (recomendado) o editar `data/projects.json`. **Ya no se edita
     "id": 12,
     "title": "Nuevo Proyecto",
     "description": "Descripción breve",
-    "image": "img/nuevo-proyecto-12-01.jpg",
+    "image": "img/nuevo-proyecto-01.webp",
     "category": "ingenieria",
     "details": "## Descripción del Proyecto\n\nTexto en markdown...",
-    "gallery": ["img/nuevo-proyecto-12-01.jpg", "img/nuevo-proyecto-12-02.jpg"]
+    "gallery": ["img/nuevo-proyecto-01.webp", "img/nuevo-proyecto-02.webp"]
 }
 ```
 
