@@ -3,7 +3,7 @@
 # Publica el portafolio en GitHub Pages.
 # Ejecutar desde Git Bash:  bash publicar.sh
 #
-# Repositorio: https://github.com/ingrubenvalero/portafolio.git
+# Repositorio: https://github.com/IngRubenValero/portafolio.git
 # URL publica: https://ingrubenvalero.github.io/portafolio/
 #
 # El repo remoto YA TIENE HISTORIAL (el sitio anterior). Este script
@@ -13,7 +13,7 @@
 # =============================================================
 set -euo pipefail
 
-REPO_URL="https://github.com/ingrubenvalero/portafolio.git"
+REPO_URL="https://github.com/IngRubenValero/portafolio.git"
 BACKUP_REF="refs/heads/respaldo/sitio-anterior"
 GIT_NAME="Ruben Valero"
 GIT_EMAIL="portafolio@local"

@@ -331,7 +331,7 @@ bloques decorativos del HTML usan ya `.webp`. El validador ahora revisa también
 Se recuperó el acceso a GitHub y se decidió **reutilizar el repo `portafolio`**,
 para que la URL pública no cambie:
 
-- Repo: `https://github.com/ingrubenvalero/portafolio.git`
+- Repo: `https://github.com/IngRubenValero/portafolio.git` (GitHub redirige la variante en minúsculas; usar esta en `publicar.sh`)
 - URL: `https://ingrubenvalero.github.io/portafolio/`
 - Correo de contacto: `Ing.RubenValero@outlook.com` (confirmado activo; se deja tal cual)
 - `og:url` y `og:image` de `index.html` ya apuntan a la URL real.
