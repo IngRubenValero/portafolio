@@ -1,0 +1,2404 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - Gestor de Proyectos | Portafolio Ruben Valero</title>
+    <meta name="robots" content="noindex, nofollow">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><rect width='64' height='64' rx='14' fill='%231E2220'/><text x='32' y='42' font-family='sans-serif' font-size='26' font-weight='500' fill='%23F4F4F1' text-anchor='middle'>RV</text></svg>">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #0c0f14;
+            --surface: #161a22;
+            --surface-2: #1e222c;
+            --surface-3: #262b38;
+            --border: rgba(255,255,255,0.06);
+            --border-focus: rgba(102, 126, 234, 0.5);
+            --text: #e0e4ec;
+            --text-muted: #8a8f9d;
+            --text-dim: #5a5f6d;
+            --primary: #667eea;
+            --primary-glow: rgba(102, 126, 234, 0.15);
+            --success: #34d399;
+            --success-glow: rgba(52, 211, 153, 0.15);
+            --danger: #f87171;
+            --danger-glow: rgba(248, 113, 113, 0.15);
+            --warning: #fbbf24;
+            --warning-glow: rgba(251, 191, 36, 0.15);
+            --radius: 14px;
+            --radius-sm: 10px;
+            --transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        /* ===== LAYOUT ===== */
+        .admin-layout {
+            display: grid;
+            grid-template-columns: 280px 1fr;
+            min-height: 100vh;
+        }
+
+        /* ===== SIDEBAR ===== */
+        .sidebar {
+            background: var(--surface);
+            border-right: 1px solid var(--border);
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            position: sticky;
+            top: 0;
+            height: 100vh;
+            overflow-y: auto;
+        }
+
+        .sidebar-brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding-bottom: 24px;
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 24px;
+        }
+
+        .sidebar-brand-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+        }
+
+        .sidebar-brand h2 {
+            font-size: 1rem;
+            font-weight: 600;
+            letter-spacing: -0.01em;
+        }
+
+        .sidebar-brand span {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            display: block;
+        }
+
+        .sidebar-section-title {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--text-dim);
+            margin-bottom: 12px;
+            padding-left: 12px;
+        }
+
+        .sidebar-nav {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            margin-bottom: 24px;
+        }
+
+        .sidebar-link {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 12px;
+            border-radius: var(--radius-sm);
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 450;
+            cursor: pointer;
+            transition: var(--transition);
+            border: none;
+            background: none;
+            width: 100%;
+            text-align: left;
+        }
+
+        .sidebar-link:hover {
+            background: var(--surface-2);
+            color: var(--text);
+        }
+
+        .sidebar-link.active {
+            background: var(--primary-glow);
+            color: var(--primary);
+        }
+
+        .sidebar-link i {
+            width: 18px;
+            text-align: center;
+            font-size: 0.95rem;
+        }
+
+        .sidebar-link .badge {
+            margin-left: auto;
+            background: var(--surface-3);
+            padding: 2px 8px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        .sidebar-footer {
+            margin-top: auto;
+            padding-top: 20px;
+            border-top: 1px solid var(--border);
+        }
+
+        .sidebar-footer a {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 0.85rem;
+            padding: 8px 12px;
+            border-radius: var(--radius-sm);
+            transition: var(--transition);
+        }
+
+        .sidebar-footer a:hover {
+            background: var(--surface-2);
+            color: var(--text);
+        }
+
+        /* ===== MAIN CONTENT ===== */
+        .main-content {
+            padding: 32px 40px;
+            max-width: 1000px;
+        }
+
+        .page-header {
+            margin-bottom: 32px;
+        }
+
+        .page-header h1 {
+            font-size: 1.75rem;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+            margin-bottom: 6px;
+        }
+
+        .page-header p {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+        }
+
+        /* ===== VIEWS ===== */
+        .view { display: none; }
+        .view.active { display: block; }
+
+        /* ===== PROJECT LIST ===== */
+        .project-list-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .search-box {
+            position: relative;
+        }
+
+        .search-box input {
+            background: var(--surface-2);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            padding: 10px 14px 10px 38px;
+            color: var(--text);
+            font-size: 0.9rem;
+            width: 260px;
+            transition: var(--transition);
+            font-family: inherit;
+        }
+
+        .search-box input:focus {
+            outline: none;
+            border-color: var(--border-focus);
+            box-shadow: 0 0 0 3px var(--primary-glow);
+        }
+
+        .search-box i {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-dim);
+            font-size: 0.85rem;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 20px;
+            border: none;
+            border-radius: var(--radius-sm);
+            font-family: inherit;
+            font-size: 0.9rem;
+            font-weight: 550;
+            cursor: pointer;
+            transition: var(--transition);
+            text-decoration: none;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: #fff;
+            box-shadow: 0 4px 16px rgba(102, 126, 234, 0.25);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 24px rgba(102, 126, 234, 0.35);
+        }
+
+        .btn-ghost {
+            background: transparent;
+            color: var(--text-muted);
+            border: 1px solid var(--border);
+        }
+
+        .btn-ghost:hover {
+            background: var(--surface-2);
+            color: var(--text);
+            border-color: rgba(255,255,255,0.1);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #059669, #34d399);
+            color: #fff;
+            box-shadow: 0 4px 16px rgba(52, 211, 153, 0.2);
+        }
+
+        .btn-success:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 24px rgba(52, 211, 153, 0.3);
+        }
+
+        .btn-danger {
+            background: rgba(248, 113, 113, 0.1);
+            color: var(--danger);
+            border: 1px solid rgba(248, 113, 113, 0.2);
+        }
+
+        .btn-danger:hover {
+            background: rgba(248, 113, 113, 0.2);
+        }
+
+        .btn-sm {
+            padding: 6px 12px;
+            font-size: 0.8rem;
+        }
+
+        /* ===== PROJECT TABLE ===== */
+        .project-table-container {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            overflow: hidden;
+        }
+
+        .project-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .project-table th {
+            text-align: left;
+            padding: 14px 16px;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            color: var(--text-dim);
+            border-bottom: 1px solid var(--border);
+            background: var(--surface-2);
+        }
+
+        .project-table td {
+            padding: 14px 16px;
+            border-bottom: 1px solid var(--border);
+            font-size: 0.9rem;
+            vertical-align: middle;
+        }
+
+        .project-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .project-table tr:hover td {
+            background: rgba(255,255,255,0.02);
+        }
+
+        .table-thumb {
+            width: 48px;
+            height: 36px;
+            border-radius: 6px;
+            object-fit: cover;
+        }
+
+        .table-title {
+            font-weight: 550;
+            display: block;
+            max-width: 280px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .table-category {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+
+        .cat-ingenieria { background: rgba(102,126,234,0.15); color: #93a5f6; }
+        .cat-arquitectura { background: rgba(240,147,251,0.15); color: #f093fb; }
+        .cat-programacion { background: rgba(52,211,153,0.15); color: #34d399; }
+        .cat-producto { background: rgba(251,191,36,0.15); color: #fbbf24; }
+
+        .table-actions {
+            display: flex;
+            gap: 6px;
+        }
+
+        .table-action-btn {
+            width: 32px;
+            height: 32px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.85rem;
+            transition: var(--transition);
+        }
+
+        .table-action-btn.edit {
+            background: var(--primary-glow);
+            color: var(--primary);
+        }
+
+        .table-action-btn.edit:hover {
+            background: rgba(102, 126, 234, 0.25);
+        }
+
+        .table-action-btn.delete {
+            background: var(--danger-glow);
+            color: var(--danger);
+        }
+
+        .table-action-btn.delete:hover {
+            background: rgba(248, 113, 113, 0.25);
+        }
+
+        /* ===== FORM ===== */
+        .form-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 28px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 0.85rem;
+            font-weight: 550;
+            color: var(--text);
+            margin-bottom: 8px;
+        }
+
+        .form-group label .label-hint {
+            font-weight: 400;
+            color: var(--text-dim);
+            font-size: 0.8rem;
+        }
+
+        .form-control {
+            width: 100%;
+            background: var(--surface-2);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            padding: 12px 14px;
+            color: var(--text);
+            font-size: 0.9rem;
+            font-family: inherit;
+            transition: var(--transition);
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--border-focus);
+            box-shadow: 0 0 0 3px var(--primary-glow);
+        }
+
+        textarea.form-control {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        select.form-control {
+            cursor: pointer;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%238a8f9d' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 14px center;
+            padding-right: 36px;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        .form-check {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+        }
+
+        .form-check input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            accent-color: var(--primary);
+            cursor: pointer;
+        }
+
+        .form-check label {
+            margin: 0;
+            cursor: pointer;
+        }
+
+        /* ===== GALLERY MANAGER ===== */
+        .gallery-manager {
+            background: var(--surface-2);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            padding: 16px;
+        }
+
+        .gallery-info {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 12px;
+            color: var(--text-muted);
+            font-size: 0.85rem;
+        }
+
+        .gallery-info i {
+            color: var(--primary);
+        }
+
+        .gallery-items {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            min-height: 40px;
+        }
+
+        .gallery-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            background: var(--surface-3);
+            padding: 6px 10px;
+            border-radius: 8px;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            border: 1px solid var(--border);
+            transition: var(--transition);
+            justify-content: space-between;
+        }
+
+        .gallery-item.dragging {
+            opacity: 0.45;
+            transform: scale(0.98);
+        }
+
+        .gallery-item.drop-target {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 2px var(--primary-glow) inset;
+        }
+
+        .gallery-main {
+            border-color: rgba(52, 211, 153, 0.45);
+            background: rgba(52, 211, 153, 0.08);
+        }
+
+        .gallery-main .gallery-btn.main {
+            color: var(--warning);
+            border-color: rgba(251, 191, 36, 0.45);
+            background: rgba(251, 191, 36, 0.08);
+        }
+
+        .gallery-left {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            min-width: 0;
+            flex: 1;
+        }
+
+        .gallery-name {
+            word-break: break-all;
+            line-height: 1.2;
+            flex: 1;
+        }
+
+        .gallery-slot {
+            flex-shrink: 0;
+            font-size: 0.68rem;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+            color: var(--text-muted, #8b8f8b);
+            border: 1px solid rgba(128, 128, 128, 0.28);
+            border-radius: 999px;
+            padding: 0.2rem 0.55rem;
+            white-space: nowrap;
+        }
+
+        .drag-handle {
+            color: var(--text-dim);
+            cursor: grab;
+            width: 14px;
+            text-align: center;
+        }
+
+        .drag-handle:active {
+            cursor: grabbing;
+        }
+
+        .gallery-order {
+            color: var(--text-dim);
+            font-size: 0.72rem;
+            min-width: 22px;
+        }
+
+        .gallery-actions {
+            display: flex;
+            gap: 4px;
+        }
+
+        .gallery-btn {
+            background: none;
+            border: 1px solid var(--border);
+            color: var(--text-muted);
+            cursor: pointer;
+            width: 24px;
+            height: 24px;
+            border-radius: 6px;
+            font-size: 0.72rem;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            transition: var(--transition);
+        }
+
+        .gallery-btn:hover {
+            color: var(--text);
+            border-color: rgba(255,255,255,0.2);
+            background: rgba(255,255,255,0.04);
+        }
+
+        .gallery-btn.rename:hover {
+            color: var(--primary);
+            border-color: rgba(102, 126, 234, 0.35);
+        }
+
+        .gallery-btn.main:hover {
+            color: var(--success);
+            border-color: rgba(52, 211, 153, 0.35);
+        }
+
+        .gallery-btn.remove:hover {
+            color: var(--danger);
+            border-color: rgba(248, 113, 113, 0.35);
+        }
+
+        .gallery-item img {
+            width: 28px;
+            height: 22px;
+            object-fit: cover;
+            border-radius: 4px;
+        }
+
+        .gallery-item .remove-img {
+            background: none;
+            border: none;
+            color: var(--danger);
+            cursor: pointer;
+            padding: 2px;
+            font-size: 0.75rem;
+            opacity: 0.5;
+            transition: opacity 0.2s;
+        }
+
+        .gallery-item .remove-img:hover {
+            opacity: 1;
+        }
+
+        .gallery-add-row {
+            display: flex;
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        .dropzone {
+            margin-top: 12px;
+            border: 1px dashed rgba(102, 126, 234, 0.45);
+            background: rgba(102, 126, 234, 0.07);
+            border-radius: 12px;
+            padding: 18px;
+            text-align: center;
+            color: var(--text-muted);
+            transition: var(--transition);
+            cursor: pointer;
+        }
+
+        .dropzone:hover,
+        .dropzone.drag-over {
+            border-color: var(--primary);
+            background: rgba(102, 126, 234, 0.14);
+            color: var(--text);
+        }
+
+        .dropzone i {
+            font-size: 1.3rem;
+            margin-bottom: 6px;
+            color: var(--primary);
+        }
+
+        .dropzone p {
+            font-size: 0.85rem;
+            margin: 0;
+        }
+
+        .dropzone-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 10px;
+            flex-wrap: wrap;
+        }
+
+        .imported-list {
+            margin-top: 12px;
+            display: grid;
+            gap: 8px;
+        }
+
+        .imported-item {
+            display: grid;
+            grid-template-columns: 42px 1fr auto;
+            align-items: center;
+            gap: 10px;
+            background: var(--surface-3);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 8px 10px;
+            font-size: 0.8rem;
+        }
+
+        .imported-item img {
+            width: 42px;
+            height: 32px;
+            border-radius: 6px;
+            object-fit: cover;
+        }
+
+        .imported-paths {
+            line-height: 1.35;
+            min-width: 0;
+        }
+
+        .imported-paths .old-name,
+        .imported-paths .new-name {
+            display: block;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .imported-paths .old-name {
+            color: var(--text-dim);
+        }
+
+        .imported-paths .new-name {
+            color: var(--success);
+            font-weight: 500;
+        }
+
+        .imported-meta {
+            margin-top: 10px;
+            color: var(--text-dim);
+            font-size: 0.78rem;
+        }
+
+        .inline-note {
+            margin-top: 8px;
+            font-size: 0.78rem;
+            color: var(--warning);
+        }
+
+        .gallery-add-row input {
+            flex: 1;
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 12px;
+            margin-top: 28px;
+            padding-top: 20px;
+            border-top: 1px solid var(--border);
+        }
+
+        /* ===== EXPORT VIEW ===== */
+        .export-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 28px;
+            margin-bottom: 20px;
+        }
+
+        .export-card h3 {
+            font-size: 1.1rem;
+            margin-bottom: 8px;
+        }
+
+        .export-card p {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            margin-bottom: 16px;
+        }
+
+        .json-preview {
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            padding: 16px;
+            font-family: 'JetBrains Mono', 'Fira Code', monospace;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            max-height: 400px;
+            overflow: auto;
+            white-space: pre-wrap;
+            word-break: break-all;
+            line-height: 1.5;
+        }
+
+        .export-actions {
+            display: flex;
+            gap: 12px;
+            margin-top: 16px;
+            flex-wrap: wrap;
+        }
+
+        /* ===== TOAST ===== */
+        .toast-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .toast {
+            background: var(--surface-2);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            padding: 14px 20px;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            min-width: 280px;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.4);
+            animation: slideInRight 0.3s ease;
+        }
+
+        .toast.success { border-left: 3px solid var(--success); }
+        .toast.error { border-left: 3px solid var(--danger); }
+        .toast.info { border-left: 3px solid var(--primary); }
+
+        @keyframes slideInRight {
+            from { opacity: 0; transform: translateX(50px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        /* ===== CONFIRM DIALOG ===== */
+        .confirm-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.6);
+            backdrop-filter: blur(4px);
+            z-index: 9998;
+            display: none;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .confirm-overlay.active {
+            display: flex;
+        }
+
+        .confirm-dialog {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 28px;
+            max-width: 400px;
+            width: 90%;
+            text-align: center;
+        }
+
+        .confirm-dialog h3 {
+            margin-bottom: 8px;
+        }
+
+        .confirm-dialog p {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            margin-bottom: 24px;
+        }
+
+        .confirm-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+
+        /* ===== MEDIA QUERIES ===== */
+        @media (max-width: 900px) {
+            .admin-layout {
+                grid-template-columns: 1fr;
+            }
+
+            .sidebar {
+                position: relative;
+                height: auto;
+                border-right: none;
+                border-bottom: 1px solid var(--border);
+                padding: 16px;
+            }
+
+            .sidebar-brand { margin-bottom: 16px; padding-bottom: 16px; }
+            .sidebar-nav { flex-direction: row; flex-wrap: wrap; gap: 4px; }
+            .sidebar-footer { display: none; }
+
+            .main-content {
+                padding: 20px 16px;
+            }
+
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+
+            .project-list-header {
+                flex-direction: column;
+                gap: 12px;
+                align-items: stretch;
+            }
+
+            .search-box input {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="admin-layout">
+        <!-- SIDEBAR -->
+        <aside class="sidebar">
+            <div class="sidebar-brand">
+                <div class="sidebar-brand-icon"><i class="fas fa-cog"></i></div>
+                <div>
+                    <h2>Admin Panel</h2>
+                    <span>Gestor de Proyectos</span>
+                </div>
+            </div>
+
+            <div class="sidebar-section-title">Navegación</div>
+            <nav class="sidebar-nav">
+                <button class="sidebar-link active" data-view="list">
+                    <i class="fas fa-layer-group"></i> Proyectos
+                    <span class="badge" id="projectCount">0</span>
+                </button>
+                <button class="sidebar-link" data-view="add">
+                    <i class="fas fa-plus-circle"></i> Nuevo Proyecto
+                </button>
+                <button class="sidebar-link" data-view="export">
+                    <i class="fas fa-file-export"></i> Exportar JSON
+                </button>
+            </nav>
+
+            <div class="sidebar-section-title">Herramientas</div>
+            <nav class="sidebar-nav">
+                <button class="sidebar-link" id="btnImportJSON">
+                    <i class="fas fa-file-import"></i> Importar JSON
+                </button>
+                <input type="file" id="importFileInput" accept=".json" style="display:none">
+            </nav>
+
+            <div class="sidebar-footer">
+                <a href="index.html" target="_blank">
+                    <i class="fas fa-external-link-alt"></i> Ver Portafolio
+                </a>
+            </div>
+        </aside>
+
+        <!-- MAIN CONTENT -->
+        <main class="main-content">
+
+            <div id="localToolBanner" style="display:flex;align-items:center;gap:12px;margin:0 0 18px;padding:12px 16px;border:1px solid var(--warning);border-radius:var(--radius);background:var(--warning-glow);color:var(--text);font-size:0.82rem;">
+                <i class="fas fa-laptop-code" style="color:var(--warning);font-size:1.1rem;flex-shrink:0;"></i>
+                <div style="flex:1;min-width:0;">
+                    <strong>Herramienta de autoría local.</strong> Este panel escribe en tu disco, no en la web publicada.
+                    Para que los cambios aparezcan en GitHub Pages ejecuta
+                    <code style="background:var(--surface-3);padding:1px 5px;border-radius:4px;">publicar.sh</code> (git commit + push).
+                    No renombres imágenes a mano: usa el renombrado automático.
+                </div>
+                <span id="localToolState" style="white-space:nowrap;font-size:0.75rem;color:var(--warning);">Comprobando…</span>
+            </div>
+
+            <!-- ======= LIST VIEW ======= -->
+            <div class="view active" id="view-list">
+                <div class="page-header">
+                    <h1>Proyectos</h1>
+                    <p>Gestiona todos los proyectos de tu portafolio</p>
+                </div>
+
+                <div class="project-list-header">
+                    <div class="search-box">
+                        <i class="fas fa-search"></i>
+                        <input type="text" id="searchProjects" placeholder="Buscar proyectos...">
+                    </div>
+                    <button class="btn btn-primary" id="btnAddFromList">
+                        <i class="fas fa-plus"></i> Nuevo Proyecto
+                    </button>
+                </div>
+
+                <div class="project-table-container">
+                    <table class="project-table">
+                        <thead>
+                            <tr>
+                                <th style="width:60px"></th>
+                                <th>Título</th>
+                                <th>Categoría</th>
+                                <th>Imágenes</th>
+                                <th style="width:100px">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="projectTableBody">
+                            <!-- Dynamic content -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- ======= ADD/EDIT VIEW ======= -->
+            <div class="view" id="view-add">
+                <div class="page-header">
+                    <h1 id="formTitle">Nuevo Proyecto</h1>
+                    <p id="formSubtitle">Completa los campos para agregar un nuevo proyecto al portafolio</p>
+                </div>
+
+                <div class="form-card">
+                    <form id="projectForm">
+                        <input type="hidden" id="editingId" value="">
+                        
+                        <div class="form-group">
+                            <label for="pTitle">Título del Proyecto</label>
+                            <input type="text" class="form-control" id="pTitle" placeholder="Ej: Cálculo Estructural de Edificio Multifamiliar" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="pDescription">Descripción Breve</label>
+                            <textarea class="form-control" id="pDescription" rows="3" placeholder="Descripción corta que aparece en la tarjeta del proyecto..." required></textarea>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="pCategory">Categoría</label>
+                                <select class="form-control" id="pCategory" required>
+                                    <option value="">Seleccionar categoría...</option>
+                                    <option value="ingenieria">🔧 Ingeniería</option>
+                                    <option value="arquitectura">📐 Arquitectura</option>
+                                    <option value="programacion">💻 Programación</option>
+                                    <option value="producto">🛒 Producto</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="pImage">Imagen Principal <span class="label-hint">(se autocompleta con la primera importada)</span></label>
+                                <input type="text" class="form-control" id="pImage" placeholder="img/mi-proyecto.jpg" required>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="pDetails">Detalles del Proyecto <span class="label-hint">(usa \n para saltos de línea)</span></label>
+                            <textarea class="form-control" id="pDetails" rows="6" placeholder="Descripción detallada del proyecto...&#10;&#10;- Punto clave 1&#10;- Punto clave 2&#10;- Punto clave 3" required></textarea>
+                        </div>
+
+                        <!-- Product-specific fields -->
+                        <div id="productFields" style="display: none;">
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="pPrice">Precio</label>
+                                    <input type="text" class="form-control" id="pPrice" placeholder="Ej: 100 Bs">
+                                </div>
+                                <div class="form-group">
+                                    <label for="pProductType">Tipo de Producto</label>
+                                    <select class="form-control" id="pProductType">
+                                        <option value="">Seleccionar...</option>
+                                        <option value="Excel">Excel</option>
+                                        <option value="Plugin">Plugin</option>
+                                        <option value="Rutina LISP">Rutina LISP</option>
+                                        <option value="Software">Software</option>
+                                        <option value="AutoCAD">AutoCAD</option>
+                                        <option value="Revit">Revit</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="pYoutubeUrl">URL de YouTube <span class="label-hint">(opcional)</span></label>
+                                <input type="url" class="form-control" id="pYoutubeUrl" placeholder="https://www.youtube.com/watch?v=...">
+                            </div>
+                        </div>
+
+                        <!-- Gallery manager -->
+                        <div class="form-group">
+                            <label>Galería de Imágenes</label>
+                            <div class="gallery-manager">
+                                <div class="gallery-info">
+                                    <i class="fas fa-info-circle"></i>
+                                    <strong>El orden define qué imagen va en cada hueco de la ficha.</strong>
+                                    Cada fila muestra su destino (Portada, Tarjeta, Par o Catálogo); las
+                                    etiquetas se recalculan automáticamente según el número de imágenes.
+                                    Arrastra para reordenar. Requisito: sube al menos 6 imágenes para que
+                                    la composición se vea completa. La portada (#1) lleva un
+                                    <strong>desvanecimiento oscuro de izquierda a derecha</strong>: conviene
+                                    que el motivo principal quede a la derecha y la zona izquierda sea
+                                    oscura o despejada, para que el titular se lea limpio.
+                                </div>
+
+                                <div id="imageDropZone" class="dropzone" tabindex="0" role="button" aria-label="Arrastrar y soltar imágenes">
+                                    <i class="fas fa-cloud-upload-alt"></i>
+                                    <p>Arrastra y suelta imágenes aquí o haz clic para seleccionarlas</p>
+                                </div>
+                                <input type="file" id="imageFileInput" accept="image/*" multiple style="display:none">
+
+                                <div class="dropzone-actions">
+                                    <button type="button" class="btn btn-ghost btn-sm" id="btnSelectImages">
+                                        <i class="fas fa-folder-open"></i> Seleccionar imágenes
+                                    </button>
+                                    <button type="button" class="btn btn-ghost btn-sm" id="btnConnectWorkspace">
+                                        <i class="fas fa-plug"></i> Conectar carpeta del proyecto
+                                    </button>
+                                    <button type="button" class="btn btn-ghost btn-sm" id="btnConnectImgFolder">
+                                        <i class="fas fa-link"></i> Conectar carpeta img/
+                                    </button>
+                                    <button type="button" class="btn btn-ghost btn-sm" id="btnBatchRename" title="Renombra automáticamente las imágenes al formato actual del título del proyecto">
+                                        <i class="fas fa-magic"></i> Auto-renombrar galería
+                                    </button>
+                                    <button type="button" class="btn btn-ghost btn-sm" id="btnClearImported">
+                                        <i class="fas fa-trash"></i> Limpiar importadas
+                                    </button>
+                                </div>
+
+                                <div class="inline-note" id="folderStatusNote">Carpeta img/: no conectada. Se guardarán solo rutas hasta conectar.</div>
+                                <div class="inline-note" id="jsonStatusNote">JSON automático: no conectado. Se guarda en localStorage hasta conectar.</div>
+
+                                <div class="imported-list" id="importedImagesList">
+                                    <!-- Dynamic imported files -->
+                                </div>
+
+                                <div class="imported-meta" id="importedMeta">0 imágenes importadas con renombrado automático</div>
+
+                                <div class="gallery-items" id="galleryItems">
+                                    <!-- Dynamic gallery items -->
+                                </div>
+                                <div class="gallery-add-row">
+                                    <input type="text" class="form-control" id="galleryInput" placeholder="img/nueva-imagen.jpg">
+                                    <button type="button" class="btn btn-ghost btn-sm" id="addGalleryImg">
+                                        <i class="fas fa-plus"></i> Agregar
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-actions">
+                            <button type="submit" class="btn btn-success" id="submitBtn">
+                                <i class="fas fa-save"></i> Guardar Proyecto
+                            </button>
+                            <button type="button" class="btn btn-ghost" id="cancelForm">
+                                <i class="fas fa-arrow-left"></i> Cancelar
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- ======= EXPORT VIEW ======= -->
+            <div class="view" id="view-export">
+                <div class="page-header">
+                    <h1>Exportar Proyectos</h1>
+                    <p>Genera el archivo JSON para tu portafolio estático en GitHub Pages</p>
+                </div>
+
+                <div class="export-card">
+                    <h3><i class="fas fa-code" style="color:var(--primary);margin-right:8px"></i> Vista previa del JSON</h3>
+                    <p>Este es el contenido que se guardará en <code>data/projects.json</code></p>
+                    <pre class="json-preview" id="jsonPreview"></pre>
+                    <div class="export-actions">
+                        <button class="btn btn-primary" id="btnCopyJSON">
+                            <i class="fas fa-copy"></i> Copiar al Portapapeles
+                        </button>
+                        <button class="btn btn-success" id="btnDownloadJSON">
+                            <i class="fas fa-download"></i> Descargar projects.json
+                        </button>
+                    </div>
+                </div>
+
+                <div class="export-card">
+                    <h3><i class="fas fa-question-circle" style="color:var(--warning);margin-right:8px"></i> ¿Cómo actualizar el portafolio?</h3>
+                    <p>Sigue estos pasos para publicar los cambios en GitHub Pages:</p>
+                    <ol style="color:var(--text-muted);font-size:0.9rem;padding-left:20px;line-height:2">
+                        <li>Descarga el archivo <code>projects.json</code> usando el botón de arriba</li>
+                        <li>Reemplaza el archivo <code>data/projects.json</code> en tu repositorio</li>
+                        <li>Asegúrate de subir las imágenes a la carpeta <code>img/</code></li>
+                        <li>Haz commit y push a tu repositorio de GitHub</li>
+                        <li>¡GitHub Pages actualizará automáticamente tu portafolio! 🎉</li>
+                    </ol>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <!-- Toast container -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <!-- Confirm dialog -->
+    <div class="confirm-overlay" id="confirmOverlay">
+        <div class="confirm-dialog">
+            <h3 id="confirmTitle">¿Estás seguro?</h3>
+            <p id="confirmMessage">Esta acción no se puede deshacer.</p>
+            <div class="confirm-actions">
+                <button class="btn btn-ghost" id="confirmCancel">Cancelar</button>
+                <button class="btn btn-danger" id="confirmOk">Eliminar</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    // ===============================================
+    // ADMIN PANEL - Project Manager
+    // ===============================================
+    const STORAGE_KEY = 'portfolio_projects_admin';
+    const HANDLES_DB_NAME = 'portfolio_admin_handles';
+    const HANDLES_STORE = 'fs_handles';
+    const WORKSPACE_HANDLE_KEY = 'workspace_root';
+    const IMG_HANDLE_KEY = 'img_only';
+
+    let adminProjects = [];
+    let galleryImages = [];
+    let importedImages = [];
+    let imageDirectoryHandle = null;
+    let projectsFileHandle = null;
+    let currentEditId = null;
+    let draggingGalleryIndex = null;
+
+    // ===== FILE SYSTEM HANDLE CACHE (IndexedDB) =====
+    function openHandlesDB() {
+        return new Promise((resolve, reject) => {
+            const request = indexedDB.open(HANDLES_DB_NAME, 1);
+            request.onupgradeneeded = () => {
+                const db = request.result;
+                if (!db.objectStoreNames.contains(HANDLES_STORE)) {
+                    db.createObjectStore(HANDLES_STORE);
+                }
+            };
+            request.onsuccess = () => resolve(request.result);
+            request.onerror = () => reject(request.error);
+        });
+    }
+
+    async function saveHandle(key, handle) {
+        const db = await openHandlesDB();
+        await new Promise((resolve, reject) => {
+            const tx = db.transaction(HANDLES_STORE, 'readwrite');
+            tx.objectStore(HANDLES_STORE).put(handle, key);
+            tx.oncomplete = () => resolve();
+            tx.onerror = () => reject(tx.error);
+        });
+        db.close();
+    }
+
+    async function getHandle(key) {
+        const db = await openHandlesDB();
+        const value = await new Promise((resolve, reject) => {
+            const tx = db.transaction(HANDLES_STORE, 'readonly');
+            const req = tx.objectStore(HANDLES_STORE).get(key);
+            req.onsuccess = () => resolve(req.result || null);
+            req.onerror = () => reject(req.error);
+        });
+        db.close();
+        return value;
+    }
+
+    function setConnectedNotes(isImgConnected, isJsonConnected) {
+        const folderNote = document.getElementById('folderStatusNote');
+        const jsonNote = document.getElementById('jsonStatusNote');
+
+        if (folderNote) {
+            folderNote.textContent = isImgConnected
+                ? 'Carpeta img/: conectada. Las imágenes se copiarán al guardar.'
+                : 'Carpeta img/: no conectada. Se guardarán solo rutas hasta conectar.';
+            folderNote.style.color = isImgConnected ? 'var(--success)' : 'var(--warning)';
+        }
+
+        if (jsonNote) {
+            jsonNote.textContent = isJsonConnected
+                ? 'JSON automático: conectado. Se actualizará data/projects.json en cada guardado.'
+                : 'JSON automático: NO conectado. Los cambios no se escriben en disco.';
+            jsonNote.style.color = isJsonConnected ? 'var(--success)' : 'var(--danger)';
+        }
+
+        const stateEl = document.getElementById('localToolState');
+        if (stateEl) {
+            stateEl.textContent = isJsonConnected
+                ? 'Conectado · listo para publicar'
+                : 'SIN CONEXIÓN · no se guarda en disco';
+            stateEl.style.color = isJsonConnected ? 'var(--success)' : 'var(--danger)';
+        }
+    }
+
+    async function restoreSavedConnections() {
+        if (!window.showDirectoryPicker || !window.FileSystemHandle) {
+            return;
+        }
+
+        try {
+            const workspaceHandle = await getHandle(WORKSPACE_HANDLE_KEY);
+            if (workspaceHandle) {
+                const permission = await workspaceHandle.queryPermission({ mode: 'readwrite' });
+                if (permission === 'granted') {
+                    const imgHandle = await workspaceHandle.getDirectoryHandle('img', { create: true });
+                    const dataHandle = await workspaceHandle.getDirectoryHandle('data', { create: true });
+                    const projectsHandle = await dataHandle.getFileHandle('projects.json', { create: true });
+                    imageDirectoryHandle = imgHandle;
+                    projectsFileHandle = projectsHandle;
+                    setConnectedNotes(true, true);
+                    return;
+                }
+            }
+
+            const imgOnlyHandle = await getHandle(IMG_HANDLE_KEY);
+            if (imgOnlyHandle) {
+                const permission = await imgOnlyHandle.queryPermission({ mode: 'readwrite' });
+                if (permission === 'granted') {
+                    imageDirectoryHandle = imgOnlyHandle;
+                    setConnectedNotes(true, false);
+                }
+            }
+        } catch (error) {
+            console.warn('No se pudieron restaurar conexiones guardadas', error);
+        }
+    }
+
+    // ===== INIT =====
+    document.addEventListener('DOMContentLoaded', async () => {
+        setConnectedNotes(false, false);
+        // En primer lugar intentamos cargar directo desde projects.json, para no usar una caché vieja
+        let loadedFromJson = false;
+        const storedBefore = localStorage.getItem(STORAGE_KEY);
+        try {
+            // Se le añade timestamp para evitar caché del navegador si es posible
+            const res = await fetch(`data/projects.json?t=${new Date().getTime()}`, { cache: 'no-store' });
+            if (res.ok) {
+                const data = await res.json();
+                adminProjects = data.projects || [];
+                loadedFromJson = true;
+                if (storedBefore && storedBefore !== JSON.stringify(adminProjects)) {
+                    showToast('data/projects.json es la fuente de verdad: se descartaron cambios locales sin publicar', 'warning');
+                }
+                saveToStorage(); // actualiza el localStorage con la fuente real
+            }
+        } catch(e) {
+            console.log('No existing projects.json found or fetch failed', e);
+        }
+
+        // Si falló leer de JSON, usa como respaldo localStorage
+        if (!loadedFromJson) {
+            const stored = localStorage.getItem(STORAGE_KEY);
+            if (stored) {
+                try {
+                    adminProjects = JSON.parse(stored);
+                } catch(e) {
+                    adminProjects = [];
+                }
+            }
+        }
+
+        renderProjectList();
+        setupEventListeners();
+        await restoreSavedConnections();
+    });
+
+    // ===== STORAGE =====
+    function saveToStorage() {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(adminProjects));
+        document.getElementById('projectCount').textContent = adminProjects.length;
+    }
+
+    // ===== NAVIGATION =====
+    function switchView(viewId) {
+        document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+        document.querySelectorAll('.sidebar-link[data-view]').forEach(l => l.classList.remove('active'));
+        
+        const view = document.getElementById(`view-${viewId}`);
+        const link = document.querySelector(`.sidebar-link[data-view="${viewId}"]`);
+        
+        if (view) view.classList.add('active');
+        if (link) link.classList.add('active');
+
+        if (viewId === 'export') {
+            updateJSONPreview();
+        }
+        if (viewId === 'list') {
+            renderProjectList();
+        }
+    }
+
+    // ===== RENDER PROJECT LIST =====
+    function renderProjectList(filter = '') {
+        const tbody = document.getElementById('projectTableBody');
+        document.getElementById('projectCount').textContent = adminProjects.length;
+
+        const filtered = filter 
+            ? adminProjects.filter(p => p.title.toLowerCase().includes(filter.toLowerCase()))
+            : adminProjects;
+
+        if (filtered.length === 0) {
+            tbody.innerHTML = `
+                <tr>
+                    <td colspan="5" style="text-align:center;padding:40px;color:var(--text-dim)">
+                        <i class="fas fa-folder-open" style="font-size:2rem;display:block;margin-bottom:10px;color:var(--text-dim)"></i>
+                        ${filter ? 'No se encontraron proyectos' : 'Aún no hay proyectos. ¡Agrega el primero!'}
+                    </td>
+                </tr>
+            `;
+            return;
+        }
+
+        tbody.innerHTML = filtered.map(p => `
+            <tr>
+                <td><img class="table-thumb" src="${p.image}" alt="" onerror="this.style.display='none'"></td>
+                <td><span class="table-title">${escapeHTML(p.title)}</span></td>
+                <td><span class="table-category cat-${p.category}">${p.category}</span></td>
+                <td style="color:var(--text-muted)">${p.gallery?.length || 0} <i class="fas fa-image" style="font-size:0.75rem"></i></td>
+                <td>
+                    <div class="table-actions">
+                        <button class="table-action-btn edit" title="Editar" onclick="editProject(${p.id})">
+                            <i class="fas fa-pen"></i>
+                        </button>
+                        <button class="table-action-btn delete" title="Eliminar" onclick="confirmDeleteProject(${p.id})">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                </td>
+            </tr>
+        `).join('');
+    }
+
+    // ===== FORM HANDLING =====
+    function resetForm() {
+        document.getElementById('projectForm').reset();
+        document.getElementById('editingId').value = '';
+        currentEditId = null;
+        clearImportedImages();
+        galleryImages = [];
+        renderGallery();
+        updateImportedFilesUI();
+        document.getElementById('productFields').style.display = 'none';
+        document.getElementById('formTitle').textContent = 'Nuevo Proyecto';
+        document.getElementById('formSubtitle').textContent = 'Completa los campos para agregar un nuevo proyecto al portafolio';
+        document.getElementById('submitBtn').innerHTML = '<i class="fas fa-save"></i> Guardar Proyecto';
+    }
+
+    function populateForm(project) {
+        document.getElementById('editingId').value = project.id;
+        currentEditId = project.id;
+        document.getElementById('pTitle').value = project.title || '';
+        document.getElementById('pDescription').value = project.description || '';
+        document.getElementById('pCategory').value = project.category || '';
+        document.getElementById('pImage').value = project.image || '';
+        document.getElementById('pDetails').value = (project.details || '').replace(/\\n/g, '\n');
+        
+        // Product fields
+        const isProduct = project.isProduct || project.category === 'producto';
+        document.getElementById('productFields').style.display = isProduct ? 'block' : 'none';
+        document.getElementById('pPrice').value = project.price || '';
+        document.getElementById('pProductType').value = project.productType || '';
+        document.getElementById('pYoutubeUrl').value = project.youtubeUrl || '';
+
+        galleryImages = [...(project.gallery || [])];
+        clearImportedImages();
+        renderGallery();
+        updateImportedFilesUI();
+
+        document.getElementById('formTitle').textContent = 'Editar Proyecto';
+        document.getElementById('formSubtitle').textContent = `Editando: ${project.title}`;
+        document.getElementById('submitBtn').innerHTML = '<i class="fas fa-check"></i> Actualizar Proyecto';
+    }
+
+    async function saveProject(e, quiet = false) {
+        if (e) e.preventDefault();
+
+        const isEditing = !!currentEditId;
+        const category = document.getElementById('pCategory').value;
+        const isProduct = category === 'producto';
+
+        if (importedImages.length > 0) {
+            await persistImportedImages();
+            // limpiarlas una vez guardadas a disco temporalmente para no volverlas a duplicar
+            importedImages.forEach(item => URL.revokeObjectURL(item.previewUrl));
+            importedImages = [];
+            updateImportedFilesUI();
+        }
+
+        const projectData = {
+            id: isEditing ? currentEditId : getNextId(),
+            title: document.getElementById('pTitle').value.trim(),
+            description: document.getElementById('pDescription').value.trim(),
+            image: document.getElementById('pImage').value.trim(),
+            category: category,
+            details: document.getElementById('pDetails').value.trim(),
+            gallery: galleryImages.length > 0 ? [...galleryImages] : [document.getElementById('pImage').value.trim()]
+        };
+
+        // Conservar una asignación explícita de huecos (slots) si el proyecto la tenía
+        if (isEditing) {
+            const prev = adminProjects.find(p => p.id === currentEditId);
+            if (prev && prev.slots) projectData.slots = prev.slots;
+        }
+
+        if (isProduct) {
+            projectData.isProduct = true;
+            const price = document.getElementById('pPrice').value.trim();
+            const pType = document.getElementById('pProductType').value;
+            const ytUrl = document.getElementById('pYoutubeUrl').value.trim();
+            if (price) projectData.price = price;
+            if (pType) projectData.productType = pType;
+            if (ytUrl) projectData.youtubeUrl = ytUrl;
+        }
+
+        const successLabel = isEditing ? 'Proyecto actualizado' : 'Proyecto agregado';
+
+        if (isEditing) {
+            const idx = adminProjects.findIndex(p => p.id === currentEditId);
+            if (idx !== -1) adminProjects[idx] = projectData;
+        } else {
+            adminProjects.push(projectData);
+            if(currentEditId === null) currentEditId = projectData.id; // mantenernos modo edición si es quiet
+        }
+
+        // 1) Verificar que las imágenes referenciadas existen antes de tocar el JSON
+        const check = await validateProjectAssets(projectData);
+        if (!check.ok) {
+            showToast(`Hay ${check.missing.length} imagen(es) que no existen: ${check.missing.slice(0, 2).join(', ')}${check.missing.length > 2 ? '…' : ''}. Corrige las rutas antes de guardar.`, 'error');
+            return;
+        }
+
+        saveToStorage();
+
+        // 2) Escribir en disco. Si no hay carpeta conectada, avisar con claridad y NO fingir éxito
+        const written = await persistProjectsJSON();
+        if (!written) {
+            showToast('NO se guardó en disco: conecta «Carpeta del proyecto» o usa «Descargar projects.json»', 'error');
+            return;
+        }
+
+        if (!quiet) {
+            showToast(`${successLabel} en data/projects.json. Falta ejecutar publicar.sh para subirlo a GitHub.`, 'success');
+            resetForm();
+            switchView('list');
+        }
+    }
+
+    function editProject(id) {
+        const project = adminProjects.find(p => p.id === id);
+        if (!project) return;
+        resetForm();
+        populateForm(project);
+        switchView('add');
+    }
+
+    function confirmDeleteProject(id) {
+        const project = adminProjects.find(p => p.id === id);
+        if (!project) return;
+
+        showConfirm(
+            '¿Eliminar proyecto?',
+            `Se eliminará "${project.title}" permanentemente.`,
+            async () => {
+                adminProjects = adminProjects.filter(p => p.id !== id);
+                saveToStorage();
+                await persistProjectsJSON();
+                renderProjectList();
+                showToast('Proyecto eliminado', 'info');
+            }
+        );
+    }
+
+    function getNextId() {
+        if (adminProjects.length === 0) return 1;
+        return Math.max(...adminProjects.map(p => p.id)) + 1;
+    }
+
+    // ===== GALLERY MANAGEMENT =====
+    // Cada posición de la galería ocupa un hueco de la composición de la ficha.
+    // El reparto es adaptativo: se recalcula con el número total de imágenes,
+    // con la misma lógica que resolveProjectSlots() en js/script.js.
+    function slotRanges(n) {
+        if (n >= 9) return [[1, 3, 'Tarjeta'], [3, 5, 'Par'], [5, 9, 'Catálogo'], [9, n, 'Detalle']];
+        if (n === 8) return [[1, 3, 'Tarjeta'], [3, 5, 'Par'], [5, 8, 'Catálogo']];
+        if (n === 7) return [[1, 3, 'Tarjeta'], [3, 5, 'Par'], [5, 7, 'Catálogo']];
+        if (n === 6) return [[1, 2, 'Tarjeta'], [2, 4, 'Par'], [4, 6, 'Catálogo']];
+        if (n === 5) return [[1, 2, 'Tarjeta'], [2, 4, 'Par'], [4, 5, 'Catálogo']];
+        if (n === 4) return [[1, 2, 'Tarjeta'], [2, 3, 'Par'], [3, 4, 'Catálogo']];
+        if (n === 3) return [[1, 2, 'Tarjeta'], [2, 3, 'Par']];
+        if (n === 2) return [[1, 2, 'Tarjeta']];
+        return [];
+    }
+    function getSlotLabel(idx, total) {
+        if (idx === 0 && total > 0) return 'Portada / Hero';
+        for (const [from, to, label] of slotRanges(total)) {
+            if (idx >= from && idx < to) return `${label} ${idx - from + 1}`;
+        }
+        return `Detalle ${idx + 1}`;
+    }
+
+    function renderGallery() {
+        const container = document.getElementById('galleryItems');
+        if (galleryImages.length === 0) {
+            container.innerHTML = '<span style="color:var(--text-dim);font-size:0.85rem">No hay imágenes agregadas</span>';
+            return;
+        }
+        container.innerHTML = galleryImages.map((img, idx) => `
+            <div class="gallery-item ${idx === 0 ? 'gallery-main' : ''}"
+                 draggable="true"
+                 data-index="${idx}"
+                 ondragstart="startGalleryDrag(event, ${idx})"
+                 ondragover="onGalleryDragOver(event, ${idx})"
+                 ondragleave="onGalleryDragLeave(event, ${idx})"
+                 ondrop="dropGalleryImage(event, ${idx})"
+                 ondragend="endGalleryDrag()">
+                <div class="gallery-left">
+                    <span class="gallery-order">#${idx + 1}</span>
+                    <span class="drag-handle" title="Arrastrar para ordenar"><i class="fas fa-grip-vertical"></i></span>
+                    <img src="${img}" alt="" onerror="this.style.display='none'">
+                    <span class="gallery-name">${getFileName(img)}${idx === 0 ? ' (primera)' : ''}</span>
+                    <span class="gallery-slot" title="${idx === 0 ? 'Portada: el titular se superpone con un desvanecimiento oscuro desde la izquierda. Deja el motivo a la derecha y la zona izquierda despejada.' : 'Hueco que ocupa en la composición de la ficha'}">${getSlotLabel(idx, galleryImages.length)}</span>
+                </div>
+                <div class="gallery-actions">
+                    <button type="button" class="gallery-btn main" onclick="setMainImage(${idx})" title="Usar como imagen principal">
+                        <i class="fas fa-star"></i>
+                    </button>
+                    <button type="button" class="gallery-btn rename" onclick="renameGalleryImage(${idx})" title="Renombrar archivo/ruta">
+                        <i class="fas fa-i-cursor"></i>
+                    </button>
+                    <button type="button" class="gallery-btn remove" onclick="removeGalleryImage(${idx})" title="Quitar imagen">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            </div>
+        `).join('');
+    }
+
+    function addGalleryImage() {
+        const input = document.getElementById('galleryInput');
+        const val = input.value.trim();
+        if (!val) return;
+        if (galleryImages.includes(val)) {
+            showToast('Esa ruta ya está en la galería', 'info');
+            return;
+        }
+        galleryImages.push(val);
+        renderGallery();
+        input.value = '';
+        input.focus();
+    }
+
+    function removeGalleryImage(index) {
+        const removed = galleryImages[index];
+
+        showConfirm(
+            '¿Quitar imagen?',
+            `¿Estás seguro de quitar "${getFileName(removed)}"? \nSi la carpeta está conectada, el archivo también se eliminará físicamente del disco.`,
+            async () => {
+                galleryImages.splice(index, 1);
+                const importedIdx = importedImages.findIndex(item => item.relativePath === removed);
+                if (importedIdx !== -1) {
+                    URL.revokeObjectURL(importedImages[importedIdx].previewUrl);
+                    importedImages.splice(importedIdx, 1);
+                    updateImportedFilesUI();
+                }
+
+                // Intentar eliminar del disco si está conectado
+                if (imageDirectoryHandle && removed.startsWith('img/')) {
+                    try {
+                        const fileName = getFileName(removed);
+                        await imageDirectoryHandle.removeEntry(fileName);
+                        showToast('Archivo eliminado de la carpeta img/', 'info');
+                    } catch (e) {
+                        console.warn('No se pudo eliminar el archivo', e);
+                    }
+                }
+
+                // Autoguardado silencioso para asegurar que se borre del JSON
+                const pImageInput = document.getElementById('pImage');
+                if (pImageInput.value === removed) {
+                    pImageInput.value = galleryImages[0] || '';
+                }
+
+                renderGallery();
+                
+                if (document.getElementById('pTitle').value.trim()) {
+                    saveProject(null, true);
+                }
+            }
+        );
+    }
+
+    function getDirectoryPath(path) {
+        const normalized = path.replace(/\\/g, '/');
+        const slashIndex = normalized.lastIndexOf('/');
+        if (slashIndex === -1) return '';
+        return normalized.substring(0, slashIndex + 1);
+    }
+
+    function sanitizeFileName(name) {
+        return name
+            .trim()
+            .replace(/\\/g, '/')
+            .split('/')
+            .pop()
+            .replace(/\s+/g, '-')
+            .replace(/[^a-zA-Z0-9._-]/g, '-');
+    }
+
+    function setMainImage(index) {
+        const imgPath = galleryImages[index];
+        if (!imgPath) return;
+
+        // Si no es la primera, la movemos a la posición 0 (principal)
+        if (index !== 0) {
+            galleryImages.splice(index, 1);
+            galleryImages.unshift(imgPath);
+        }
+
+        document.getElementById('pImage').value = imgPath;
+        renderGallery();
+        showToast('Imagen principal actualizada automanticamente', 'success');
+
+        // Disparar guardado automático silencioso (sin salir de la vista)
+        if (document.getElementById('pTitle').value.trim()) {
+            saveProject(null, true);
+        }
+    }
+
+    function startGalleryDrag(event, index) {
+        draggingGalleryIndex = index;
+        event.dataTransfer.effectAllowed = 'move';
+        event.dataTransfer.setData('text/plain', String(index));
+        event.currentTarget.classList.add('dragging');
+    }
+
+    function onGalleryDragOver(event, index) {
+        event.preventDefault();
+        event.dataTransfer.dropEffect = 'move';
+        if (draggingGalleryIndex === null || draggingGalleryIndex === index) return;
+        event.currentTarget.classList.add('drop-target');
+    }
+
+    function onGalleryDragLeave(event) {
+        event.currentTarget.classList.remove('drop-target');
+    }
+
+    function endGalleryDrag() {
+        draggingGalleryIndex = null;
+        document.querySelectorAll('.gallery-item').forEach(el => {
+            el.classList.remove('dragging', 'drop-target');
+        });
+    }
+
+    function dropGalleryImage(event, targetIndex) {
+        event.preventDefault();
+        const sourceIndex = Number(event.dataTransfer.getData('text/plain'));
+        if (Number.isNaN(sourceIndex) || sourceIndex === targetIndex) {
+            endGalleryDrag();
+            return;
+        }
+
+        const moved = galleryImages.splice(sourceIndex, 1)[0];
+        galleryImages.splice(targetIndex, 0, moved);
+
+        const currentMain = document.getElementById('pImage').value.trim();
+        if (!currentMain && galleryImages[0]) {
+            document.getElementById('pImage').value = galleryImages[0];
+        }
+
+        renderGallery();
+        endGalleryDrag();
+        showToast('Orden de galería actualizado', 'success');
+    }
+
+    async function renameGalleryImage(index) {
+        const oldPath = galleryImages[index];
+        if (!oldPath) return;
+
+        const currentName = getFileName(oldPath);
+        const dirPath = getDirectoryPath(oldPath) || 'img/';
+        const requestedName = prompt('Nuevo nombre de archivo (ej: proyecto-01.jpg):', currentName);
+        if (!requestedName) return;
+
+        const cleanName = sanitizeFileName(requestedName);
+        if (!cleanName) {
+            showToast('Nombre de archivo inválido', 'error');
+            return;
+        }
+
+        const newPath = `${dirPath}${cleanName}`;
+        if (newPath === oldPath) return;
+        if (galleryImages.includes(newPath)) {
+            showToast('Ya existe una imagen con ese nombre en la galería', 'error');
+            return;
+        }
+
+        let renamedInDisk = false;
+        if (imageDirectoryHandle && oldPath.startsWith('img/') && newPath.startsWith('img/')) {
+            renamedInDisk = await renameImageInFolder(currentName, cleanName);
+        }
+
+        const importedItem = importedImages.find(item => item.relativePath === oldPath);
+        if (importedItem) {
+            importedItem.relativePath = newPath;
+            importedItem.fileName = cleanName;
+            updateImportedFilesUI();
+        }
+
+        galleryImages[index] = newPath;
+
+        const pImageInput = document.getElementById('pImage');
+        if (pImageInput.value.trim() === oldPath) {
+            pImageInput.value = newPath;
+        }
+
+        renderGallery();
+
+        if (!renamedInDisk && imageDirectoryHandle && oldPath.startsWith('img/')) {
+            showToast('Ruta actualizada, pero no se pudo renombrar físicamente el archivo', 'info');
+        } else if (!imageDirectoryHandle) {
+            showToast('Ruta renombrada. Si el archivo físico existe, renómbralo también en img/', 'info');
+        } else {
+            showToast('Imagen renombrada correctamente', 'success');
+        }
+    }
+
+    async function renameImageInFolder(oldName, newName) {
+        try {
+            const oldFileHandle = await imageDirectoryHandle.getFileHandle(oldName, { create: false });
+            const originalFile = await oldFileHandle.getFile();
+            const newFileHandle = await imageDirectoryHandle.getFileHandle(newName, { create: true });
+            const writable = await newFileHandle.createWritable();
+            await writable.write(originalFile);
+            await writable.close();
+            await imageDirectoryHandle.removeEntry(oldName);
+            return true;
+        } catch (error) {
+            console.warn('No se pudo renombrar archivo en disco', error);
+            return false;
+        }
+    }
+
+    function batchRenameImages() {
+        if (galleryImages.length === 0) {
+            showToast('La galería está vacía', 'warning');
+            return;
+        }
+        if (!document.getElementById('pTitle').value.trim()) {
+            showToast('Ingresa un título para el proyecto primero', 'error');
+            return;
+        }
+
+        showConfirm(
+            '¿Auto-renombrar galería?',
+            'Se renombrarán todas las imágenes basándose en el título y su orden actual. Si la carpeta img/ está conectada, se renombrarán también los archivos físicos.',
+            async () => {
+                let renameCount = 0;
+                const originalGallery = [...galleryImages];
+
+                for (let i = 0; i < originalGallery.length; i++) {
+                    const oldPath = originalGallery[i];
+                    const currentName = getFileName(oldPath);
+                    const ext = (currentName.split('.').pop() || 'jpg').toLowerCase();
+                    
+                    const baseSlug = buildProjectSlug();
+                    const order = String(i + 1).padStart(2, '0');
+                    const cleanName = `${baseSlug}-${order}.${ext}`;
+                    const dirPath = getDirectoryPath(oldPath) || 'img/';
+                    const newPath = `${dirPath}${cleanName}`;
+
+                    if (newPath !== oldPath) {
+                        if (imageDirectoryHandle && oldPath.startsWith('img/') && newPath.startsWith('img/')) {
+                            // Intentamos renombrar, pero evitamos si el newPath existe por un ciclo extraño
+                            const success = await renameImageInFolder(currentName, cleanName);
+                            if (!success) {
+                                console.warn(`Error al auto-renombrar en disco: ${currentName}`);
+                            }
+                        }
+                        galleryImages[i] = newPath;
+                        renameCount++;
+                        
+                        const importedItem = importedImages.find(item => item.relativePath === oldPath);
+                        if (importedItem) {
+                            importedItem.relativePath = newPath;
+                            importedItem.fileName = cleanName;
+                        }
+                    }
+                }
+
+                if (renameCount > 0) {
+                    if (galleryImages[0]) {
+                        document.getElementById('pImage').value = galleryImages[0];
+                    }
+                    renderGallery();
+                    updateImportedFilesUI();
+                    
+                    // Auto Guardar (Silencioso para no sacar del editor)
+                    saveProject(null, true);
+                    showToast(`${renameCount} imágenes auto-renombradas`, 'success');
+                } else {
+                    showToast('Las imágenes ya estaban renombradas correctamente', 'info');
+                }
+            },
+            'Renombrar',
+            'btn-primary'
+        );
+    }
+
+    function slugify(value) {
+        return value
+            .toLowerCase()
+            .normalize('NFD')
+            .replace(/[\u0300-\u036f]/g, '')
+            .replace(/[^a-z0-9]+/g, '-')
+            .replace(/^-+|-+$/g, '')
+            .slice(0, 50) || 'proyecto';
+    }
+
+    function buildProjectSlug() {
+        const title = document.getElementById('pTitle').value.trim();
+        const projectId = currentEditId || getNextId();
+        return `${slugify(title || 'proyecto')}-${projectId}`;
+    }
+
+    function buildAutoFileName(file, index) {
+        const ext = (file.name.split('.').pop() || 'jpg').toLowerCase();
+        const baseSlug = buildProjectSlug();
+        const order = String(index + 1).padStart(2, '0');
+        return `${baseSlug}-${order}.${ext}`;
+    }
+
+    function clearImportedImages() {
+        importedImages.forEach(item => {
+            URL.revokeObjectURL(item.previewUrl);
+        });
+        importedImages = [];
+    }
+
+    function updateImportedFileNames() {
+        importedImages.forEach((item, index) => {
+            const oldPath = item.relativePath;
+            const gIndex = galleryImages.indexOf(oldPath);
+            const useIndex = gIndex !== -1 ? gIndex : galleryImages.length + index;
+            item.fileName = buildAutoFileName(item.file, useIndex);
+            item.relativePath = `img/${item.fileName}`;
+
+            if (gIndex !== -1) {
+                galleryImages[gIndex] = item.relativePath;
+            }
+        });
+
+        if (importedImages.length > 0) {
+            document.getElementById('pImage').value = importedImages[0].relativePath;
+        }
+
+        renderGallery();
+        updateImportedFilesUI();
+    }
+
+    function processImportedFiles(fileList) {
+        const files = Array.from(fileList || []).filter(file => file.type.startsWith('image/'));
+        if (files.length === 0) {
+            showToast('No se detectaron imágenes válidas', 'error');
+            return;
+        }
+
+        const startIndex = galleryImages.length;
+        files.forEach((file, fileOffset) => {
+            const finalIndex = startIndex + fileOffset;
+            const fileName = buildAutoFileName(file, finalIndex);
+            const relativePath = `img/${fileName}`;
+
+            const importedItem = {
+                file,
+                previewUrl: URL.createObjectURL(file),
+                originalName: file.name,
+                fileName,
+                relativePath
+            };
+
+            importedImages.push(importedItem);
+            if (!galleryImages.includes(relativePath)) {
+                galleryImages.push(relativePath);
+            }
+        });
+
+        if (!document.getElementById('pImage').value.trim() && importedImages[0]) {
+            document.getElementById('pImage').value = importedImages[0].relativePath;
+        }
+
+        renderGallery();
+        updateImportedFilesUI();
+        showToast(`${files.length} imagen(es) importadas con nombre automático`, 'success');
+    }
+
+    function updateImportedFilesUI() {
+        const importedList = document.getElementById('importedImagesList');
+        const importedMeta = document.getElementById('importedMeta');
+
+        if (!importedList || !importedMeta) return;
+
+        if (importedImages.length === 0) {
+            importedList.innerHTML = '';
+            importedMeta.textContent = '0 imágenes importadas con renombrado automático';
+            return;
+        }
+
+        importedList.innerHTML = importedImages.map((item, idx) => `
+            <div class="imported-item">
+                <img src="${item.previewUrl}" alt="${escapeHTML(item.originalName)}">
+                <div class="imported-paths">
+                    <span class="old-name">Origen: ${escapeHTML(item.originalName)}</span>
+                    <span class="new-name">Destino: ${escapeHTML(item.relativePath)}</span>
+                </div>
+                <button class="table-action-btn delete" title="Quitar" onclick="removeImportedImage(${idx})">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+        `).join('');
+
+        importedMeta.textContent = `${importedImages.length} imágenes importadas con renombrado automático`;
+    }
+
+    function removeImportedImage(index) {
+        const item = importedImages[index];
+        if (!item) return;
+
+        URL.revokeObjectURL(item.previewUrl);
+        importedImages.splice(index, 1);
+
+        const gIndex = galleryImages.indexOf(item.relativePath);
+        if (gIndex !== -1) {
+            galleryImages.splice(gIndex, 1);
+        }
+
+        updateImportedFileNames();
+
+        if (document.getElementById('pImage').value === item.relativePath) {
+            document.getElementById('pImage').value = importedImages[0]?.relativePath || galleryImages[0] || '';
+        }
+    }
+
+    async function connectImgFolder() {
+        if (!window.showDirectoryPicker) {
+            showToast('Tu navegador no soporta acceso directo a carpetas', 'error');
+            return;
+        }
+
+        try {
+            imageDirectoryHandle = await window.showDirectoryPicker({ mode: 'readwrite' });
+            await saveHandle(IMG_HANDLE_KEY, imageDirectoryHandle);
+            projectsFileHandle = null;
+            setConnectedNotes(true, false);
+            showToast('Carpeta conectada correctamente', 'success');
+        } catch (error) {
+            if (error && error.name !== 'AbortError') {
+                showToast('No se pudo conectar la carpeta', 'error');
+            }
+        }
+    }
+
+    async function connectWorkspaceFolder() {
+        if (!window.showDirectoryPicker) {
+            showToast('Tu navegador no soporta acceso directo a carpetas', 'error');
+            return;
+        }
+
+        try {
+            const workspaceHandle = await window.showDirectoryPicker({ mode: 'readwrite' });
+            const imgHandle = await workspaceHandle.getDirectoryHandle('img', { create: true });
+            const dataHandle = await workspaceHandle.getDirectoryHandle('data', { create: true });
+            const projectsHandle = await dataHandle.getFileHandle('projects.json', { create: true });
+
+            imageDirectoryHandle = imgHandle;
+            projectsFileHandle = projectsHandle;
+            await saveHandle(WORKSPACE_HANDLE_KEY, workspaceHandle);
+
+            setConnectedNotes(true, true);
+
+            showToast('Carpeta del proyecto conectada. Auto-sync activado.', 'success');
+            await persistProjectsJSON();
+        } catch (error) {
+            if (error && error.name !== 'AbortError') {
+                showToast('No se pudo conectar la carpeta del proyecto', 'error');
+            }
+        }
+    }
+
+    async function persistImportedImages() {
+        if (importedImages.length === 0) return;
+
+        if (!imageDirectoryHandle) {
+            showToast('Sin carpeta conectada: se guardan rutas, copia manualmente las imágenes a img/', 'info');
+            return;
+        }
+
+        try {
+            for (const item of importedImages) {
+                const fileHandle = await imageDirectoryHandle.getFileHandle(item.fileName, { create: true });
+                const writable = await fileHandle.createWritable();
+                await writable.write(item.file);
+                await writable.close();
+            }
+            showToast(`${importedImages.length} imagen(es) guardadas en carpeta img/`, 'success');
+        } catch (error) {
+            console.error(error);
+            showToast('No se pudieron guardar imágenes en la carpeta conectada', 'error');
+        }
+    }
+
+    /* Comprueba por HTTP que cada ruta referenciada existe realmente en img/.
+       Así un renombrado manual o una importación fallida no deja imágenes rotas. */
+    async function validateProjectAssets(project) {
+        const paths = [...new Set([project.image, ...(project.gallery || [])].filter(Boolean))];
+        const missing = [];
+        for (const path of paths) {
+            try {
+                const res = await fetch(path, { method: 'HEAD', cache: 'no-store' });
+                if (!res.ok) missing.push(path);
+            } catch (e) {
+                // Sin servidor (file://) no se puede validar: no bloqueamos el guardado
+                return { ok: true, missing: [], skipped: true };
+            }
+        }
+        return { ok: missing.length === 0, missing, skipped: false };
+    }
+
+    async function persistProjectsJSON() {
+        if (!projectsFileHandle) {
+            setConnectedNotes(!!imageDirectoryHandle, false);
+            return false;
+        }
+
+        try {
+            const writable = await projectsFileHandle.createWritable();
+            await writable.write(generateJSON());
+            await writable.close();
+            return true;
+        } catch (error) {
+            console.error(error);
+            showToast('No se pudo actualizar data/projects.json automáticamente', 'error');
+            return false;
+        }
+    }
+
+    // ===== EXPORT =====
+    function generateJSON() {
+        return JSON.stringify({ projects: adminProjects }, null, 4);
+    }
+
+    function updateJSONPreview() {
+        document.getElementById('jsonPreview').textContent = generateJSON();
+    }
+
+    function copyJSON() {
+        navigator.clipboard.writeText(generateJSON()).then(() => {
+            showToast('JSON copiado al portapapeles', 'success');
+        }).catch(() => {
+            // Fallback
+            const ta = document.createElement('textarea');
+            ta.value = generateJSON();
+            document.body.appendChild(ta);
+            ta.select();
+            document.execCommand('copy');
+            document.body.removeChild(ta);
+            showToast('JSON copiado al portapapeles', 'success');
+        });
+    }
+
+    function downloadJSON() {
+        const blob = new Blob([generateJSON()], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'projects.json';
+        a.click();
+        URL.revokeObjectURL(url);
+        showToast('Archivo descargado', 'success');
+    }
+
+    function importJSON(file) {
+        const reader = new FileReader();
+        reader.onload = async (e) => {
+            try {
+                const data = JSON.parse(e.target.result);
+                if (data.projects && Array.isArray(data.projects)) {
+                    adminProjects = data.projects;
+                    saveToStorage();
+                    await persistProjectsJSON();
+                    renderProjectList();
+                    showToast(`${data.projects.length} proyectos importados`, 'success');
+                    switchView('list');
+                } else {
+                    showToast('El archivo no tiene formato válido', 'error');
+                }
+            } catch(err) {
+                showToast('Error al leer el archivo JSON', 'error');
+            }
+        };
+        reader.readAsText(file);
+    }
+
+    // ===== UI HELPERS =====
+    function showToast(message, type = 'info') {
+        const container = document.getElementById('toastContainer');
+        const toast = document.createElement('div');
+        toast.className = `toast ${type}`;
+        
+        const icons = { success: 'fa-check-circle', error: 'fa-exclamation-circle', info: 'fa-info-circle' };
+        toast.innerHTML = `<i class="fas ${icons[type] || icons.info}" style="color:var(--${type === 'info' ? 'primary' : type})"></i> ${message}`;
+        
+        container.appendChild(toast);
+        setTimeout(() => {
+            toast.style.opacity = '0';
+            toast.style.transform = 'translateX(50px)';
+            toast.style.transition = 'all 0.3s ease';
+            setTimeout(() => toast.remove(), 300);
+        }, 3000);
+    }
+
+    function showConfirm(title, message, onConfirm, confirmText = 'Eliminar', confirmClass = 'btn-danger') {
+        const overlay = document.getElementById('confirmOverlay');
+        document.getElementById('confirmTitle').textContent = title;
+        document.getElementById('confirmMessage').textContent = message;
+        
+        const btnOk = document.getElementById('confirmOk');
+        btnOk.textContent = confirmText;
+        btnOk.className = `btn ${confirmClass}`;
+        
+        overlay.classList.add('active');
+
+        const handler = async () => {
+            await onConfirm();
+            overlay.classList.remove('active');
+            btnOk.removeEventListener('click', handler);
+        };
+
+        btnOk.addEventListener('click', handler);
+    }
+
+    function escapeHTML(str) {
+        const div = document.createElement('div');
+        div.textContent = str;
+        return div.innerHTML;
+    }
+
+    function getFileName(path) {
+        return path.split('/').pop();
+    }
+
+    // ===== EVENT LISTENERS =====
+    function setupEventListeners() {
+        // Navigation
+        document.querySelectorAll('.sidebar-link[data-view]').forEach(link => {
+            link.addEventListener('click', () => {
+                const view = link.dataset.view;
+                if (view === 'add') resetForm();
+                switchView(view);
+            });
+        });
+
+        // Add from list
+        document.getElementById('btnAddFromList').addEventListener('click', () => {
+            resetForm();
+            switchView('add');
+        });
+
+        // Form
+        document.getElementById('projectForm').addEventListener('submit', saveProject);
+        document.getElementById('cancelForm').addEventListener('click', () => switchView('list'));
+
+        // Category change (show/hide product fields)
+        document.getElementById('pCategory').addEventListener('change', (e) => {
+            document.getElementById('productFields').style.display = e.target.value === 'producto' ? 'block' : 'none';
+        });
+
+        // Gallery
+        document.getElementById('addGalleryImg').addEventListener('click', addGalleryImage);
+        document.getElementById('galleryInput').addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') { e.preventDefault(); addGalleryImage(); }
+        });
+
+        // Auto-renaming refresh when title changes
+        document.getElementById('pTitle').addEventListener('input', () => {
+            if (importedImages.length > 0) {
+                updateImportedFileNames();
+            }
+        });
+
+        // Drag & drop import
+        const dropZone = document.getElementById('imageDropZone');
+        const imageFileInput = document.getElementById('imageFileInput');
+        const btnSelectImages = document.getElementById('btnSelectImages');
+        const btnClearImported = document.getElementById('btnClearImported');
+        const btnConnectImgFolder = document.getElementById('btnConnectImgFolder');
+        const btnConnectWorkspace = document.getElementById('btnConnectWorkspace');
+        const btnBatchRename = document.getElementById('btnBatchRename');
+
+        if (btnBatchRename) {
+            btnBatchRename.addEventListener('click', batchRenameImages);
+        }
+
+        if (btnSelectImages) {
+            btnSelectImages.addEventListener('click', () => imageFileInput.click());
+        }
+        if (dropZone) {
+            dropZone.addEventListener('click', () => imageFileInput.click());
+            dropZone.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    imageFileInput.click();
+                }
+            });
+
+            ['dragenter', 'dragover'].forEach(evt => {
+                dropZone.addEventListener(evt, (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    dropZone.classList.add('drag-over');
+                });
+            });
+
+            ['dragleave', 'drop'].forEach(evt => {
+                dropZone.addEventListener(evt, (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    dropZone.classList.remove('drag-over');
+                });
+            });
+
+            dropZone.addEventListener('drop', (e) => {
+                const files = e.dataTransfer?.files;
+                if (files && files.length > 0) {
+                    processImportedFiles(files);
+                }
+            });
+        }
+
+        if (imageFileInput) {
+            imageFileInput.addEventListener('change', (e) => {
+                processImportedFiles(e.target.files);
+                e.target.value = '';
+            });
+        }
+
+        if (btnClearImported) {
+            btnClearImported.addEventListener('click', () => {
+                importedImages.forEach(item => {
+                    const idx = galleryImages.indexOf(item.relativePath);
+                    if (idx !== -1) galleryImages.splice(idx, 1);
+                });
+                clearImportedImages();
+                if (document.getElementById('pImage').value.startsWith('img/')) {
+                    document.getElementById('pImage').value = galleryImages[0] || '';
+                }
+                renderGallery();
+                updateImportedFilesUI();
+                showToast('Se limpiaron las imágenes importadas', 'info');
+            });
+        }
+
+        if (btnConnectImgFolder) {
+            btnConnectImgFolder.addEventListener('click', connectImgFolder);
+        }
+
+        if (btnConnectWorkspace) {
+            btnConnectWorkspace.addEventListener('click', connectWorkspaceFolder);
+        }
+
+        // Search
+        document.getElementById('searchProjects').addEventListener('input', (e) => {
+            renderProjectList(e.target.value);
+        });
+
+        // Export
+        document.getElementById('btnCopyJSON').addEventListener('click', copyJSON);
+        document.getElementById('btnDownloadJSON').addEventListener('click', downloadJSON);
+
+        // Import
+        document.getElementById('btnImportJSON').addEventListener('click', () => {
+            document.getElementById('importFileInput').click();
+        });
+        document.getElementById('importFileInput').addEventListener('change', (e) => {
+            if (e.target.files[0]) importJSON(e.target.files[0]);
+            e.target.value = '';
+        });
+
+        // Confirm dialog cancel
+        document.getElementById('confirmCancel').addEventListener('click', () => {
+            document.getElementById('confirmOverlay').classList.remove('active');
+        });
+    }
+    </script>
+</body>
+</html>

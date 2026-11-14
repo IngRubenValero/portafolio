@@ -1,107 +1,381 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    
-    <title>Ruben Valero - Portafolio</title>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">    
-    <!-- Enlazar el CSS externo -->
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#F4F4F1">
+
+    <title>Ruben Valero — Ingeniería Estructural y BIM</title>
+    <meta name="description" content="Portafolio técnico de Ruben Valero, Ingeniero Civil. Cálculo estructural, análisis sísmico y modelado BIM. Proyectos documentados con planos, memorias y modelos.">
+    <meta name="keywords" content="ingeniero civil, cálculo estructural, BIM, diseño estructural, análisis sísmico, Revit, ETABS, Bolivia, Cochabamba">
+    <meta name="author" content="Ruben Valero">
+    <meta name="robots" content="index, follow">
+
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://ingrubenvalero.github.io/portafolio/">
+    <meta property="og:title" content="Ruben Valero — Ingeniería Estructural y BIM">
+    <meta property="og:description" content="Portafolio técnico de proyectos de ingeniería civil, cálculo estructural y metodología BIM.">
+    <meta property="og:image" content="https://ingrubenvalero.github.io/portafolio/img/Ruben_traje.jpg">
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:title" content="Ruben Valero — Ingeniería Estructural y BIM">
+    <meta property="twitter:description" content="Portafolio técnico de proyectos de ingeniería civil, cálculo estructural y metodología BIM.">
+
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><rect width='64' height='64' rx='14' fill='%231E2220'/><text x='32' y='42' font-family='sans-serif' font-size='26' font-weight='500' fill='%23F4F4F1' text-anchor='middle'>RV</text></svg>">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com">
+
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
     <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/design.css">
+    <link rel="stylesheet" href="css/viewer.css">
 </head>
 <body>
-    <header>
-        <div class="header-content">
-            <h1>Portafolio de Proyectos</h1>
-            <p>Dando vida a visiones a través del diseño ingenieril innovador</p>
-            
+
+    <!-- ============================================
+         NAVEGACIÓN
+         ============================================ -->
+    <nav class="site-nav" id="siteNav" aria-label="Navegación principal">
+        <a href="#home" class="nav-brand" aria-label="Ir al inicio">RV<span>.</span></a>
+
+        <button class="nav-toggle" id="navToggle" aria-label="Abrir menú" aria-expanded="false" aria-controls="navLinks">
+            <span></span><span></span>
+        </button>
+
+        <div class="nav-links" id="navLinks">
+            <a href="#projects" data-nav="projects">Proyectos</a>
+            <a href="#about" data-nav="about">Enfoque</a>
+            <a href="#contact-info" data-nav="contact-info">Sobre mí</a>
+            <a href="#contacto" data-nav="contacto">Contacto</a>
+        </div>
+
+        <div class="nav-actions">
+            <button id="themeToggle" class="theme-toggle nav-theme" data-theme-toggle aria-label="Cambiar tema" title="Cambiar tema">
+                <i class="fas fa-moon"></i>
+            </button>
+            <a href="#contacto" class="nav-cta">Solicitar consulta <span class="circle-arrow"><i class="fas fa-arrow-right"></i></span></a>
+        </div>
+    </nav>
+
+    <!-- ============================================
+         HERO
+         ============================================ -->
+    <header class="hero" id="home">
+        <div class="container">
+            <div class="hero-card">
+                <img class="hero-card-img" src="img/calculo-hidrosanitario-para-vivienda-de-alquiler-e-1-07.png"
+                     alt="Modelo BIM de vivienda con iluminación interior" fetchpriority="high">
+                <div class="hero-card-shade"></div>
+
+                <div class="hero-card-content">
+                    <p class="kicker kicker-light">Ingeniería estructural · Cochabamba, Bolivia</p>
+                    <h1>Estructuras que<br>dan forma a la<br>arquitectura.</h1>
+                    <p class="hero-sub">Cálculo, análisis sísmico y modelado BIM.<br>Precisión que se nota en cada detalle.</p>
+                    <div class="hero-actions">
+                        <a href="#projects" class="btn-pill btn-dark">Ver proyectos <span class="circle-arrow"><i class="fas fa-arrow-right"></i></span></a>
+                        <a href="#contacto" class="btn-pill btn-ghost">Hablemos</a>
+                    </div>
+                </div>
+
+                <div class="hero-float">
+                    <img src="img/CUBIERTA-AGRO3-min.png" alt="">
+                    <div>
+                        <strong>Modelado BIM</strong>
+                        <span>Estructura verificada antes de construir</span>
+                        <a href="#projects">Ver proyectos <i class="fas fa-arrow-right"></i></a>
+                    </div>
+                </div>
+
+                <span class="hero-card-caption">Proyecto 01 / Vivienda de alquiler estudiantil</span>
+            </div>
         </div>
     </header>
 
-    <section class="personal-info">
-        <img src="img/Ruben_traje.jpg" alt="Ruben Valero, Ingeniero Estructural" class="profile-pic" width="200" height="200">
-        <h2>Ruben Valero</h2>
-        <p>Ingeniero Civil | +3 Años de Experiencia</p>
-        <p>Especializado en Cálculo Estructural y BIM</p>
-        <div class="contact-info">
-            <p>Email: Ing.RubenValero@outlook.com | Teléfono: (591) 76982955</p>
-            <div class="social-links">
-                <a href="https://www.linkedin.com/in/ruben-valero-33868b335/" target="_blank"><i class="fab fa-linkedin"></i></a>
-                <a href="mailto:Ing.RubenValero@outlook.com" target="_blank" aria-label="Email"><i class="fas fa-envelope"></i></a>
-                <a href="https://wa.me/59176982955" target="_blank" aria-label="WhatsApp"><i class="fab fa-whatsapp"></i></a>
+    <!-- ============================================
+         ENFOQUE + CIFRAS
+         ============================================ -->
+    <section id="about" class="about-section">
+        <div class="container">
+            <p class="kicker">Por qué elegir precisión</p>
+            <div class="about-head">
+                <h2>Fiabilidad. Experiencia.<br>Atención al detalle.</h2>
+                <p>Una estructura no se valida cuando se levanta: se valida en la memoria de cálculo.
+                   Cada hipótesis, carga y armado queda documentado antes de llegar a obra.</p>
             </div>
-        </div>
-        <a href="https://drive.google.com/file/d/1mQzNhKZpzh_1C32YPHS3_ktgE3g1PBMx/view?usp=drive_link" class="btn" download>Descargar CV</a>
-    </section>
 
-    <section id="skills" class="skills">
-        <div class="container">
-            <h2>Habilidades y Experiencia</h2>
-            <ul class="skill-list">
-                <li>Análisis y Diseño Estructural</li>
-                <li>Ingeniería Sísmica</li>
-                <li>Ingeniería Eólica</li>
-                <!--<li>Diseño Sostenible</li>-->
-                <li>Modelado de Información de Construcción (BIM)</li>
-                <!--<li>Gestión de Proyectos</li>-->
-                <li>Presupuestos</li>
-                <li>Instalaciones Hidrosanitarias</li>
-            </ul>
-        </div>
-    </section>
+            <div class="stats-grid">
+                <article class="stat-card">
+                    <span class="stat-icon"><i class="fas fa-shield-halved"></i></span>
+                    <p class="stat-text">Cálculo verificable en cada entregable.</p>
+                    <strong class="stat-number">05+</strong>
+                    <span class="stat-caption">años de experiencia</span>
+                </article>
+                <article class="stat-card">
+                    <span class="stat-icon"><i class="fas fa-ruler-combined"></i></span>
+                    <p class="stat-text">Edificaciones, cubiertas e infraestructura.</p>
+                    <strong class="stat-number">15+</strong>
+                    <span class="stat-caption">proyectos entregados</span>
+                </article>
+                <article class="stat-card">
+                    <span class="stat-icon"><i class="fas fa-layer-group"></i></span>
+                    <p class="stat-text">Coordinación BIM sin interferencias.</p>
+                    <strong class="stat-number" id="projectCount">—</strong>
+                    <span class="stat-caption">fichas documentadas</span>
+                </article>
+                <article class="stat-card">
+                    <span class="stat-icon"><i class="fas fa-wave-square"></i></span>
+                    <p class="stat-text">Análisis sísmico y cargas eólicas.</p>
+                    <strong class="stat-number">100%</strong>
+                    <span class="stat-caption">de entregables revisados</span>
+                </article>
+            </div>
 
-    <!-- Añade filtros de proyectos -->
-    <div class="filter-container">
-        <button class="filter-btn active" data-filter="all">Todos</button>
-        <button class="filter-btn" data-filter="arquitectura">Arquitectura</button>
-        <button class="filter-btn" data-filter="ingenieria">Ingeniería</button>
-        <button class="filter-btn" data-filter="programacion">Programación</button>
-    </div>
-
-    <div class="container">
-        <div class="project-gallery" id="projectGallery">
-            <!-- Project cards will be dynamically inserted here -->
-        </div>
-    </div>
-
-    <section class="colored-section">
-        <div class="container">
-            <h2>Contactar a Ruben Valero</h2>
-            <p>Email: Ing.RubenValero@outlook.com | Teléfono: (591) 76982955</p>
-            <div class="social-links">
-                <a href="https://www.linkedin.com/in/ruben-valero-33868b335/" target="_blank"><i class="fab fa-linkedin"></i></a>
-                <a href="mailto:Ing.RubenValero@outlook.com" target="_blank" aria-label="Email"><i class="fas fa-envelope"></i></a>
-                <a href="https://wa.me/59176982955" target="_blank" aria-label="WhatsApp"><i class="fab fa-whatsapp"></i></a>
+            <div class="about-body">
+                <p>Soy <strong>Ingeniero Civil</strong> con más de cinco años de experiencia especializado en
+                   <strong>Cálculo Estructural</strong> y <strong>Metodología BIM</strong>. Mi trabajo consiste en
+                   convertir una intención arquitectónica en un sistema resistente, verificable y construible.</p>
+                <p>He intervenido en edificaciones multifamiliares, cubiertas metálicas de gran luz,
+                   infraestructura social en zonas rurales y proyectos académicos para la
+                   <strong>Universidad Mayor de San Simón (UMSS)</strong>, aplicando normativa vigente
+                   y coordinando disciplinas mediante modelos BIM.</p>
             </div>
         </div>
     </section>
 
-    <!-- Modal -->
-    <div id="projectModal" class="modal">
-        <div class="modal-content">
-            <span class="close">&times;</span>
-            <h2 id="modalTitle"></h2>
-            <div class="modal-gallery-container">
-                <div class="main-image-container">
-                    <button class="nav-btn prev-btn">&lt;</button>
-                    <img id="mainImage" src="" alt="Main project image">
-                    <button class="nav-btn next-btn">&gt;</button>
+    <!-- ============================================
+         SOBRE MÍ
+         ============================================ -->
+    <section class="personal-info" id="contact-info">
+        <div class="container">
+            <p class="kicker">Sobre mí</p>
+            <div class="dossier">
+                <figure class="dossier-photo">
+                    <img src="img/Ruben_traje.jpg" alt="Ruben Valero, Ingeniero Civil" width="200" height="200" loading="lazy">
+                </figure>
+                <div class="dossier-data">
+                    <h2>Ruben Valero</h2>
+                    <p class="dossier-role">Ingeniero Civil · Especialista en Cálculo Estructural y Metodología BIM</p>
+                    <dl class="data-list">
+                        <div><dt>Experiencia</dt><dd>+5 años en proyectos estructurales</dd></div>
+                        <div><dt>Ubicación</dt><dd>Cochabamba, Bolivia</dd></div>
+                        <div><dt>Correo</dt><dd><a href="mailto:Ing.RubenValero@outlook.com">Ing.RubenValero@outlook.com</a></dd></div>
+                        <div><dt>Teléfono</dt><dd><a href="tel:+59176982955">+591 76982955</a></dd></div>
+                    </dl>
+                    <div class="dossier-actions">
+                        <a href="https://drive.google.com/uc?export=download&id=1mQzNhKZpzh_1C32YPHS3_ktgE3g1PBMx" class="btn-pill btn-dark" target="_blank" rel="noopener noreferrer">
+                            Descargar CV <span class="circle-arrow"><i class="fas fa-download"></i></span>
+                        </a>
+                        <div class="social-links">
+                            <a href="https://www.linkedin.com/in/ruben-valero-33868b335/" target="_blank" rel="noopener noreferrer" aria-label="Perfil de LinkedIn"><i class="fab fa-linkedin-in"></i></a>
+                            <a href="mailto:Ing.RubenValero@outlook.com" aria-label="Enviar Email"><i class="fas fa-envelope"></i></a>
+                            <a href="https://wa.me/59176982955" target="_blank" rel="noopener noreferrer" aria-label="Contactar por WhatsApp"><i class="fab fa-whatsapp"></i></a>
+                        </div>
+                    </div>
                 </div>
-                <div id="thumbnailGallery" class="thumbnail-gallery"></div>
             </div>
-            <p id="modalDescription"></p>
-            <div id="modalDetails"></div>
         </div>
-    </div>
+    </section>
+
+    <!-- ============================================
+         PROYECTOS
+         ============================================ -->
+    <section id="projects" class="projects-section">
+        <div class="container">
+            <p class="kicker">Proyectos seleccionados</p>
+            <div class="projects-head">
+                <h2>Obras en las que<br>empieza cada historia.</h2>
+                <a href="#contacto" class="btn-outline-pill">Solicitar presupuesto <span class="circle-arrow"><i class="fas fa-arrow-right"></i></span></a>
+            </div>
+
+            <div class="filter-container">
+                <button class="filter-btn active" data-filter="all">Todos</button>
+                <button class="filter-btn" data-filter="arquitectura">Arquitectura</button>
+                <button class="filter-btn" data-filter="ingenieria">Ingeniería</button>
+                <button class="filter-btn" data-filter="programacion">Programación</button>
+                <button class="filter-btn" data-filter="producto">Productos</button>
+            </div>
+
+            <div class="loading-container" id="loadingProjects" style="display: none;">
+                <div class="loading-spinner"></div>
+                <p>Cargando proyectos...</p>
+            </div>
+            <div class="empty-state" id="emptyState" style="display: none;">
+                <i class="fas fa-folder-open"></i>
+                <p>No se encontraron proyectos en esta categoría</p>
+            </div>
+
+            <div class="project-gallery" id="projectGallery"></div>
+            <p class="gallery-count"><span id="projectIndexCount">—</span> fichas en el expediente</p>
+        </div>
+    </section>
+
+    <!-- ============================================
+         CONTACTO
+         ============================================ -->
+    <section class="colored-section" id="contacto">
+        <div class="container">
+            <div class="cta-card">
+                <img class="cta-img" src="img/calculo-estructural-y-modelado-bim-de-edificio-mul-6-01.png" alt="Modelo estructural BIM" loading="lazy">
+                <div class="cta-shade"></div>
+                <div class="cta-content">
+                    <h2>Construyamos su próximo<br>proyecto, bien desde<br>el primer plano.</h2>
+                    <p>Enviarme los planos o la idea. Respondo con criterio técnico y un alcance claro.</p>
+                    <a class="btn-pill btn-light" href="mailto:Ing.RubenValero@outlook.com?subject=Consulta%20de%20proyecto%20estructural">
+                        Solicitar consulta <span class="circle-arrow"><i class="fas fa-arrow-right"></i></span>
+                    </a>
+                    <p class="cta-line">Ing.RubenValero@outlook.com · +591 76982955</p>
+                    <div class="social-links">
+                        <a href="https://www.linkedin.com/in/ruben-valero-33868b335/" target="_blank" rel="noopener noreferrer" aria-label="Perfil de LinkedIn"><i class="fab fa-linkedin-in"></i></a>
+                        <a href="mailto:Ing.RubenValero@outlook.com" aria-label="Enviar Email"><i class="fas fa-envelope"></i></a>
+                        <a href="https://wa.me/59176982955" target="_blank" rel="noopener noreferrer" aria-label="Contactar por WhatsApp"><i class="fab fa-whatsapp"></i></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
 
     <footer>
         <div class="container">
-            <p>© 2024 Ruben Valero. Todos los derechos reservados.</p>
+            <div class="footer-main">
+                <div>
+                    <a href="#home" class="footer-brand">RV<span>.</span></a>
+                    <p>Ingeniería estructural y metodología BIM.<br>Cochabamba, Bolivia.</p>
+                </div>
+                <div class="footer-links">
+                    <a href="#projects">Proyectos</a>
+                    <a href="#about">Enfoque</a>
+                    <a href="#contact-info">Sobre mí</a>
+                    <a href="#contacto">Contacto</a>
+                </div>
+                <a href="#home" class="footer-top">Volver arriba <span class="circle-arrow"><i class="fas fa-arrow-up"></i></span></a>
+            </div>
+            <div class="footer-bottom">
+                <p>© <span id="footerYear">2026</span> Ruben Valero. Todos los derechos reservados.</p>
+                <p>Diseño y desarrollo · Portafolio profesional</p>
+            </div>
         </div>
     </footer>
 
-    <!-- Enlazar el archivo JavaScript externo -->
+    <!-- Botones flotantes -->
+    <button id="backToTop" class="back-to-top" aria-label="Volver arriba" title="Volver arriba"><i class="fas fa-arrow-up"></i></button>
+    <a href="https://wa.me/59176982955" target="_blank" rel="noopener noreferrer" class="floating-whatsapp" aria-label="Contactar por WhatsApp" title="Cotizar por WhatsApp"><i class="fab fa-whatsapp"></i></a>
+
+    <!-- ============================================
+         VISOR DE IMÁGENES (móvil primero)
+         ============================================ -->
+    <div id="viewer" class="viewer" role="dialog" aria-modal="true" aria-label="Visor de imágenes del proyecto" aria-hidden="true">
+        <div class="viewer-bar">
+            <div class="viewer-bar-text">
+                <span class="viewer-title" id="viewerTitle"></span>
+                <span class="viewer-counter" id="viewerCounter" aria-live="polite"></span>
+            </div>
+            <button class="viewer-close" id="viewerClose" aria-label="Cerrar visor"><i class="fas fa-times"></i></button>
+        </div>
+
+        <div class="viewer-stage" id="viewerStage">
+            <img class="viewer-image" id="viewerImage" src="" alt="" draggable="false" decoding="async">
+            <span class="viewer-loading" id="viewerLoading" aria-hidden="true"></span>
+            <button class="viewer-nav viewer-nav-prev" id="viewerPrev" aria-label="Imagen anterior"><i class="fas fa-chevron-left"></i></button>
+            <button class="viewer-nav viewer-nav-next" id="viewerNext" aria-label="Imagen siguiente"><i class="fas fa-chevron-right"></i></button>
+            <p class="viewer-hint" id="viewerHint">Desliza para cambiar · doble toque o pellizca para ampliar</p>
+        </div>
+
+        <div class="viewer-footer">
+            <div class="viewer-tools">
+                <button id="viewerZoomOut" aria-label="Alejar"><i class="fas fa-minus"></i></button>
+                <button id="viewerZoomReset" class="viewer-zoom-label" aria-label="Restablecer zoom">100%</button>
+                <button id="viewerZoomIn" aria-label="Acercar"><i class="fas fa-plus"></i></button>
+            </div>
+            <div class="viewer-thumbs" id="viewerThumbs"></div>
+        </div>
+    </div>
+
+    <!-- ============================================
+         FICHA DE PROYECTO — composición editorial
+         ============================================ -->
+    <div id="projectModal" class="modal">
+        <div class="modal-content project-sheet">
+
+            <section class="sheet-hero">
+                <figure class="sheet-hero-figure" id="sheetHeroFigure">
+                    <img id="sheetHeroImage" src="" alt="">
+                </figure>
+                <div class="sheet-hero-shade"></div>
+
+                <div class="sheet-topbar">
+                    <span class="sheet-mark">RV<span>.</span></span>
+                    <span class="sheet-topbar-label">Ficha <span data-sheet="index">—</span> <i>/</i> <span data-sheet="category">—</span></span>
+                    <button type="button" class="sheet-theme" data-theme-toggle aria-label="Cambiar tema" title="Cambiar tema">
+                        <i class="fas fa-moon"></i>
+                    </button>
+                    <button type="button" class="close" aria-label="Cerrar ficha"><i class="fas fa-times"></i></button>
+                </div>
+
+                <div class="sheet-hero-copy">
+                    <p class="sheet-kicker">Portafolio <span data-sheet="index">—</span> · <span data-sheet="category">—</span></p>
+                    <h2 class="sheet-display" id="modalTitle"></h2>
+                    <p class="sheet-lead" id="sheetDescription"></p>
+                    <button type="button" class="btn-pill btn-light sheet-hero-cta" id="sheetJump">
+                        Ver composición <span class="circle-arrow"><i class="fas fa-arrow-down"></i></span>
+                    </button>
+                </div>
+
+                <button type="button" class="sheet-hero-expand" id="sheetHeroOpen" aria-label="Ampliar imagen de portada">
+                    <i class="fas fa-expand"></i>
+                </button>
+                <span class="sheet-hero-caption" id="sheetHeroCaption"></span>
+            </section>
+
+            <div class="sheet-features">
+                <div><i class="fas fa-ruler-combined"></i><span>Cálculo verificado</span></div>
+                <div><i class="fas fa-file-lines"></i><span>Documentación completa</span></div>
+                <div><i class="fas fa-layer-group"></i><span>Coordinación BIM</span></div>
+            </div>
+
+            <section class="sheet-cards" id="sheetCards"></section>
+
+            <section class="sheet-story">
+                <div class="sheet-story-copy" id="sheetStoryText"></div>
+                <div class="sheet-story-images" id="sheetPair"></div>
+            </section>
+
+            <section class="sheet-catalog" id="sheet-gallery">
+                <div class="sheet-catalog-head">
+                    <div>
+                        <p class="kicker kicker-light">Documentación gráfica</p>
+                        <h3>Registro del proyecto</h3>
+                    </div>
+                    <span class="sheet-gallery-count"><span data-sheet="count">—</span> imágenes</span>
+                </div>
+                <div class="sheet-catalog-grid" id="galleryTopContainer"></div>
+                <div class="sheet-catalog-extra" id="galleryBottomGrid"></div>
+            </section>
+
+            <div id="modalProductActions"></div>
+
+            <footer class="sheet-end">
+                <dl class="sheet-end-meta" id="sheetMeta"></dl>
+                <a href="mailto:Ing.RubenValero@outlook.com" class="btn-pill btn-dark" id="sheetContact">
+                    Consultar este proyecto <span class="circle-arrow"><i class="fas fa-arrow-right"></i></span>
+                </a>
+            </footer>
+
+            <div class="sheet-sr" id="modalDetails"></div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            if (window.AOS) AOS.init({ duration: 650, easing: 'ease-out', once: true, offset: 40 });
+        });
+    </script>
     <script src="js/script.js"></script>
+    <script src="js/viewer.js"></script>
+    <script src="js/design.js"></script>
 </body>
 </html>

@@ -1,0 +1,179 @@
+{
+    "projects": [
+        {
+            "id": 1,
+            "title": "Cálculo Hidrosanitario para Vivienda de Alquiler Estudiantil",
+            "description": "Diseño integral de instalaciones hidrosanitarias para vivienda multiunidad de uso estudiantil, optimizando el consumo de agua, la presión de red y la durabilidad del sistema bajo condiciones de uso intensivo.",
+            "image": "img/calculo-hidrosanitario-para-vivienda-de-alquiler-e-1-01.png",
+            "category": "ingenieria",
+            "details": "## Descripción del Proyecto\n\nDiseño completo de la red hidrosanitaria para una vivienda de alquiler por cuartos destinada a estudiantes universitarios. Cada unidad habitacional cuenta con cocina y baño privado, lo que demandó un análisis riguroso del consumo simultáneo y la eficiencia del sistema.\n\n## Alcance del Trabajo\n\n- **Red de agua potable fría y caliente:** Dimensionamiento hidráulico que garantiza presión y caudal estables en cada punto de consumo, incluso bajo uso simultáneo.\n- **Sistema de desagüe sanitario:** Diseño de red de evacuación con pendientes, diámetros y ventilación calculados para un funcionamiento silencioso y sin obstrucciones.\n- **Análisis de presión y caudal:** Verificación mediante cálculo del comportamiento de la red ante escenarios de demanda pico.\n- **Integración arquitectónica:** Trazado de instalaciones coordinado con la distribución espacial, sin afectar la funcionalidad de los ambientes.\n- **Documentación técnica:** Planos ejecutivos con detalle suficiente para licitación, ejecución y mantenimiento del sistema.\n\n## Valor Entregado\n\nEl proyecto resultó en un sistema hidrosanitario eficiente, de bajo mantenimiento y dimensionado para la vida útil del inmueble, reduciendo el riesgo de fallas y optimizando el gasto en materiales desde la etapa de diseño.",
+            "gallery": [
+                "img/calculo-hidrosanitario-para-vivienda-de-alquiler-e-1-01.png",
+                "img/calculo-hidrosanitario-para-vivienda-de-alquiler-e-1-02.png",
+                "img/calculo-hidrosanitario-para-vivienda-de-alquiler-e-1-03.jpg",
+                "img/calculo-hidrosanitario-para-vivienda-de-alquiler-e-1-04.png",
+                "img/calculo-hidrosanitario-para-vivienda-de-alquiler-e-1-05.png",
+                "img/calculo-hidrosanitario-para-vivienda-de-alquiler-e-1-07.png"
+            ]
+        },
+        {
+            "id": 2,
+            "title": "Edificio Académico — Facultad de Humanidades y Ciencias de la Educación (UMSS)",
+            "description": "Desarrollo de planos arquitectónicos ejecutivos para edificio académico de la UMSS, empleando metodología BIM para garantizar coherencia entre disciplinas y una documentación precisa lista para obra.",
+            "image": "img/edificio-academico-facultad-de-humanidades-y-cienc-2-01.jpg",
+            "category": "arquitectura",
+            "details": "## Descripción del Proyecto\n\nColaboración técnica con el Departamento de Infraestructura de la Universidad Mayor de San Simón (UMSS) para el desarrollo arquitectónico del Edificio Académico de la Facultad de Humanidades y Ciencias de la Educación. El trabajo se realizó bajo la dirección del Arq. Eduardo Rosas, partiendo de bocetos conceptuales hasta la generación de documentación ejecutiva.\n\n## Alcance del Trabajo\n\n- **Desarrollo de planos arquitectónicos:** Elaboración completa del juego de planos desde las intenciones de diseño hasta el nivel de detalle constructivo.\n- **Metodología BIM:** Modelado tridimensional que permitió detectar interferencias, coordinar especialidades y generar documentación coherente y actualizable.\n- **Coordinación multidisciplinaria:** Trabajo conjunto con el equipo de supervisión para asegurar que el diseño respondiera a los requerimientos funcionales, normativos e institucionales.\n- **Integración de requerimientos del comitente:** Traducción de las necesidades académicas y administrativas de la facultad en soluciones espaciales eficientes.\n\n## Valor Entregado\n\nLa metodología BIM aplicada permitió una comunicación fluida entre los involucrados, reduciendo correcciones tardías y entregando una documentación arquitectónica sólida, coherente y alineada con los estándares de la institución.",
+            "gallery": [
+                "img/edificio-academico-facultad-de-humanidades-y-cienc-2-01.jpg",
+                "img/edificio-academico-facultad-de-humanidades-y-cienc-2-02.jpg",
+                "img/edificio-academico-facultad-de-humanidades-y-cienc-2-03.jpg",
+                "img/edificio-academico-facultad-de-humanidades-y-cienc-2-04.jpg",
+                "img/edificio-academico-facultad-de-humanidades-y-cienc-2-05.jpg",
+                "img/edificio-academico-facultad-de-humanidades-y-cienc-2-06.jpg",
+                "img/edificio-academico-facultad-de-humanidades-y-cienc-2-07.jpg",
+                "img/edificio-academico-facultad-de-humanidades-y-cienc-2-08.jpg",
+                "img/edificio-academico-facultad-de-humanidades-y-cienc-2-09.jpg"
+            ]
+        },
+        {
+            "id": 3,
+            "title": "Diseño Estructural y Análisis Sísmico — Facultad de Humanidades y Ciencias de la Educación (UMSS)",
+            "description": "Cálculo estructural completo y análisis sísmico bajo norma GBDS-2020 para el Edificio Académico de la UMSS, con generación de planos estructurales ejecutivos y presupuesto de obra.",
+            "image": "img/edificio-academico-facultad-de-humanidades-y-cienc-3-01.jpg",
+            "category": "ingenieria",
+            "details": "## Descripción del Proyecto\n\nDiseño estructural del Edificio Académico de la Facultad de Humanidades y Ciencias de la Educación de la UMSS. El trabajo se desarrolló en coordinación con el Departamento de Infraestructura y bajo supervisión del Arq. Eduardo Rosas, aplicando las normativas sísmicas bolivianas vigentes para garantizar la seguridad de la estructura ante eventos sísmicos.\n\n## Alcance del Trabajo\n\n- **Análisis sísmico según norma GBDS-2020:** Modelado y verificación estructural conforme a la reglamentación nacional, asegurando el comportamiento adecuado del edificio ante solicitaciones sísmicas.\n- **Cálculo estructural detallado:** Dimensionamiento de elementos verticales, horizontales y de fundación con criterios de seguridad y economía.\n- **Planos estructurales ejecutivos:** Documentación técnica completa para la ejecución en obra, con detalles de armado y especificaciones de materiales.\n- **Presupuesto de la edificación:** Estimación de costos alineada con los cómputos métricos del modelo estructural.\n\n## Valor Entregado\n\nEl enfoque técnico basado en normativa vigente y metodología BIM permitió entregar una estructura segura, eficiente en materiales y con documentación ejecutiva lista para proceso de contratación y construcción.",
+            "gallery": [
+                "img/edificio-academico-facultad-de-humanidades-y-cienc-3-01.jpg",
+                "img/edificio-academico-facultad-de-humanidades-y-cienc-3-02.jpg",
+                "img/edificio-academico-facultad-de-humanidades-y-cienc-3-03.jpg",
+                "img/edificio-academico-facultad-de-humanidades-y-cienc-3-04.jpg",
+                "img/edificio-academico-facultad-de-humanidades-y-cienc-3-05.jpg",
+                "img/diseno-estructural-y-analisis-sismico-facultad-de--3-06.png"
+            ]
+        },
+        {
+            "id": 4,
+            "title": "Modelado BIM y Planos Constructivos — Edificio Mixto con Canchas Deportivas",
+            "description": "Modelo BIM integral para edificio de uso mixto con canchas de wally y ráquet en planta baja y viviendas en plantas superiores, con detección de interferencias y documentación constructiva completa.",
+            "image": "img/modelado-bim-y-planos-constructivos-de-vivienda-co-4-01.png",
+            "category": "arquitectura",
+            "details": "## Descripción del Proyecto\n\nDesarrollo del modelo BIM y documentación constructiva para un proyecto de edificio de uso mixto que integra canchas deportivas (wally y ráquet) en planta baja con unidades de vivienda en los niveles superiores. La complejidad funcional del programa requirió una coordinación precisa entre las distintas áreas del proyecto.\n\n## Alcance del Trabajo\n\n- **Modelado BIM integral:** Representación tridimensional completa del edificio, permitiendo la verificación geométrica, detección de interferencias y análisis del programa arquitectónico antes del inicio de obra.\n- **Detección y resolución de conflictos:** Identificación temprana de incompatibilidades entre sistemas constructivos y distribución espacial, evitando correcciones costosas durante la ejecución.\n- **Planos constructivos:** Juego completo de documentación técnica adaptado a los requerimientos específicos del cliente, con niveles de detalle adecuados para la ejecución.\n- **Coordinación entre usos:** Compatibilización de las exigencias técnicas y normativas de los espacios deportivos con las áreas residenciales del mismo edificio.\n\n## Valor Entregado\n\nEl modelo BIM sirvió como herramienta central de comunicación con el cliente y el equipo de obra, reduciendo tiempos de revisión y asegurando que la documentación entregada reflejara con precisión las decisiones de diseño.",
+            "gallery": [
+                "img/modelado-bim-y-planos-constructivos-de-vivienda-co-4-01.png",
+                "img/modelado-bim-y-planos-constructivos-de-vivienda-co-4-02.png",
+                "img/modelado-bim-y-planos-constructivos-de-vivienda-co-4-03.jpg"
+            ]
+        },
+        {
+            "id": 5,
+            "title": "Modelado BIM, Cómputos Métricos y Planos Constructivos — Mausoleo",
+            "description": "Modelado BIM para la obtención de cómputos métricos precisos, presupuesto ajustado y planos constructivos ejecutivos para la construcción de un mausoleo.",
+            "image": "img/modelado-bim-y-planos-constructivos-de-mausoleo-5-01.jpg",
+            "category": "arquitectura",
+            "details": "## Descripción del Proyecto\n\nDesarrollo de modelo BIM detallado para un proyecto de mausoleo, con el objetivo de obtener mediciones precisas, controlar los costos desde la etapa de diseño y producir la documentación técnica necesaria para su construcción.\n\n## Alcance del Trabajo\n\n- **Modelado BIM detallado:** Elaboración del modelo tridimensional con nivel de desarrollo suficiente para la extracción automatizada de cantidades de materiales.\n- **Cómputos métricos:** Generación de mediciones precisas a partir del modelo, reduciendo el margen de error en la estimación de materiales.\n- **Presupuesto de obra:** Elaboración del presupuesto ajustado a las cantidades reales del proyecto, facilitando la toma de decisiones del comitente.\n- **Planos constructivos:** Documentación técnica completa con plantas, cortes, elevaciones y detalles necesarios para la ejecución.\n\n## Valor Entregado\n\nEl uso del modelado BIM como base para la cuantificación permitió una estimación de costos más confiable y una documentación constructiva coherente, minimizando los ajustes durante la obra.",
+            "gallery": [
+                "img/modelado-bim-y-planos-constructivos-de-mausoleo-5-01.jpg",
+                "img/modelado-bim-y-planos-constructivos-de-mausoleo-5-02.jpg",
+                "img/modelado-bim-y-planos-constructivos-de-mausoleo-5-03.png",
+                "img/modelado-bim-y-planos-constructivos-de-mausoleo-5-04.png",
+                "img/modelado-bim-y-planos-constructivos-de-mausoleo-5-05.jpg",
+                "img/modelado-bim-computos-metricos-y-planos-constructi-5-06.jpg"
+            ]
+        },
+        {
+            "id": 6,
+            "title": "Cálculo Estructural y Modelado BIM — Edificio Multifamiliar",
+            "description": "Diseño estructural de edificio multifamiliar con optimización del acero mediante modelado BIM, logrando reducción de costos sin comprometer seguridad ni desempeño estructural.",
+            "image": "img/calculo-estructural-y-modelado-bim-de-edificio-mul-6-01.png",
+            "category": "ingenieria",
+            "details": "## Descripción del Proyecto\n\nCálculo estructural completo de un edificio de vivienda multifamiliar, con foco en la optimización del uso de acero como respuesta a los requerimientos del cliente. La adopción del modelado BIM como herramienta de trabajo permitió obtener cuantías exactas y controlar los costos desde la etapa de diseño.\n\n## Alcance del Trabajo\n\n- **Cálculo estructural:** Dimensionamiento de todos los elementos portantes del edificio con criterios de seguridad, normativa vigente y eficiencia de materiales.\n- **Modelado BIM de la estructura:** Representación tridimensional que facilita la extracción de cantidades precisas y la coordinación con otras especialidades.\n- **Optimización de cuantías de acero:** Análisis y ajuste del armado para minimizar el consumo de acero sin reducir la capacidad estructural, generando ahorro directo en obra.\n- **Planos estructurales ejecutivos:** Documentación técnica completa para la ejecución, con detalles de armado, especificaciones y notas técnicas.\n\n## Valor Entregado\n\nLa combinación de cálculo riguroso y modelado BIM permitió al cliente tener control preciso sobre el costo del acero desde antes de iniciar obra, reduciendo incertidumbre y evitando desperdicios en la ejecución.",
+            "gallery": [
+                "img/calculo-estructural-y-modelado-bim-de-edificio-mul-6-01.png",
+                "img/calculo-estructural-y-modelado-bim-de-edificio-mul-6-02.jpg",
+                "img/calculo-estructural-y-modelado-bim-edificio-multif-6-03.jpg",
+                "img/calculo-estructural-y-modelado-bim-edificio-multif-6-04.jpg",
+                "img/calculo-estructural-y-modelado-bim-edificio-multif-6-05.jpg",
+                "img/calculo-estructural-y-modelado-bim-edificio-multif-6-06.jpg"
+            ]
+        },
+        {
+            "id": 7,
+            "title": "Cálculo Estructural de Infraestructuras para la Facultad de Agronomía",
+            "description": "Diseño estructural de laboratorios, oficinas, tres tinglados para crianza de cuyes y tanque elevado para abastecimiento de agua, como parte del plan de expansión de infraestructura de la Facultad de Agronomía.",
+            "image": "img/calculo-estructural-de-tinglados-para-la-facultad--7-01.jpg",
+            "category": "ingenieria",
+            "details": "## Descripción del Proyecto\n\nCálculo estructural y elaboración de planos para un conjunto de nuevas infraestructuras de la Facultad de Agronomía. El proyecto incluyó edificaciones de distinta tipología y uso, lo que demandó soluciones estructurales adaptadas a cada función específica.\n\n## Alcance del Trabajo\n\n- **Laboratorios y oficinas:** Diseño estructural de edificaciones de uso académico y administrativo, cumpliendo con normativa vigente y requerimientos funcionales.\n- **Tres tinglados para crianza de cuyes:** Estructuras livianas diseñadas específicamente para las condiciones de carga, ventilación y uso propias de esta actividad agropecuaria.\n- **Tanque elevado:** Cálculo estructural del soporte y del depósito para el sistema de abastecimiento de agua de las nuevas instalaciones, considerando cargas hidrostáticas y sísmicas.\n- **Planos estructurales:** Documentación técnica ejecutiva para cada una de las infraestructuras, lista para proceso de contratación y construcción.\n\n## Valor Entregado\n\nEl desarrollo integral de todas las infraestructuras bajo un mismo enfoque técnico garantizó coherencia entre los sistemas, eficiencia en la gestión del proyecto y entrega de documentación ejecutiva completa para la totalidad del conjunto.",
+            "gallery": [
+                "img/calculo-estructural-de-tinglados-para-la-facultad--7-01.jpg",
+                "img/calculo-estructural-de-tinglados-para-la-facultad--7-02.jpg",
+                "img/calculo-estructural-de-tinglados-para-la-facultad--7-03.png",
+                "img/calculo-estructural-de-tinglados-para-la-facultad--7-04.jpg",
+                "img/calculo-estructural-de-tinglados-para-la-facultad--7-05.jpg"
+            ]
+        },
+        {
+            "id": 8,
+            "title": "Planos para Obras Sociales en Zonas Rurales",
+            "description": "Elaboración de planos técnicos para infraestructuras de impacto social en comunidades rurales: atajados de captación de agua, silos de almacenamiento, cobertizos para ganado y sistemas de recolección de agua de lluvia.",
+            "image": "img/elaboracion-de-planos-para-obras-sociales-en-zonas-8-01.png",
+            "category": "ingenieria",
+            "details": "## Descripción del Proyecto\n\nElaboración de documentación técnica para un programa de obras sociales destinado a mejorar las condiciones productivas y de habitabilidad de comunidades rurales. Las infraestructuras diseñadas responden a necesidades concretas de gestión del agua, almacenamiento y protección animal.\n\n## Alcance del Trabajo\n\n- **Atajados de captación de agua:** Planos técnicos para la construcción de represas pequeñas destinadas al almacenamiento de agua para uso agropecuario y doméstico.\n- **Silos de almacenamiento de papa:** Diseño de estructuras de almacenamiento adaptadas a las condiciones climáticas y a los requerimientos de conservación del producto.\n- **Cobertizos para llamas:** Planos de refugios ganaderos con condiciones adecuadas de ventilación, protección climática y manejo del ganado.\n- **Sistemas de recolección de agua de lluvia:** Diseño de captación y almacenamiento de agua pluvial para riego de cultivos, mejorando la disponibilidad hídrica en épocas secas.\n\n## Valor Entregado\n\nLa documentación técnica entregada permitió a las comunidades y organismos ejecutores contar con planos claros, replicables y adaptados al contexto rural, facilitando la construcción con recursos locales y mano de obra comunitaria.",
+            "gallery": [
+                "img/elaboracion-de-planos-para-obras-sociales-en-zonas-8-01.png",
+                "img/elaboracion-de-planos-para-obras-sociales-en-zonas-8-02.png",
+                "img/elaboracion-de-planos-para-obras-sociales-en-zonas-8-03.png",
+                "img/elaboracion-de-planos-para-obras-sociales-en-zonas-8-04.png",
+                "img/elaboracion-de-planos-para-obras-sociales-en-zonas-8-05.jpg",
+                "img/elaboracion-de-planos-para-obras-sociales-en-zonas-8-06.jpg",
+                "img/elaboracion-de-planos-para-obras-sociales-en-zonas-8-07.jpg"
+            ]
+        },
+        {
+            "id": 9,
+            "title": "Diseño Estructural de Salón de Eventos con Cubierta Metálica",
+            "description": "Diseño de estructura metálica para salón de eventos de gran luz, dimensionada para resistir cargas climáticas extremas incluyendo granizo, con uso de metodología BIM para control de calidad constructiva.",
+            "image": "img/diseno-de-salon-de-eventos-con-cubierta-metalica-9-01.png",
+            "category": "ingenieria",
+            "details": "## Descripción del Proyecto\n\nDiseño estructural de un salón de eventos de gran capacidad con cubierta metálica de amplia luz libre. La exigencia del programa requirió una solución estructural que garantizara seguridad ante condiciones climáticas adversas, incluyendo eventos de granizo propios de la región, y que permitiera una ejecución sin contratiempos.\n\n## Alcance del Trabajo\n\n- **Diseño de cubierta metálica:** Cálculo y dimensionamiento de la estructura de cubierta considerando cargas permanentes, sobrecargas de uso y cargas climáticas, con especial atención al impacto de granizo.\n- **Metodología BIM aplicada a la estructura metálica:** Modelado tridimensional que permitió verificar la geometría, detectar interferencias entre elementos y optimizar el proceso de fabricación y montaje.\n- **Coordinación estructural y arquitectónica:** Integración de la solución estructural con los requerimientos espaciales y estéticos del salón, preservando la funcionalidad del recinto.\n- **Documentación técnica:** Planos de taller y montaje con el nivel de detalle necesario para la fabricación y erección de la estructura en obra.\n\n## Valor Entregado\n\nEl uso del modelado BIM como herramienta de control permitió anticipar problemas de montaje, optimizar el peso de la estructura y entregar documentación técnica de alta precisión, reduciendo tiempos y costos durante la ejecución.",
+            "gallery": [
+                "img/diseno-de-salon-de-eventos-con-cubierta-metalica-9-01.png",
+                "img/diseno-de-salon-de-eventos-con-cubierta-metalica-9-02.png",
+                "img/diseno-de-salon-de-eventos-con-cubierta-metalica-9-03.png",
+                "img/diseno-de-salon-de-eventos-con-cubierta-metalica-9-04.png",
+                "img/diseno-de-salon-de-eventos-con-cubierta-metalica-9-05.jpg",
+                "img/diseno-de-salon-de-eventos-con-cubierta-metalica-9-06.png"
+            ]
+        },
+        {
+            "id": 10,
+            "title": "Cálculo Estructural y Supervisión de Obra — Edificio Multifamiliar",
+            "description": "Responsabilidad integral sobre el cálculo estructural y la supervisión de obra de un edificio multifamiliar, desde obra gruesa hasta obra fina, con coordinación BIM de todas las especialidades y control de materiales en campo.",
+            "image": "img/calculo-estructural-y-supervision-de-edificacion-m-10-01.png",
+            "category": "ingenieria",
+            "details": "## Descripción del Proyecto\n\nParticipación como responsable técnico del cálculo estructural y supervisor de obra de un edificio de vivienda multifamiliar. El proyecto abarcó desde el diseño hasta la entrega final, con presencia activa en obra durante todas sus etapas y uso de metodología BIM como herramienta de gestión y seguimiento.\n\n## Alcance del Trabajo\n\n- **Cálculo estructural:** Diseño completo de la estructura del edificio con criterios de seguridad, normativa vigente y eficiencia de materiales.\n- **Coordinación BIM multidisciplinaria:** Integración de todas las especialidades en el modelo digital para anticipar interferencias, facilitar la toma de decisiones y mantener alineado al equipo de obra con los requerimientos del cliente.\n- **Supervisión de obra gruesa:** Control de calidad en la ejecución de fundaciones, elementos portantes y losas, verificando conformidad con planos y especificaciones técnicas.\n- **Supervisión de obra fina:** Seguimiento de terminaciones, instalaciones y detalles constructivos hasta la entrega del edificio.\n- **Control de materiales:** Verificación y optimización del uso de materiales en campo, asegurando coherencia con el modelo digital y las cantidades proyectadas.\n\n## Valor Entregado\n\nLa visión integral del proyecto, combinando diseño estructural y supervisión directa, garantizó que la obra se ejecutara conforme a lo proyectado, con materiales optimizados y cumpliendo las expectativas del cliente en plazo, costo y calidad.",
+            "gallery": [
+                "img/calculo-estructural-y-supervision-de-edificacion-m-10-01.png",
+                "img/calculo-estructural-y-supervision-de-edificacion-m-10-02.png",
+                "img/calculo-estructural-y-supervision-de-edificacion-m-10-03.png",
+                "img/calculo-estructural-y-supervision-de-edificacion-m-10-04.png",
+                "img/calculo-estructural-y-supervision-de-edificacion-m-10-05.jpg",
+                "img/calculo-estructural-y-supervision-de-edificacion-m-10-06.jpg"
+            ]
+        },
+        {
+            "id": 11,
+            "title": "Planilla de Cálculo Estructural — Vigas y Columnas según ACI-318",
+            "description": "Herramienta profesional en Excel para el diseño automatizado de vigas y columnas de concreto armado conforme a la norma ACI-318, con generación de memoria de cálculo y manual de uso incluido.",
+            "image": "img/planilla-de-calculo-estructural-11-01.png",
+            "category": "producto",
+            "details": "## Descripción del Producto\n\nPlanilla de cálculo estructural desarrollada en Excel para el diseño de elementos de concreto armado bajo los criterios de la norma ACI-318. Diseñada para ingenieros civiles y profesionales de la construcción que requieren una herramienta ágil, verificable y lista para uso profesional.\n\n## Funcionalidades Incluidas\n\n- **Diseño de vigas de concreto armado:** Cálculo de refuerzo a flexión, cortante y verificación de deflexiones.\n- **Diseño de columnas:** Dimensionamiento bajo carga axial y flexión compuesta, con diagrama de interacción.\n- **Verificación normativa ACI-318:** Todas las comprobaciones están referenciadas a los artículos correspondientes de la norma, facilitando la revisión por terceros.\n- **Generación automática de memoria de cálculo:** La planilla produce un reporte ordenado y exportable con todos los parámetros, resultados y verificaciones del diseño.\n- **Manual de uso:** Documentación completa que guía al usuario en la correcta aplicación de la herramienta y la interpretación de resultados.\n\n## ¿Para quién es este producto?\n\nIdeal para ingenieros en ejercicio profesional, proyectistas independientes y empresas de ingeniería que buscan optimizar sus tiempos de cálculo sin perder trazabilidad ni rigor técnico.",
+            "gallery": [
+                "img/planilla-de-calculo-estructural-11-01.png"
+            ],
+            "isProduct": true,
+            "price": "100 Bs",
+            "productType": "Excel",
+            "youtubeUrl": "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
+        }
+    ]
+}
