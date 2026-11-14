@@ -66,7 +66,7 @@
     <header class="hero" id="home">
         <div class="container">
             <div class="hero-card">
-                <img class="hero-card-img" src="img/calculo-hidrosanitario-para-vivienda-de-alquiler-e-1-07.webp"
+                <img class="hero-card-img" data-site-image="hero" src="img/calculo-hidrosanitario-para-vivienda-de-alquiler-e-1-07.webp"
                      alt="Modelo BIM de vivienda con iluminación interior" fetchpriority="high">
                 <div class="hero-card-shade"></div>
 
@@ -81,7 +81,7 @@
                 </div>
 
                 <div class="hero-float">
-                    <img src="img/CUBIERTA-AGRO3-min.webp" alt="">
+                    <img data-site-image="heroFloat" src="img/CUBIERTA-AGRO3-min.webp" alt="">
                     <div>
                         <strong>Modelado BIM</strong>
                         <span>Estructura verificada antes de construir</span>
@@ -153,7 +153,7 @@
             <p class="kicker">Sobre mí</p>
             <div class="dossier">
                 <figure class="dossier-photo">
-                    <img src="img/Ruben_traje.webp" alt="Ruben Valero, Ingeniero Civil" width="200" height="200" loading="lazy">
+                    <img data-site-image="portrait" src="img/Ruben_traje.webp" alt="Ruben Valero, Ingeniero Civil" width="200" height="200" loading="lazy">
                 </figure>
                 <div class="dossier-data">
                     <h2>Ruben Valero</h2>
@@ -218,7 +218,7 @@
     <section class="colored-section" id="contacto">
         <div class="container">
             <div class="cta-card">
-                <img class="cta-img" src="img/calculo-estructural-y-modelado-bim-de-edificio-mul-6-01.webp" alt="Modelo estructural BIM" loading="lazy">
+                <img class="cta-img" data-site-image="cta" src="img/calculo-estructural-y-modelado-bim-de-edificio-mul-6-01.webp" alt="Modelo estructural BIM" loading="lazy">
                 <div class="cta-shade"></div>
                 <div class="cta-content">
                     <h2>Construyamos su próximo<br>proyecto, bien desde<br>el primer plano.</h2>
@@ -323,10 +323,6 @@
                     </button>
                 </div>
 
-                <button type="button" class="sheet-hero-expand" id="sheetHeroOpen" aria-label="Ampliar imagen de portada">
-                    <i class="fas fa-expand"></i>
-                </button>
-                <span class="sheet-hero-caption" id="sheetHeroCaption"></span>
             </section>
 
             <div class="sheet-features">
@@ -365,6 +361,16 @@
 
             <div class="sheet-sr" id="modalDetails"></div>
         </div>
+
+        <!-- Barra fija de cierre en móvil: el botón X sigue accesible al hacer scroll. -->
+        <div class="sheet-mobilebar" id="sheetMobileBar">
+            <span class="sheet-mark">RV<span>.</span></span>
+            <span class="sheet-mobilebar-label">Ficha <span data-sheet="index">—</span></span>
+            <button type="button" class="sheet-theme" data-theme-toggle aria-label="Cambiar tema" title="Cambiar tema">
+                <i class="fas fa-moon"></i>
+            </button>
+            <button type="button" class="sheet-mobile-close" id="sheetMobileClose" aria-label="Cerrar ficha"><i class="fas fa-times"></i></button>
+        </div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
@@ -377,5 +383,6 @@
     <script src="js/script.js"></script>
     <script src="js/viewer.js"></script>
     <script src="js/design.js"></script>
+    <script src="js/site.js"></script>
 </body>
 </html>

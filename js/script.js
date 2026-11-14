@@ -3,6 +3,81 @@
 // ===============================================
 let projects = [];
 
+// ===============================================
+// NAVEGACIÓN DE CAPAS CON HISTORIAL (botón atrás del móvil)
+// Cada capa abierta (ficha / visor) crea una entrada en el historial.
+// Al pulsar atrás, popstate cierra SOLO la capa superior en lugar de
+// abandonar la página. Si el usuario cierra con el botón X, se consume
+// la entrada del historial para que la pila no quede desincronizada.
+// ===============================================
+const OverlayNav = (function () {
+    let sheetId = null;
+    let viewerOpen = false;
+    let depth = 0;
+
+    const stateFor = (d) => ({ wb: { sheet: sheetId, viewer: viewerOpen, depth: d } });
+
+    function hideViewerDom() {
+        viewerOpen = false;
+        if (window.Viewer && typeof window.Viewer._rawClose === 'function') {
+            window.Viewer._rawClose();
+        }
+    }
+
+    function hideSheetDom() {
+        if (viewerOpen) hideViewerDom();
+        const m = document.getElementById('projectModal');
+        if (m) m.style.display = 'none';
+        document.body.style.overflow = '';
+        document.body.classList.remove('sheet-open');
+        sheetId = null;
+    }
+
+    function apply(state) {
+        const wb = state && state.wb;
+        depth = wb ? (wb.depth || 0) : 0;
+        const wantViewer = !!(wb && wb.viewer);
+        const wantSheet = wb ? wb.sheet : null;
+
+        if (!wantViewer && viewerOpen) hideViewerDom();
+        if (!wantSheet && sheetId !== null) hideSheetDom();
+        // Botón "adelante": reabrir la ficha sin crear otra entrada.
+        if (wantSheet !== null && wantSheet !== sheetId && typeof window.openModal === 'function') {
+            window.openModal(wantSheet, true);
+        }
+    }
+
+    window.addEventListener('popstate', (event) => apply(event.state));
+
+    return {
+        sheetOpened(id) {
+            sheetId = id;
+            depth += 1;
+            document.body.classList.add('sheet-open');
+            try { history.pushState(stateFor(depth), ''); } catch (e) { /* entorno sin historial */ }
+        },
+        viewerOpened() {
+            viewerOpen = true;
+            depth += 1;
+            try { history.pushState(stateFor(depth), ''); } catch (e) { /* entorno sin historial */ }
+        },
+        notifyViewerClosed() { viewerOpen = false; },
+        requestCloseSheet() {
+            if (sheetId === null) return false;
+            if (depth > 0) { history.go(-depth); return true; }
+            return false;
+        },
+        requestCloseViewer() {
+            if (!viewerOpen) return false;
+            if (depth > 0) { history.back(); return true; }
+            return false;
+        },
+        forceCloseSheet() { hideSheetDom(); },
+        isSheetOpen() { return sheetId !== null; }
+    };
+})();
+window.OverlayNav = OverlayNav;
+
 // Configuración de WhatsApp para productos
 const WHATSAPP_CONFIG = {
     phoneNumber: '59176982955',
@@ -249,7 +324,7 @@ function fitDisplayTitle(el) {
     }
 }
 
-function openModal(projectId) {
+function openModal(projectId, fromHistory = false) {
     const project = projects.find((p) => p.id === projectId);
     if (!project || !modal) return;
 
@@ -295,29 +370,19 @@ function openModal(projectId) {
         contact.href = `mailto:Ing.RubenValero@outlook.com?subject=${encodeURIComponent('Consulta sobre: ' + project.title)}`;
     }
 
-    /* --- Portada --- */
+    /* --- Portada: imagen limpia, sin botón ni leyenda --- */
     const heroFigure = document.getElementById('sheetHeroFigure');
     const heroImg = document.getElementById('sheetHeroImage');
-    const heroOpen = document.getElementById('sheetHeroOpen');
-    const heroCaption = document.getElementById('sheetHeroCaption');
     if (heroFigure && heroImg) {
         if (slots.hero) {
             heroFigure.hidden = false;
             heroImg.src = slots.hero.src;
             heroImg.alt = project.title;
-            if (heroOpen) {
-                heroOpen.hidden = false;
-                heroOpen.onclick = (e) => { e.stopPropagation(); openLightbox(project, slots.hero.index); };
-            }
-            if (heroCaption) {
-                heroCaption.hidden = false;
-                heroCaption.textContent = `Fig. 01 / Portada · ${categoryLabel}`;
-                heroCaption.setAttribute('title', project.title);
-            }
+            // Se mantiene la ampliación, pero pulsando la propia imagen.
+            heroFigure.onclick = () => openLightbox(project, slots.hero.index);
         } else {
             heroFigure.hidden = true;
-            if (heroOpen) heroOpen.hidden = true;
-            if (heroCaption) heroCaption.hidden = true;
+            heroFigure.onclick = null;
         }
     }
 
@@ -337,9 +402,8 @@ function openModal(projectId) {
                     <p class="kicker">${escapeHtml((chunk && chunk.heading) || fallbacks[c])}</p>
                     <div class="sheet-card-body">${renderMarkdown(chunk ? chunk.body : '')}</div>
                 </div>
-                ${img ? `<button type="button" class="sheet-card-media" aria-label="Ampliar imagen ${img.index + 1}">
+                ${img ? `<button type="button" class="sheet-card-media" aria-label="Ver imagen ${img.index + 1}">
                     <img src="${img.src}" alt="${escapeHtml(project.title)} — imagen ${img.index + 1}" loading="lazy" decoding="async">
-                    <span class="sheet-media-zoom"><i class="fas fa-expand"></i></span>
                 </button>` : ''}
             `;
             if (img) {
@@ -387,10 +451,9 @@ function openModal(projectId) {
             const btn = document.createElement('button');
             btn.type = 'button';
             btn.className = 'sheet-pair-item';
-            btn.setAttribute('aria-label', `Ampliar imagen ${img.index + 1}`);
+            btn.setAttribute('aria-label', `Ver imagen ${img.index + 1}`);
             btn.innerHTML = `
                 <img src="${img.src}" alt="${escapeHtml(project.title)} — imagen ${img.index + 1}" loading="lazy" decoding="async">
-                <span class="sheet-media-zoom"><i class="fas fa-expand"></i></span>
             `;
             btn.addEventListener('click', (e) => { e.stopPropagation(); openLightbox(project, img.index); });
             pairEl.appendChild(btn);
@@ -405,15 +468,10 @@ function openModal(projectId) {
         const btn = document.createElement('button');
         btn.type = 'button';
         btn.className = 'sheet-cat-card' + (compact ? ' sheet-cat-card-compact' : '');
-        btn.setAttribute('aria-label', `Ampliar imagen ${img.index + 1} de ${gallery.length}`);
+        btn.setAttribute('aria-label', `Ver imagen ${img.index + 1} de ${gallery.length}`);
         btn.innerHTML = `
             <span class="sheet-cat-media">
                 <img src="${img.src}" alt="${escapeHtml(project.title)} — imagen ${img.index + 1}" loading="lazy" decoding="async">
-                <span class="sheet-cat-label">IMAGEN ${pad(img.index + 1)}</span>
-            </span>
-            <span class="sheet-cat-foot">
-                <span><strong>Vista ${pad(img.index + 1)}</strong><small>Documentación gráfica</small></span>
-                <span class="sheet-cat-arrow"><i class="fas fa-arrow-right"></i></span>
             </span>
         `;
         btn.addEventListener('click', (e) => { e.stopPropagation(); openLightbox(project, img.index); });
@@ -483,6 +541,9 @@ function openModal(projectId) {
     modal.setAttribute('role', 'dialog');
     modal.setAttribute('aria-modal', 'true');
     fitDisplayTitle(titleEl);
+
+    // Registrar la ficha en el historial para que el botón atrás la cierre.
+    if (!fromHistory && window.OverlayNav) window.OverlayNav.sheetOpened(project.id);
 }
 
 function formatDetails(details) {
@@ -494,11 +555,18 @@ if (span) {
         closeModal();
     }
 }
+const mobileSheetClose = document.getElementById('sheetMobileClose');
+if (mobileSheetClose) mobileSheetClose.addEventListener('click', closeModal);
 
 function closeModal() {
-    if (modal) {
-        modal.style.display = "none";
-        document.body.style.overflow = "auto";
+    if (!modal || modal.style.display === 'none') return;
+    // Si hay entradas en el historial, dejar que popstate cierre la ficha:
+    // así el botón atrás posterior no "rebota" contra una entrada huérfana.
+    if (window.OverlayNav && window.OverlayNav.requestCloseSheet()) return;
+    if (window.OverlayNav) window.OverlayNav.forceCloseSheet();
+    else {
+        modal.style.display = 'none';
+        document.body.style.overflow = '';
     }
 }
 

@@ -5,8 +5,9 @@ RESPALDO/
 # Fuente de verdad única: las copias antiguas de datos NO se publican
 data/projects copy*.json
 
-# Respaldo automático que crea admin.html antes de cada escritura (solo local)
+# Respaldos automáticos que crea admin.html antes de cada escritura (solo locales)
 data/projects.respaldo.json
+data/site.respaldo.json
 
 # Originales JPG/PNG previos a la optimización WebP: se conservan en local,
 # pero NO se publican (GitHub Pages solo sirve lo que está en el repo).

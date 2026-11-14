@@ -787,6 +787,34 @@
             border-top: 1px solid var(--border);
         }
 
+        /* ===== SITE IMAGES VIEW ===== */
+        .site-slot {
+            display: grid;
+            grid-template-columns: 132px minmax(0, 1fr) auto;
+            gap: 18px;
+            align-items: center;
+            padding: 16px 0;
+            border-bottom: 1px solid var(--border);
+        }
+        .site-slot:last-child { border-bottom: 0; }
+        .site-slot-preview {
+            width: 132px; height: 88px; object-fit: cover;
+            border-radius: 8px; border: 1px solid var(--border);
+            background: var(--surface-3);
+        }
+        .site-slot-info { min-width: 0; }
+        .site-slot-info strong { display: block; font-size: 0.92rem; margin-bottom: 4px; }
+        .site-slot-info span { display: block; font-size: 0.76rem; color: var(--text-muted); margin-bottom: 8px; line-height: 1.5; }
+        .site-slot-actions { display: flex; flex-direction: column; gap: 8px; }
+        .site-slot-actions .btn { white-space: nowrap; font-size: 0.76rem; padding: 8px 14px; }
+        .site-file-label { display: inline-block; cursor: pointer; }
+        .site-file-label input { display: none; }
+        @media (max-width: 900px) {
+            .site-slot { grid-template-columns: 100px minmax(0, 1fr); }
+            .site-slot-preview { width: 100px; height: 70px; }
+            .site-slot-actions { grid-column: 1 / -1; flex-direction: row; flex-wrap: wrap; }
+        }
+
         /* ===== EXPORT VIEW ===== */
         .export-card {
             background: var(--surface);
@@ -963,6 +991,9 @@
                 </button>
                 <button class="sidebar-link" data-view="add">
                     <i class="fas fa-plus-circle"></i> Nuevo Proyecto
+                </button>
+                <button class="sidebar-link" data-view="site">
+                    <i class="fas fa-image"></i> Imágenes del sitio
                 </button>
                 <button class="sidebar-link" data-view="export">
                     <i class="fas fa-file-export"></i> Exportar JSON
@@ -1176,6 +1207,42 @@
             </div>
 
             <!-- ======= EXPORT VIEW ======= -->
+            <!-- ======= SITE IMAGES VIEW ======= -->
+            <div class="view" id="view-site">
+                <div class="page-header">
+                    <h1>Imágenes del sitio</h1>
+                    <p>Cambia la portada principal, tu foto de perfil y el resto de imágenes fijas</p>
+                </div>
+
+                <div class="export-card">
+                    <h3><i class="fas fa-image" style="color:var(--primary);margin-right:8px"></i> Imágenes configurables</h3>
+                    <p>Estas rutas se guardan en <code>data/site.json</code>. El panel convierte la imagen a WebP,
+                       la escribe en <code>img/</code> y actualiza la configuración. Pulsa <strong>Guardar ruta</strong>
+                       si prefieres escribir a mano la ruta de una imagen que ya exista.</p>
+                    <p id="siteConnectionNote" class="inline-note">Comprobando conexión…</p>
+                    <div id="siteSlots"></div>
+                    <p class="inline-note">
+                        Al cambiar la <strong>foto de perfil</strong> también se regenera
+                        <code>img/Ruben_traje.jpg</code>, que es la vista previa de WhatsApp/LinkedIn
+                        (<code>og:image</code>). Ese archivo debe seguir siendo JPG porque los rastreadores
+                        sociales no ejecutan JavaScript.
+                    </p>
+                </div>
+
+                <div class="export-card">
+                    <h3><i class="fas fa-circle-info" style="color:var(--warning);margin-right:8px"></i> Criterio para la portada</h3>
+                    <p>La portada va a sangre con un desvanecimiento oscuro de izquierda a derecha y el
+                       titular encima. Conviene dejar el motivo a la derecha y la zona izquierda oscura o
+                       despejada. Se recomienda una imagen horizontal de al menos 1600 px de ancho.
+                       El panel la limita a 2400 px y la convierte a WebP calidad 82.</p>
+                    <ol style="color:var(--text-muted);font-size:0.9rem;padding-left:20px;line-height:2">
+                        <li>Conectar «Carpeta del proyecto» (la raíz con <code>data/</code> e <code>img/</code>)</li>
+                        <li>Subir la imagen o guardar una ruta existente</li>
+                        <li>Ejecutar <code>python tools/validar.py</code> y <code>bash publicar.sh</code></li>
+                    </ol>
+                </div>
+            </div>
+
             <div class="view" id="view-export">
                 <div class="page-header">
                     <h1>Exportar Proyectos</h1>
@@ -1255,6 +1322,24 @@
     let draggingGalleryIndex = null;
     let convertingImages = false;
 
+    /* --- Imágenes fijas del sitio (data/site.json) --- */
+    const SITE_SLOTS = [
+        { key: 'hero',      label: 'Portada principal',        hint: 'Imagen a sangre detrás del titular. Horizontal, motivo a la derecha.' },
+        { key: 'heroFloat', label: 'Tarjeta flotante del hero', hint: 'Pequeña vista que acompaña al bloque «Modelado BIM».', },
+        { key: 'portrait',  label: 'Foto de perfil',           hint: 'Retrato de la sección «Sobre mí». También regenera la vista previa og:image.' },
+        { key: 'cta',       label: 'Bloque de contacto',       hint: 'Imagen de fondo del bloque oscuro «Solicitar presupuesto».' }
+    ];
+    const SITE_DEFAULT_IMAGES = {
+        hero: 'img/calculo-hidrosanitario-para-vivienda-de-alquiler-e-1-07.webp',
+        heroFloat: 'img/CUBIERTA-AGRO3-min.webp',
+        portrait: 'img/Ruben_traje.webp',
+        cta: 'img/calculo-estructural-y-modelado-bim-de-edificio-mul-6-01.webp'
+    };
+    const OG_IMAGE_NAME = 'Ruben_traje.jpg';
+    const SITE_PATH_RE = /^img\/[A-Za-z0-9._%\-/]+\.(?:webp|png|jpe?g|svg|gif)$/i;
+    let siteConfig = { images: { ...SITE_DEFAULT_IMAGES } };
+    let siteFileHandle = null;
+
     // ===== FILE SYSTEM HANDLE CACHE (IndexedDB) =====
     function openHandlesDB() {
         return new Promise((resolve, reject) => {
@@ -1318,6 +1403,259 @@
                 : 'SIN CONEXIÓN · no se guarda en disco';
             stateEl.style.color = isJsonConnected ? 'var(--success)' : 'var(--danger)';
         }
+        updateSiteConnectionNote();
+    }
+
+    /* ============================================================
+       IMÁGENES DEL SITIO: config en data/site.json + escritura segura
+       ============================================================ */
+    function escapeAttr(value) {
+        return String(value == null ? '' : value)
+            .replace(/&/g, '&amp;').replace(/"/g, '&quot;')
+            .replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    }
+
+    function validateSiteConfig(config) {
+        if (!config || !config.images || typeof config.images !== 'object') {
+            return 'falta el objeto images';
+        }
+        for (const slot of SITE_SLOTS) {
+            const value = config.images[slot.key];
+            if (!value || typeof value !== 'string' || !SITE_PATH_RE.test(value.trim())) {
+                return `ruta inválida en «${slot.label}» (debe empezar por img/ y ser una imagen)`;
+            }
+        }
+        return null;
+    }
+
+    function updateSiteConnectionNote() {
+        const note = document.getElementById('siteConnectionNote');
+        if (!note) return;
+        const ready = !!(imageDirectoryHandle && siteFileHandle && dataDirectoryHandle);
+        note.textContent = ready
+            ? 'Conectado · los cambios se escriben en img/ y data/site.json.'
+            : 'SIN CONEXIÓN: pulsa «Conectar carpeta del proyecto» (raíz con data/ e img/) para poder guardar.';
+        note.style.color = ready ? 'var(--success)' : 'var(--danger)';
+    }
+
+    function renderSiteSlots() {
+        const host = document.getElementById('siteSlots');
+        if (!host) return;
+        host.innerHTML = SITE_SLOTS.map((slot) => {
+            const path = siteConfig.images[slot.key] || SITE_DEFAULT_IMAGES[slot.key];
+            return `
+                <div class="site-slot" data-slot="${slot.key}">
+                    <img class="site-slot-preview" src="${escapeAttr(path)}" alt="" loading="lazy">
+                    <div class="site-slot-info">
+                        <strong>${escapeAttr(slot.label)}</strong>
+                        <span>${escapeAttr(slot.hint)}</span>
+                        <input type="text" class="form-control site-slot-path"
+                               value="${escapeAttr(path)}" aria-label="Ruta de ${escapeAttr(slot.label)}">
+                    </div>
+                    <div class="site-slot-actions">
+                        <label class="btn btn-primary site-file-label">Subir imagen
+                            <input type="file" accept="image/*" data-site-upload="${slot.key}">
+                        </label>
+                        <button type="button" class="btn btn-ghost" data-site-save="${slot.key}">Guardar ruta</button>
+                    </div>
+                </div>`;
+        }).join('');
+        updateSiteConnectionNote();
+    }
+
+    async function loadSiteConfig() {
+        try {
+            const res = await fetch(`data/site.json?t=${Date.now()}`, { cache: 'no-store' });
+            if (!res.ok) return;
+            const data = await res.json();
+            if (!validateSiteConfig(data)) siteConfig = { images: { ...data.images } };
+        } catch (e) {
+            console.warn('No se pudo leer data/site.json; se usan los valores del HTML', e);
+        }
+        renderSiteSlots();
+    }
+
+    async function adoptSiteFromDisk() {
+        if (!siteFileHandle) return;
+        try {
+            const text = await (await siteFileHandle.getFile()).text();
+            const data = JSON.parse(text);
+            if (!validateSiteConfig(data)) {
+                siteConfig = { images: { ...data.images } };
+                renderSiteSlots();
+            }
+        } catch (e) {
+            console.warn('data/site.json del disco no es válido; se conserva la config en memoria', e);
+        }
+    }
+
+    async function sitePathExists(path) {
+        try {
+            const res = await fetch(path, { method: 'HEAD', cache: 'no-store' });
+            return res.ok;
+        } catch (e) {
+            return false;
+        }
+    }
+
+    async function writeSiteBackup() {
+        if (!dataDirectoryHandle || !siteFileHandle) return false;
+        try {
+            const text = await (await siteFileHandle.getFile()).text();
+            if (!text.trim()) return false;
+            if (validateSiteConfig(JSON.parse(text))) return false;
+            const backup = await dataDirectoryHandle.getFileHandle('site.respaldo.json', { create: true });
+            const writable = await backup.createWritable();
+            await writable.write(text);
+            await writable.close();
+            return true;
+        } catch (e) {
+            console.warn('No se pudo crear data/site.respaldo.json', e);
+            return false;
+        }
+    }
+
+    async function persistSiteJSON() {
+        if (!siteFileHandle || !dataDirectoryHandle) {
+            showToast('NO se guardó: conecta «Carpeta del proyecto». data/site.json no se tocó.', 'error');
+            return false;
+        }
+        const error = validateSiteConfig(siteConfig);
+        if (error) {
+            showToast(`No se escribió data/site.json: ${error}.`, 'error');
+            return false;
+        }
+        if (!await writeSiteBackup()) {
+            showToast('No se pudo crear el respaldo; data/site.json no se tocó.', 'error');
+            return false;
+        }
+        try {
+            const writable = await siteFileHandle.createWritable();
+            await writable.write(JSON.stringify(siteConfig, null, 4) + '\n');
+            await writable.close();
+            return true;
+        } catch (e) {
+            console.error(e);
+            showToast('No se pudo actualizar data/site.json. Hay una copia en data/site.respaldo.json.', 'error');
+            return false;
+        }
+    }
+
+    /* Genera el JPG de og:image a partir del archivo original (sin pérdida doble). */
+    async function makeOgJpeg(file) {
+        if (typeof createImageBitmap !== 'function') return null;
+        let bitmap = null;
+        try {
+            bitmap = await createImageBitmap(file);
+            const scale = Math.min(1, 1200 / Math.max(bitmap.width, bitmap.height));
+            const canvas = document.createElement('canvas');
+            canvas.width = Math.max(1, Math.round(bitmap.width * scale));
+            canvas.height = Math.max(1, Math.round(bitmap.height * scale));
+            const ctx = canvas.getContext('2d');
+            if (!ctx) return null;
+            ctx.fillStyle = '#FFFFFF';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.drawImage(bitmap, 0, 0, canvas.width, canvas.height);
+            if (bitmap.close) bitmap.close();
+            const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/jpeg', 0.86));
+            if (!blob) return null;
+            return new File([blob], OG_IMAGE_NAME, { type: 'image/jpeg' });
+        } catch (e) {
+            if (bitmap && bitmap.close) bitmap.close();
+            console.warn('No se pudo generar og:image', e);
+            return null;
+        }
+    }
+
+    async function changeSiteImage(slotKey, file) {
+        const slot = SITE_SLOTS.find(s => s.key === slotKey);
+        if (!slot || !file) return;
+        if (!imageDirectoryHandle || !siteFileHandle || !dataDirectoryHandle) {
+            showToast('Conecta «Carpeta del proyecto» antes de cambiar imágenes del sitio.', 'error');
+            return;
+        }
+
+        showToast('Convirtiendo imagen a WebP…', 'info');
+        const result = await convertToWebP(file);
+        const ext = (result.file.name.split('.').pop() || 'webp').toLowerCase();
+        const fileName = `sitio-${slotKey}.${ext}`;
+        try {
+            const handle = await imageDirectoryHandle.getFileHandle(fileName, { create: true });
+            const writable = await handle.createWritable();
+            await writable.write(result.file);
+            await writable.close();
+        } catch (e) {
+            console.error(e);
+            showToast('No se pudo escribir la imagen en img/. data/site.json no se tocó.', 'error');
+            return;
+        }
+
+        if (slotKey === 'portrait') {
+            const jpeg = await makeOgJpeg(file);
+            if (jpeg) {
+                try {
+                    const handle = await imageDirectoryHandle.getFileHandle(OG_IMAGE_NAME, { create: true });
+                    const writable = await handle.createWritable();
+                    await writable.write(jpeg);
+                    await writable.close();
+                } catch (e) {
+                    console.warn(e);
+                    showToast('La foto se guardó, pero no se pudo actualizar og:image (JPG).', 'warning');
+                }
+            }
+        }
+
+        const next = { images: { ...siteConfig.images, [slotKey]: `img/${fileName}` } };
+        const error = validateSiteConfig(next);
+        if (error) {
+            showToast(`No se actualizó la configuración: ${error}.`, 'error');
+            return;
+        }
+        const previous = siteConfig;
+        siteConfig = next;
+        const written = await persistSiteJSON();
+        if (!written) siteConfig = previous; // rollback: no apuntar a nada no confirmado
+        renderSiteSlots();
+        if (written) showToast(`${slot.label} actualizada. Ejecuta validar.py y publicar.sh.`, 'success');
+    }
+
+    async function saveSitePath(slotKey) {
+        const row = document.querySelector(`.site-slot[data-slot="${slotKey}"]`);
+        const value = row ? (row.querySelector('.site-slot-path')?.value || '').trim() : '';
+        const next = { images: { ...siteConfig.images, [slotKey]: value } };
+        const error = validateSiteConfig(next);
+        if (error) {
+            showToast(`Ruta no válida: ${error}.`, 'error');
+            return;
+        }
+        if (!await sitePathExists(value)) {
+            showToast(`No existe ${value} en img/. Copia la imagen antes de guardar la ruta.`, 'error');
+            return;
+        }
+        const previous = siteConfig;
+        siteConfig = next;
+        const written = await persistSiteJSON();
+        if (!written) siteConfig = previous;
+        renderSiteSlots();
+        if (written) showToast('Ruta guardada en data/site.json. Falta publicar.', 'success');
+    }
+
+    /* Delegación: las filas se regeneran al renderizar, así que los listeners
+       van en el contenedor y no en cada botón. */
+    function setupSiteListeners() {
+        const host = document.getElementById('siteSlots');
+        if (!host) return;
+        host.addEventListener('change', (event) => {
+            const input = event.target.closest('[data-site-upload]');
+            if (!input || !input.files || !input.files[0]) return;
+            const file = input.files[0];
+            input.value = '';
+            changeSiteImage(input.dataset.siteUpload, file);
+        });
+        host.addEventListener('click', (event) => {
+            const button = event.target.closest('[data-site-save]');
+            if (button) saveSitePath(button.dataset.siteSave);
+        });
     }
 
     async function restoreSavedConnections() {
@@ -1348,7 +1686,10 @@
                     imageDirectoryHandle = imgHandle;
                     dataDirectoryHandle = dataHandle;
                     projectsFileHandle = projectsHandle;
+                    try { siteFileHandle = await dataHandle.getFileHandle('site.json'); }
+                    catch (e) { siteFileHandle = null; }
                     setConnectedNotes(true, true);
+                    adoptSiteFromDisk();
                     return;
                 }
             }
@@ -1407,7 +1748,9 @@
         }
 
         renderProjectList();
+        await loadSiteConfig();
         setupEventListeners();
+        setupSiteListeners();
         await restoreSavedConnections();
     });
 
@@ -1433,6 +1776,9 @@
         }
         if (viewId === 'list') {
             renderProjectList();
+        }
+        if (viewId === 'site') {
+            renderSiteSlots();
         }
     }
 
@@ -2203,6 +2549,9 @@
         try {
             imageDirectoryHandle = await window.showDirectoryPicker({ mode: 'readwrite' });
             await saveHandle(IMG_HANDLE_KEY, imageDirectoryHandle);
+            // Si se cambia la carpeta img/, la configuración del sitio ya no
+            // apunta al mismo árbol: exigir reconectar la raíz antes de escribirla.
+            siteFileHandle = null;
             // No desactivar la conexión del JSON: conectar solo img/ no debe
             // convertir el siguiente guardado en un "no se guardó en disco".
             setConnectedNotes(true, !!projectsFileHandle);
@@ -2242,6 +2591,9 @@
             imageDirectoryHandle = imgHandle;
             dataDirectoryHandle = dataHandle;
             projectsFileHandle = projectsHandle;
+            // site.json también se lee desde disco: nunca se crea vacío.
+            try { siteFileHandle = await dataHandle.getFileHandle('site.json'); }
+            catch (e) { siteFileHandle = null; }
             await saveHandle(WORKSPACE_HANDLE_KEY, workspaceHandle);
 
             // CONECTAR ES SOLO LECTURA: el disco manda y NO se escribe nada.
@@ -2254,6 +2606,7 @@
             saveToStorage();
             renderProjectList();
             setConnectedNotes(true, true);
+            adoptSiteFromDisk();
             showToast('Carpeta conectada. data/projects.json se leyó SIN modificarlo.', 'success');
         } catch (error) {
             if (error && error.name !== 'AbortError') {

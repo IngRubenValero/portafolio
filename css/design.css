@@ -520,23 +520,9 @@ header.hero {
     transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
     position: relative;
 }
-.project-card::before {
-    content: attr(data-category);
-    display: inline-block;
-    position: absolute;
-    top: 12px; left: 12px;
-    right: auto; bottom: auto;
-    z-index: 3;
-    padding: 0.3rem 0.7rem;
-    border-radius: 999px;
-    background: rgba(247, 247, 244, 0.9);
-    color: #1E2220;
-    font-size: 0.6rem;
-    font-weight: 500;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-    opacity: 1;
-}
+/* Sin etiqueta de categoría sobre la portada: en móvil tapaba la imagen
+   y ocupaba espacio. El atributo data-category se conserva para el filtrado. */
+.project-card::before { display: none; content: none; }
 .project-card::after { display: none; }
 .project-card:hover { transform: translateY(-5px); box-shadow: var(--shadow-hover); border-color: var(--line); }
 .project-card.product-card, .project-card.product-card:hover { border: 1px solid var(--line-soft); background: var(--surface); }
@@ -641,7 +627,9 @@ footer .container p { margin: 0; font-size: 0.68rem; color: var(--text-lighter);
    11. FICHA DE PROYECTO — composición editorial
    Volumen tipográfico + imágenes en huecos de distinto tamaño
    ------------------------------------------------------------- */
-#projectModal { z-index: 9500; background-color: rgba(16, 19, 17, 0.88); }
+/* Sin backdrop-filter: en móvil causaba tirones y creaba un containing block
+   que complicaba el posicionamiento fijo de la barra de cierre. */
+#projectModal { z-index: 9500; background-color: rgba(16, 19, 17, 0.88); backdrop-filter: none; -webkit-backdrop-filter: none; overscroll-behavior: contain; }
 [data-theme="light"] #projectModal { background-color: rgba(16, 19, 17, 0.88); }
 
 .modal-content.project-sheet {
@@ -671,7 +659,7 @@ footer .container p { margin: 0; font-size: 0.68rem; color: var(--text-lighter);
 .sheet-hero-figure[hidden] { display: none; }
 .sheet-hero-figure > img { width: 100%; height: 100%; object-fit: cover; object-position: 60% 50%; display: block; }
 .sheet-hero-shade {
-    position: absolute; inset: 0; z-index: 1;
+    position: absolute; inset: 0; z-index: 1; pointer-events: none;
     background: linear-gradient(90deg,
         rgba(12, 14, 13, 0.97) 0%,
         rgba(12, 14, 13, 0.90) 30%,
@@ -704,9 +692,21 @@ footer .container p { margin: 0; font-size: 0.68rem; color: var(--text-lighter);
 }
 .sheet-theme { margin-left: auto; }
 .close { position: static; margin-left: 0; }
-.sheet-theme:hover, .close:hover, .close:focus {
+.sheet-theme:hover, .close:hover, .close:focus, .sheet-mobile-close:hover, .sheet-mobile-close:focus {
     background: #F7F7F4; color: #1E2220; border-color: #F7F7F4;
     transform: none; box-shadow: none;
+}
+
+/* --- Barra de cierre fija para móvil (se activa en @media 640px) --- */
+.sheet-mobilebar { display: none; }
+.sheet-mobilebar-label { font-family: var(--mono); font-size: 0.6rem; letter-spacing: 0.13em; text-transform: uppercase; color: rgba(247, 247, 244, 0.62); }
+.sheet-mobile-close {
+    width: 42px; height: 42px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    border: 1px solid rgba(247, 247, 244, 0.4);
+    background: rgba(16, 19, 17, 0.35); color: #F7F7F4;
+    font-size: 0.9rem; cursor: pointer;
+    transition: background 0.2s ease, color 0.2s ease;
 }
 
 .sheet-hero-copy {
@@ -738,25 +738,8 @@ footer .container p { margin: 0; font-size: 0.68rem; color: var(--text-lighter);
 }
 .sheet-lead { font-size: 0.95rem; line-height: 1.75; color: rgba(247, 247, 244, 0.72); max-width: 430px; margin: 0 0 1.6rem; }
 .sheet-hero-cta { font-size: 0.78rem; }
-.sheet-hero-expand {
-    position: absolute; right: clamp(1.2rem, 3vw, 2.4rem); bottom: clamp(1.2rem, 3vw, 2rem); z-index: 3;
-    width: 42px; height: 42px; border-radius: 50%;
-    display: flex; align-items: center; justify-content: center;
-    border: 1px solid rgba(247, 247, 244, 0.45);
-    background: rgba(16, 19, 17, 0.55); color: #F7F7F4;
-    font-size: 0.8rem; cursor: pointer;
-}
-.sheet-hero-expand[hidden] { display: none; }
-.sheet-hero-expand:hover { background: #F7F7F4; color: #1E2220; }
-.sheet-hero-caption {
-    position: absolute; right: clamp(5rem, 8vw, 7rem); bottom: clamp(1.6rem, 3.4vw, 2.4rem); z-index: 3;
-    max-width: min(46vw, 420px);
-    font-family: var(--mono); font-size: 0.58rem; letter-spacing: 0.1em; text-transform: uppercase;
-    color: rgba(247, 247, 244, 0.6);
-    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-    pointer-events: none;
-}
-.sheet-hero-caption[hidden] { display: none; }
+/* La portada se amplía pulsando la imagen: sin botón superpuesto ni leyenda. */
+.sheet-hero-figure { cursor: zoom-in; }
 
 /* --- Fila de rasgos --- */
 .sheet-features { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
@@ -777,8 +760,8 @@ footer .container p { margin: 0; font-size: 0.68rem; color: var(--text-lighter);
 .sheet-card-media { position: relative; padding: 0; border: 0; border-radius: 12px; overflow: hidden; background: #E9E9E5; cursor: pointer; }
 .sheet-card-media img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform 0.4s ease; }
 .sheet-card-media:hover img { transform: scale(1.05); }
-.sheet-media-zoom { position: absolute; right: 0.7rem; bottom: 0.7rem; width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: rgba(247, 247, 244, 0.92); color: #1E2220; font-size: 0.65rem; opacity: 0; transform: translateY(4px); transition: opacity 0.2s ease, transform 0.2s ease; }
-.sheet-card-media:hover .sheet-media-zoom, .sheet-pair-item:hover .sheet-media-zoom { opacity: 1; transform: none; }
+/* Sin iconos de ampliar sobre las imágenes: se abre el visor al pulsarlas. */
+.sheet-card-media, .sheet-pair-item, .sheet-cat-card { cursor: zoom-in; }
 
 /* --- Desarrollo: texto estrecho + dos imágenes grandes --- */
 .sheet-story { display: grid; grid-template-columns: 0.78fr 1.22fr; gap: clamp(1.5rem, 4vw, 3rem); align-items: start; padding: clamp(2.2rem, 5vw, 3.8rem) clamp(1.3rem, 3.5vw, 2.6rem); }
@@ -816,12 +799,9 @@ footer .container p { margin: 0; font-size: 0.68rem; color: var(--text-lighter);
 .sheet-cat-media { position: relative; display: block; aspect-ratio: 4 / 3; overflow: hidden; background: #0E100F; }
 .sheet-cat-media img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform 0.4s ease; }
 .sheet-cat-card:hover .sheet-cat-media img { transform: scale(1.05); }
-.sheet-cat-label { position: absolute; left: 0.7rem; top: 0.7rem; font-family: var(--mono); font-size: 0.56rem; letter-spacing: 0.1em; background: rgba(16, 19, 17, 0.65); padding: 0.25rem 0.55rem; border-radius: 999px; }
-.sheet-cat-foot { display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; padding: 0.75rem 0.9rem; }
-.sheet-cat-foot strong { display: block; font-size: 0.78rem; font-weight: 500; }
-.sheet-cat-foot small { display: block; font-size: 0.63rem; color: rgba(247, 247, 244, 0.55); }
-.sheet-cat-arrow { width: 28px; height: 28px; flex-shrink: 0; border-radius: 50%; border: 1px solid rgba(247, 247, 244, 0.35); display: flex; align-items: center; justify-content: center; font-size: 0.6rem; }
-.sheet-cat-card:hover .sheet-cat-arrow { background: #F7F7F4; color: #171A18; }
+/* Catálogo limpio: solo imágenes, sin "IMAGEN 01" ni pie "Vista 01". */
+.sheet-cat-card { background: transparent; }
+.sheet-cat-media { border-radius: 12px; }
 .sheet-catalog-extra { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; margin-top: 10px; }
 .sheet-catalog-extra:empty { display: none; }
 .sheet-cat-card-compact .sheet-cat-media { aspect-ratio: 16 / 9; }
@@ -913,11 +893,19 @@ footer .container p { margin: 0; font-size: 0.68rem; color: var(--text-lighter);
 @media (max-width: 640px) {
     .sheet-hero { min-height: 520px; }
     .sheet-hero-shade { background: linear-gradient(180deg, rgba(12,14,13,0.95) 0%, rgba(12,14,13,0.88) 55%, rgba(12,14,13,0.62) 100%); }
-    .sheet-hero-copy { padding: 6rem 1.4rem 4rem; }
-    .sheet-hero-caption { display: none; }
-    .sheet-topbar { padding: 0.85rem 1rem; }
-    .sheet-topbar-label { display: none; }
-    .sheet-theme, .close { width: 40px; height: 40px; }
+    .sheet-hero-copy { padding: 7.6rem 1.4rem 4rem; }
+    .sheet-topbar { display: none; }
+    .sheet-mobilebar {
+        display: flex;
+        position: fixed; top: 0; left: 0; right: 0; z-index: 9700;
+        align-items: center; gap: 0.8rem;
+        padding: max(0.75rem, env(safe-area-inset-top)) 1rem 0.75rem;
+        background: rgba(16, 19, 17, 0.96);
+        border-bottom: 1px solid rgba(247, 247, 244, 0.12);
+        color: #F7F7F4;
+    }
+    .sheet-mobilebar .sheet-theme { margin-left: auto; }
+    .sheet-theme, .close, .sheet-mobile-close { width: 40px; height: 40px; }
     .sheet-features { grid-template-columns: minmax(0, 1fr); }
     .sheet-features > div { border-right: 0; border-bottom: 1px solid var(--line-soft); padding: 0.75rem 1rem; }
     .sheet-features > div:last-child { border-bottom: 0; }

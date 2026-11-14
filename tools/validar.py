@@ -16,7 +16,9 @@ import sys
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DATA = os.path.join(ROOT, "data", "projects.json")
+SITE = os.path.join(ROOT, "data", "site.json")
 IMG = os.path.join(ROOT, "img")
+SITE_KEYS = ("hero", "heroFloat", "portrait", "cta")
 IMG_RE = re.compile(r"img/([A-Za-z0-9._%\-/]+\.(?:png|jpe?g|webp|svg|gif))", re.I)
 CSS_COMMENT = re.compile(r"/\*.*?\*/", re.S)
 HTML_COMMENT = re.compile(r"<!--.*?-->", re.S)
@@ -69,6 +71,22 @@ def main():
             referenced.add(rel(path))
             if not os.path.isfile(os.path.join(ROOT, path)):
                 problems.append(f"proyecto {pid}: no existe {path}")
+
+    # Imágenes configurables de la portada (data/site.json).
+    if os.path.isfile(SITE):
+        try:
+            with open(SITE, encoding="utf-8") as fh:
+                site_images = json.load(fh).get("images", {})
+            for key in SITE_KEYS:
+                path = site_images.get(key)
+                if not isinstance(path, str) or not path.startswith("img/"):
+                    problems.append(f"site.json: falta o es inválida la imagen '{key}'")
+                    continue
+                referenced.add(rel(path))
+                if not os.path.isfile(os.path.join(ROOT, path)):
+                    problems.append(f"site.json: no existe {path}")
+        except (OSError, ValueError) as exc:
+            problems.append(f"data/site.json no es válido: {exc}")
 
     # Referencias directas desde el HTML y el CSS (hero, retrato, CTA...)
     for source in ["index.html", os.path.join("js", "script.js")] + [

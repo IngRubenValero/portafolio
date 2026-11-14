@@ -174,9 +174,11 @@
         document.body.style.overflow = 'hidden';
         scheduleHint();
         if (closeBtn) closeBtn.focus({ preventScroll: true });
+        if (window.OverlayNav) window.OverlayNav.viewerOpened();
     }
 
-    function close() {
+    /* Cierre real, sin lógica de historial. Lo usa OverlayNav al aplicar popstate. */
+    function rawClose() {
         if (!state.open) return;
         state.open = false;
         setKeyboardFlag(false);
@@ -186,9 +188,17 @@
         clearTimeout(state.hintTimer);
         state.pointers.clear();
         state.dragStart = null;
+        if (window.OverlayNav) window.OverlayNav.notifyViewerClosed();
         if (state.savedFocus && state.savedFocus.focus) {
             state.savedFocus.focus({ preventScroll: true });
         }
+    }
+
+    /* Cierre iniciado por el usuario: consume la entrada del historial. */
+    function close() {
+        if (!state.open) return;
+        if (window.OverlayNav && window.OverlayNav.requestCloseViewer()) return;
+        rawClose();
     }
 
     /* ---------- Gestos con Pointer Events ---------- */
@@ -321,5 +331,5 @@
     window.addEventListener('resize', () => { if (state.open) applyTransform(); });
 
     /* API pública: el puente en script.js delega aquí */
-    window.Viewer = { open, close, navigate, zoom, resetZoom };
+    window.Viewer = { open, close, navigate, zoom, resetZoom, _rawClose: rawClose };
 })();

@@ -2,7 +2,7 @@
 
 Portafolio profesional optimizado para GitHub Pages mostrando proyectos de ingeniería civil, cálculo estructural y metodología BIM.
 
-## ✨ Mejoras Implementadas (Noviembre 2025)
+## ✨ Mejoras Implementadas (Noviembre 2026)
 
 ### 🎯 SEO y Accesibilidad
 - ✅ **Meta tags completos**: Description, keywords, author
@@ -85,11 +85,14 @@ WebPortafolioEstructural/
 │   ├── viewer.css         # Visor de imágenes, móvil primero
 │   └── styles_backup.css  # Respaldo
 ├── js/
-│   ├── script.js          # Lógica principal + puente hacia el visor
+│   ├── script.js          # Lógica principal + historial de capas + puente al visor
 │   ├── viewer.js          # Visor: swipe, pinch, doble toque, zoom, teclado
 │   ├── design.js          # Navegación, contadores y menú móvil
+│   ├── site.js            # Aplica data/site.json a las imágenes fijas del HTML
 │   └── script_backup.js   # Respaldo
-├── data/projects.json      # Contenido de los proyectos (única fuente de verdad)
+├── data/
+│   ├── projects.json      # Contenido de los proyectos (fuente de verdad)
+│   └── site.json          # Imágenes fijas de la portada (fuente de verdad)
 ├── img/                    # Imágenes publicadas, en WebP
 │   └── _originales/        # JPG/PNG previos: solo locales, excluidos por .gitignore
 ├── tools/
@@ -173,6 +176,70 @@ sin `backdrop-filter` (evita tirones en móvil) y con soporte de teclado en escr
 `lightboxNavigate`, `lightboxZoom` y `lightboxResetZoom` como puente, para no tocar
 `openModal()` ni la navegación con teclado.
 
+### Imágenes fijas del sitio (`data/site.json` / `js/site.js`)
+
+La portada, la foto de perfil y el bloque de contacto **ya no se editan en el HTML**.
+La vista **Imágenes del sitio** de `admin.html` permite cambiarlas desde el panel,
+sin tocar código:
+
+| Hueco | Dónde se ve |
+|---|---|
+| `hero` | Imagen a sangre detrás del titular principal |
+| `heroFloat` | Tarjeta flotante «Modelado BIM» del hero |
+| `portrait` | Retrato de la sección «Sobre mí» |
+| `cta` | Fondo del bloque oscuro «Solicitar presupuesto» |
+
+Cómo funciona:
+
+- `index.html` mantiene un `src` **válido** en cada `<img data-site-image="…">`.
+  `js/site.js` lee `data/site.json` con `cache: 'no-store'` y sustituye solo las
+  rutas configuradas, validando que empiecen por `img/` y tengan extensión de imagen.
+  Si el JSON falta, falla la red o una ruta es inválida, **la página sigue viéndose
+  igual** gracias al `src` de respaldo.
+- El panel convierte la imagen subida a WebP (máximo 2400 px), la escribe como
+  `img/sitio-<hueco>.webp` y actualiza `data/site.json`. También admite
+  **Guardar ruta** para apuntar a una imagen que ya exista; comprueba por HTTP que
+  el archivo existe antes de escribir.
+- Al cambiar `portrait` se regenera además `img/Ruben_traje.jpg`, la vista previa
+  `og:image`. Ese archivo **debe seguir en JPG**: los rastreadores de
+  WhatsApp/LinkedIn/X no ejecutan JavaScript ni manejan WebP de forma fiable.
+- Antes de cada escritura se crea `data/site.respaldo.json` (excluido por
+  `.gitignore`). `data/projects.json` **nunca se toca** desde esta vista.
+- `tools/validar.py` comprueba los cuatro huecos y sus rutas antes de publicar.
+
+`admin.html` no reescribe `index.html`: por eso un cambio de portada no puede romper
+el marcado ni los meta tags.
+
+### Navegación móvil y botón atrás
+
+En móvil (≤ 640 px) la ficha de proyecto sustituye la barra superior por una
+**barra fija** (`#sheetMobileBar`) con la X de cierre siempre a mano, aunque se haya
+hecho scroll: antes la X quedaba arriba y era inalcanzable. La barra respeta
+`env(safe-area-inset-top)` y el modal usa `overscroll-behavior: contain` para que
+el gesto de scroll no se propague a la página.
+
+El botón **atrás del teléfono** ya no saca de la web. `OverlayNav` en `js/script.js`
+registra cada capa abierta (ficha / visor) con `history.pushState` y, en `popstate`,
+cierra **solo la capa superior**: atrás 1 cierra el visor, atrás 2 cierra la ficha,
+y la página sigue abierta. Si se cierra con la X, `history.go(-depth)` consume la
+entrada para no dejar historial huérfano; el botón «adelante» reabre la ficha
+llamando a `openModal(id, true)` sin crear otra entrada. `js/viewer.js` separa
+`rawClose()` del cierre iniciado por el usuario para que el historial sea la única
+fuente de verdad.
+
+### Limpieza visual de fichas y tarjetas
+
+A petición de la revisión en móvil se eliminaron los elementos que recargaban la
+composición:
+
+- Etiquetas `IMAGEN 01`, pies `Vista 01 / Documentación gráfica` y flechas del catálogo.
+- Botones e iconos de «ampliar» sobre las imágenes, incluido el de la portada.
+  **La ampliación sigue disponible pulsando directamente la imagen** (cursor
+  `zoom-in`); el visor se abre en el índice real de la galería.
+- La leyenda de categoría (`ingenieria`, `arquitectura`…) sobre la portada de cada
+  tarjeta. Era un `::before` de CSS; ahora está desactivado, pero el atributo
+  **`data-category` se conserva** para que los filtros sigan funcionando.
+
 ### Imágenes ligeras: WebP
 
 Las imágenes publicadas están en **WebP**. Es el formato que mejor equilibra peso y
@@ -234,9 +301,13 @@ en GitHub Pages:
 - `../WebPortafolioEstructuralV2026_backup_20261112_162153/` (antes de preparar el flujo de publicación)
 - `../WebPortafolioEstructuralV2026_backup_20261114_160346/` (antes de la conversión a WebP; 79 archivos verificados por MD5)
 
-Además, `admin.html` crea **`data/projects.respaldo.json`** con el estado anterior
-antes de cada escritura. Está en `.gitignore`, así que nunca se publica; se recupera
-con el botón **Restaurar respaldo** de la vista *Exportar*.
+Además, `admin.html` crea **`data/projects.respaldo.json`** y
+**`data/site.respaldo.json`** con el estado anterior antes de cada escritura de
+proyectos o de imágenes del sitio. Ambos están en `.gitignore`, así que nunca se
+publican. El de proyectos se recupera con el botón **Restaurar respaldo** de la
+vista *Exportar*; el de `site.json` se recupera copiando
+`data/site.respaldo.json` sobre `data/site.json` (son 4 rutas de texto, no hay
+botón porque esta configuración no puede borrar proyectos).
 
 ## 🔁 Checklist: cada vez que cambies algo
 
@@ -255,8 +326,8 @@ Añadir un proyecto desde el panel **NO actualiza la web pública** hasta que ej
    las rutas de imagen. Usar Chrome o Edge (Firefox/Safari no soportan la conexión
    a carpetas).
 2. Pulsar **Conectar carpeta del proyecto** y elegir la **raíz** (donde están
-   `data/` e `img/`). Conectar **solo lee** `data/projects.json`; no lo modifica.
-   El estado debe quedar en verde: `Conectado · listo para publicar`.
+   `data/` e `img/`). Conectar **solo lee** `data/projects.json` y `data/site.json`;
+   no los modifica. El estado debe quedar en verde: `Conectado · listo para publicar`.
 3. Crear/editar el proyecto. Importar las imágenes desde el propio panel: las
    **convierte a WebP automáticamente**, las renombra y las escribe en `img/`.
    Espera a que desaparezca el aviso «Convirtiendo imágenes a WebP…».
@@ -280,6 +351,23 @@ Editar `index.html` / `css/` / `js/` directamente → paso 5 → paso 6 → paso
 Hacerlo desde el panel (recomendado) o a mano actualizando también las rutas del
 JSON → paso 5 (el validador detecta rutas rotas y huérfanas) → paso 6 → paso 7.
 
+### D) Cambiar la portada principal o la foto de perfil
+
+1. Levantar el servidor local (`python -m http.server 8766`) y abrir
+   `http://localhost:8766/admin.html` en Chrome/Edge.
+2. **Conectar carpeta del proyecto** (la raíz). Sin conexión la vista
+   *Imágenes del sitio* avisa en rojo **y no guarda nada**.
+3. Entrar en **Imágenes del sitio** → *Subir imagen* en el hueco deseado
+   (convierte a WebP y escribe `data/site.json`) o *Guardar ruta* para una imagen
+   ya existente. Si cambias **Foto de perfil**, se regenera también
+   `img/Ruben_traje.jpg` (`og:image`).
+4. `python tools/validar.py` → `bash publicar.sh` → revisar la URL pública.
+   La vista **sí** cambia el sitio publicado, pero solo después de publicar:
+   guardar en el panel sigue siendo local.
+
+**No editar `index.html` para cambiar estas imágenes**: el `src` del HTML es solo
+el respaldo y `js/site.js` lo sobrescribe con `data/site.json` en cada carga.
+
 ### Herramientas de rescate (no son el flujo normal)
 
 - **Restaurar respaldo** (vista *Exportar*): vuelve al `data/projects.json`
@@ -291,8 +379,9 @@ JSON → paso 5 (el validador detecta rutas rotas y huérfanas) → paso 6 → p
 
 ## 🔄 Flujo de actualización (de dónde sale cada cosa)
 
-**Una sola fuente de verdad:** `data/projects.json` + `img/`. La portada lee el JSON
-con `fetch(..., { cache: 'no-store' })` y un query único, así que un `push` se refleja
+**Fuentes de verdad:** `data/projects.json` (proyectos), `data/site.json` (imágenes
+fijas) e `img/` (archivos). La portada lee ambos JSON con
+`fetch(..., { cache: 'no-store' })` y un query único, así que un `push` se refleja
 sin limpiar caché a mano. `admin.html` es una **herramienta de autoría local**: escribe
 en tu disco, nunca en la web publicada.
 
@@ -323,8 +412,9 @@ Informa de rutas rotas e imágenes huérfanas y **no borra nada**. Tras la conve
 WebP quedan **65 imágenes referenciadas y 0 huérfanas**: las 15 sobrantes de la
 versión simple se movieron a `img/_originales/` junto con los originales JPG/PNG.
 `img/Ruben_traje.jpg` se conserva solo para `og:image`; el retrato, el hero y los
-bloques decorativos del HTML usan ya `.webp`. El validador ahora revisa también
-`js/script.js`, para detectar si falta el `placeholder.webp`.
+bloques decorativos del HTML usan ya `.webp`. El validador revisa también
+`js/script.js` (para detectar si falta el `placeholder.webp`) y los cuatro huecos de
+`data/site.json`, de modo que una portada mal configurada detiene la publicación.
 
 ### Estado actual: ✅ repositorio definido, listo para publicar
 
@@ -366,6 +456,9 @@ el script detecta el historial existente y solo sube los cambios nuevos.
 ## 📝 Mejoras Futuras Sugeridas
 
 - [x] Optimizar imágenes a formato WebP (hecho: −61 % de peso, conversión automática en el admin)
+- [x] Poder cambiar portada y foto de perfil desde `admin.html` (hecho: vista *Imágenes del sitio*)
+- [x] Corregir el botón atrás del móvil y la X flotante (hecho: `OverlayNav` + barra fija)
+- [x] Limpiar etiquetas, categorías y botones de ampliar de las fichas (hecho)
 - [ ] Agregar Progressive Web App (PWA)
 - [ ] Implementar Service Worker para offline
 - [ ] Agregar sección de testimonios
