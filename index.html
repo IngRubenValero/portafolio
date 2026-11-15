@@ -56,7 +56,7 @@
             <button id="themeToggle" class="theme-toggle nav-theme" data-theme-toggle aria-label="Cambiar tema" title="Cambiar tema">
                 <i class="fas fa-moon"></i>
             </button>
-            <a href="#contacto" class="nav-cta">Solicitar consulta <span class="circle-arrow"><i class="fas fa-arrow-right"></i></span></a>
+            <a href="#contacto" class="nav-cta"><span data-content="navCta">Solicitar consulta</span> <span class="circle-arrow"><i class="fas fa-arrow-right"></i></span></a>
         </div>
     </nav>
 
@@ -71,25 +71,25 @@
                 <div class="hero-card-shade"></div>
 
                 <div class="hero-card-content">
-                    <p class="kicker kicker-light">Ingeniería estructural · Cochabamba, Bolivia</p>
-                    <h1>Estructuras que<br>dan forma a la<br>arquitectura.</h1>
-                    <p class="hero-sub">Cálculo, análisis sísmico y modelado BIM.<br>Precisión que se nota en cada detalle.</p>
+                    <p class="kicker kicker-light" data-content="heroKicker">Ingeniería estructural · Cochabamba, Bolivia</p>
+                    <h1 data-content="heroTitle" data-content-lines>Estructuras que<br>dan forma a la<br>arquitectura.</h1>
+                    <p class="hero-sub" data-content="heroSub" data-content-lines>Cálculo, análisis sísmico y modelado BIM.<br>Precisión que se nota en cada detalle.</p>
                     <div class="hero-actions">
-                        <a href="#projects" class="btn-pill btn-dark">Ver proyectos <span class="circle-arrow"><i class="fas fa-arrow-right"></i></span></a>
-                        <a href="#contacto" class="btn-pill btn-ghost">Hablemos</a>
+                        <a href="#projects" class="btn-pill btn-dark"><span data-content="heroPrimary">Ver proyectos</span> <span class="circle-arrow"><i class="fas fa-arrow-right"></i></span></a>
+                        <a href="#contacto" class="btn-pill btn-ghost" data-content="heroSecondary">Hablemos</a>
                     </div>
                 </div>
 
                 <div class="hero-float">
                     <img data-site-image="heroFloat" src="img/CUBIERTA-AGRO3-min.webp" alt="">
                     <div>
-                        <strong>Modelado BIM</strong>
-                        <span>Estructura verificada antes de construir</span>
-                        <a href="#projects">Ver proyectos <i class="fas fa-arrow-right"></i></a>
+                        <strong data-content="floatTitle">Modelado BIM</strong>
+                        <span data-content="floatText">Estructura verificada antes de construir</span>
+                        <a href="#projects"><span data-content="floatLink">Ver proyectos</span> <i class="fas fa-arrow-right"></i></a>
                     </div>
                 </div>
 
-                <span class="hero-card-caption">Proyecto 01 / Vivienda de alquiler estudiantil</span>
+                <span class="hero-card-caption" data-content="heroCaption">Proyecto 01 / Vivienda de alquiler estudiantil</span>
             </div>
         </div>
     </header>
@@ -99,45 +99,46 @@
          ============================================ -->
     <section id="about" class="about-section">
         <div class="container">
-            <p class="kicker">Por qué elegir precisión</p>
+            <p class="kicker" data-content="aboutKicker">Por qué elegir precisión</p>
             <div class="about-head">
-                <h2>Fiabilidad. Experiencia.<br>Atención al detalle.</h2>
-                <p>Una estructura no se valida cuando se levanta: se valida en la memoria de cálculo.
+                <h2 data-content="aboutTitle" data-content-lines>Fiabilidad. Experiencia.<br>Atención al detalle.</h2>
+                <p data-content="aboutLead">Una estructura no se valida cuando se levanta: se valida en la memoria de cálculo.
                    Cada hipótesis, carga y armado queda documentado antes de llegar a obra.</p>
             </div>
 
             <div class="stats-grid">
                 <article class="stat-card">
                     <span class="stat-icon"><i class="fas fa-shield-halved"></i></span>
-                    <p class="stat-text">Cálculo verificable en cada entregable.</p>
-                    <strong class="stat-number">05+</strong>
-                    <span class="stat-caption">años de experiencia</span>
+                    <p class="stat-text" data-content="stat1Text">Cálculo verificable en cada entregable.</p>
+                    <strong class="stat-number" data-content="stat1Number">05+</strong>
+                    <span class="stat-caption" data-content="stat1Caption">años de experiencia</span>
                 </article>
                 <article class="stat-card">
                     <span class="stat-icon"><i class="fas fa-ruler-combined"></i></span>
-                    <p class="stat-text">Edificaciones, cubiertas e infraestructura.</p>
-                    <strong class="stat-number">15+</strong>
-                    <span class="stat-caption">proyectos entregados</span>
+                    <p class="stat-text" data-content="stat2Text">Edificaciones, cubiertas e infraestructura.</p>
+                    <strong class="stat-number" data-content="stat2Number">15+</strong>
+                    <span class="stat-caption" data-content="stat2Caption">proyectos entregados</span>
                 </article>
                 <article class="stat-card">
                     <span class="stat-icon"><i class="fas fa-layer-group"></i></span>
-                    <p class="stat-text">Coordinación BIM sin interferencias.</p>
+                    <p class="stat-text" data-content="stat3Text">Coordinación BIM sin interferencias.</p>
+                    <!-- El número lo rellena js/design.js con el total de proyectos: no se configura. -->
                     <strong class="stat-number" id="projectCount">—</strong>
-                    <span class="stat-caption">fichas documentadas</span>
+                    <span class="stat-caption" data-content="stat3Caption">fichas documentadas</span>
                 </article>
                 <article class="stat-card">
                     <span class="stat-icon"><i class="fas fa-wave-square"></i></span>
-                    <p class="stat-text">Análisis sísmico y cargas eólicas.</p>
-                    <strong class="stat-number">100%</strong>
-                    <span class="stat-caption">de entregables revisados</span>
+                    <p class="stat-text" data-content="stat4Text">Análisis sísmico y cargas eólicas.</p>
+                    <strong class="stat-number" data-content="stat4Number">100%</strong>
+                    <span class="stat-caption" data-content="stat4Caption">de entregables revisados</span>
                 </article>
             </div>
 
             <div class="about-body">
-                <p>Soy <strong>Ingeniero Civil</strong> con más de cinco años de experiencia especializado en
+                <p data-content="aboutBody1" data-content-bold>Soy <strong>Ingeniero Civil</strong> con más de cinco años de experiencia especializado en
                    <strong>Cálculo Estructural</strong> y <strong>Metodología BIM</strong>. Mi trabajo consiste en
                    convertir una intención arquitectónica en un sistema resistente, verificable y construible.</p>
-                <p>He intervenido en edificaciones multifamiliares, cubiertas metálicas de gran luz,
+                <p data-content="aboutBody2" data-content-bold>He intervenido en edificaciones multifamiliares, cubiertas metálicas de gran luz,
                    infraestructura social en zonas rurales y proyectos académicos para la
                    <strong>Universidad Mayor de San Simón (UMSS)</strong>, aplicando normativa vigente
                    y coordinando disciplinas mediante modelos BIM.</p>
@@ -150,28 +151,28 @@
          ============================================ -->
     <section class="personal-info" id="contact-info">
         <div class="container">
-            <p class="kicker">Sobre mí</p>
+            <p class="kicker" data-content="dossierKicker">Sobre mí</p>
             <div class="dossier">
                 <figure class="dossier-photo">
                     <img data-site-image="portrait" src="img/Ruben_traje.webp" alt="Ruben Valero, Ingeniero Civil" width="200" height="200" loading="lazy">
                 </figure>
                 <div class="dossier-data">
-                    <h2>Ruben Valero</h2>
-                    <p class="dossier-role">Ingeniero Civil · Especialista en Cálculo Estructural y Metodología BIM</p>
+                    <h2 data-content="dossierName">Ruben Valero</h2>
+                    <p class="dossier-role" data-content="dossierRole">Ingeniero Civil · Especialista en Cálculo Estructural y Metodología BIM</p>
                     <dl class="data-list">
-                        <div><dt>Experiencia</dt><dd>+5 años en proyectos estructurales</dd></div>
-                        <div><dt>Ubicación</dt><dd>Cochabamba, Bolivia</dd></div>
-                        <div><dt>Correo</dt><dd><a href="mailto:Ing.RubenValero@outlook.com">Ing.RubenValero@outlook.com</a></dd></div>
-                        <div><dt>Teléfono</dt><dd><a href="tel:+59176982955">+591 76982955</a></dd></div>
+                        <div><dt>Experiencia</dt><dd data-content="experience">+5 años en proyectos estructurales</dd></div>
+                        <div><dt>Ubicación</dt><dd data-content="location">Cochabamba, Bolivia</dd></div>
+                        <div><dt>Correo</dt><dd><a href="mailto:Ing.RubenValero@outlook.com" data-content-link="email" data-content-text="email">Ing.RubenValero@outlook.com</a></dd></div>
+                        <div><dt>Teléfono</dt><dd><a href="tel:+59176982955" data-content-link="phone" data-content-text="phoneLabel">+591 76982955</a></dd></div>
                     </dl>
                     <div class="dossier-actions">
-                        <a href="https://drive.google.com/uc?export=download&id=1mQzNhKZpzh_1C32YPHS3_ktgE3g1PBMx" class="btn-pill btn-dark" target="_blank" rel="noopener noreferrer">
-                            Descargar CV <span class="circle-arrow"><i class="fas fa-download"></i></span>
+                        <a href="https://drive.google.com/uc?export=download&id=1mQzNhKZpzh_1C32YPHS3_ktgE3g1PBMx" class="btn-pill btn-dark" target="_blank" rel="noopener noreferrer" data-content-link="cv">
+                            <span data-content="cvLabel">Descargar CV</span> <span class="circle-arrow"><i class="fas fa-download"></i></span>
                         </a>
                         <div class="social-links">
-                            <a href="https://www.linkedin.com/in/ruben-valero-33868b335/" target="_blank" rel="noopener noreferrer" aria-label="Perfil de LinkedIn"><i class="fab fa-linkedin-in"></i></a>
-                            <a href="mailto:Ing.RubenValero@outlook.com" aria-label="Enviar Email"><i class="fas fa-envelope"></i></a>
-                            <a href="https://wa.me/59176982955" target="_blank" rel="noopener noreferrer" aria-label="Contactar por WhatsApp"><i class="fab fa-whatsapp"></i></a>
+                            <a href="https://www.linkedin.com/in/ruben-valero-33868b335/" target="_blank" rel="noopener noreferrer" aria-label="Perfil de LinkedIn" data-content-link="linkedin"><i class="fab fa-linkedin-in"></i></a>
+                            <a href="mailto:Ing.RubenValero@outlook.com" aria-label="Enviar Email" data-content-link="email"><i class="fas fa-envelope"></i></a>
+                            <a href="https://wa.me/59176982955" target="_blank" rel="noopener noreferrer" aria-label="Contactar por WhatsApp" data-content-link="whatsapp"><i class="fab fa-whatsapp"></i></a>
                         </div>
                     </div>
                 </div>
@@ -184,10 +185,10 @@
          ============================================ -->
     <section id="projects" class="projects-section">
         <div class="container">
-            <p class="kicker">Proyectos seleccionados</p>
+            <p class="kicker" data-content="projectsKicker">Proyectos seleccionados</p>
             <div class="projects-head">
-                <h2>Obras en las que<br>empieza cada historia.</h2>
-                <a href="#contacto" class="btn-outline-pill">Solicitar presupuesto <span class="circle-arrow"><i class="fas fa-arrow-right"></i></span></a>
+                <h2 data-content="projectsTitle" data-content-lines>Obras en las que<br>empieza cada historia.</h2>
+                <a href="#contacto" class="btn-outline-pill"><span data-content="projectsCta">Solicitar presupuesto</span> <span class="circle-arrow"><i class="fas fa-arrow-right"></i></span></a>
             </div>
 
             <div class="filter-container">
@@ -221,16 +222,16 @@
                 <img class="cta-img" data-site-image="cta" src="img/calculo-estructural-y-modelado-bim-de-edificio-mul-6-01.webp" alt="Modelo estructural BIM" loading="lazy">
                 <div class="cta-shade"></div>
                 <div class="cta-content">
-                    <h2>Construyamos su próximo<br>proyecto, bien desde<br>el primer plano.</h2>
-                    <p>Enviarme los planos o la idea. Respondo con criterio técnico y un alcance claro.</p>
-                    <a class="btn-pill btn-light" href="mailto:Ing.RubenValero@outlook.com?subject=Consulta%20de%20proyecto%20estructural">
-                        Solicitar consulta <span class="circle-arrow"><i class="fas fa-arrow-right"></i></span>
+                    <h2 data-content="ctaTitle" data-content-lines>Construyamos su próximo<br>proyecto, bien desde<br>el primer plano.</h2>
+                    <p data-content="ctaText">Enviarme los planos o la idea. Respondo con criterio técnico y un alcance claro.</p>
+                    <a class="btn-pill btn-light" href="mailto:Ing.RubenValero@outlook.com?subject=Consulta%20de%20proyecto%20estructural" data-content-link="emailConsulta">
+                        <span data-content="ctaButton">Solicitar consulta</span> <span class="circle-arrow"><i class="fas fa-arrow-right"></i></span>
                     </a>
-                    <p class="cta-line">Ing.RubenValero@outlook.com · +591 76982955</p>
+                    <p class="cta-line" data-content="contactLine">Ing.RubenValero@outlook.com · +591 76982955</p>
                     <div class="social-links">
-                        <a href="https://www.linkedin.com/in/ruben-valero-33868b335/" target="_blank" rel="noopener noreferrer" aria-label="Perfil de LinkedIn"><i class="fab fa-linkedin-in"></i></a>
-                        <a href="mailto:Ing.RubenValero@outlook.com" aria-label="Enviar Email"><i class="fas fa-envelope"></i></a>
-                        <a href="https://wa.me/59176982955" target="_blank" rel="noopener noreferrer" aria-label="Contactar por WhatsApp"><i class="fab fa-whatsapp"></i></a>
+                        <a href="https://www.linkedin.com/in/ruben-valero-33868b335/" target="_blank" rel="noopener noreferrer" aria-label="Perfil de LinkedIn" data-content-link="linkedin"><i class="fab fa-linkedin-in"></i></a>
+                        <a href="mailto:Ing.RubenValero@outlook.com" aria-label="Enviar Email" data-content-link="email"><i class="fas fa-envelope"></i></a>
+                        <a href="https://wa.me/59176982955" target="_blank" rel="noopener noreferrer" aria-label="Contactar por WhatsApp" data-content-link="whatsapp"><i class="fab fa-whatsapp"></i></a>
                     </div>
                 </div>
             </div>
@@ -242,7 +243,7 @@
             <div class="footer-main">
                 <div>
                     <a href="#home" class="footer-brand">RV<span>.</span></a>
-                    <p>Ingeniería estructural y metodología BIM.<br>Cochabamba, Bolivia.</p>
+                    <p data-content="footerText" data-content-lines>Ingeniería estructural y metodología BIM.<br>Cochabamba, Bolivia.</p>
                 </div>
                 <div class="footer-links">
                     <a href="#projects">Proyectos</a>
@@ -254,14 +255,14 @@
             </div>
             <div class="footer-bottom">
                 <p>© <span id="footerYear">2026</span> Ruben Valero. Todos los derechos reservados.</p>
-                <p>Diseño y desarrollo · Portafolio profesional</p>
+                <p data-content="footerNote">Diseño y desarrollo · Portafolio profesional</p>
             </div>
         </div>
     </footer>
 
     <!-- Botones flotantes -->
     <button id="backToTop" class="back-to-top" aria-label="Volver arriba" title="Volver arriba"><i class="fas fa-arrow-up"></i></button>
-    <a href="https://wa.me/59176982955" target="_blank" rel="noopener noreferrer" class="floating-whatsapp" aria-label="Contactar por WhatsApp" title="Cotizar por WhatsApp"><i class="fab fa-whatsapp"></i></a>
+    <a href="https://wa.me/59176982955" target="_blank" rel="noopener noreferrer" class="floating-whatsapp" aria-label="Contactar por WhatsApp" title="Cotizar por WhatsApp" data-content-link="whatsapp"><i class="fab fa-whatsapp"></i></a>
 
     <!-- ============================================
          VISOR DE IMÁGENES (móvil primero)
@@ -384,5 +385,6 @@
     <script src="js/viewer.js"></script>
     <script src="js/design.js"></script>
     <script src="js/site.js"></script>
+    <script src="js/content.js"></script>
 </body>
 </html>

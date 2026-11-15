@@ -89,16 +89,19 @@ WebPortafolioEstructural/
 │   ├── viewer.js          # Visor: swipe, pinch, doble toque, zoom, teclado
 │   ├── design.js          # Navegación, contadores y menú móvil
 │   ├── site.js            # Aplica data/site.json a las imágenes fijas del HTML
+│   ├── content.js         # Aplica data/content.json a los textos fijos del HTML
 │   └── script_backup.js   # Respaldo
 ├── data/
 │   ├── projects.json      # Contenido de los proyectos (fuente de verdad)
-│   └── site.json          # Imágenes fijas de la portada (fuente de verdad)
+│   ├── site.json          # Imágenes fijas de la portada (fuente de verdad)
+│   └── content.json       # Textos y enlaces fijos del sitio (fuente de verdad)
 ├── img/                    # Imágenes publicadas, en WebP
 │   └── _originales/        # JPG/PNG previos: solo locales, excluidos por .gitignore
 ├── tools/
 │   ├── validar.py          # Comprueba rutas antes de publicar
 │   └── optimizar_imagenes.py  # Conversión JPG/PNG -> WebP (Pillow)
 ├── publicar.sh             # Valida, confirma y sube a GitHub Pages
+├── publicar.bat            # Lanzador para Windows: doble clic → publicar.sh
 └── README.md              # Este archivo
 ```
 
@@ -208,7 +211,80 @@ Cómo funciona:
 - `tools/validar.py` comprueba los cuatro huecos y sus rutas antes de publicar.
 
 `admin.html` no reescribe `index.html`: por eso un cambio de portada no puede romper
-el marcado ni los meta tags.
+el marcado ni los meta tags. La vista incluye **Restaurar respaldo de site.json**
+para volver a las 4 rutas anteriores.
+
+### Textos y enlaces del sitio (`data/content.json` / `js/content.js`)
+
+Los textos fijos de la portada ya no se editan en el HTML. La vista
+**Textos del sitio** del panel permite cambiar 41 textos y 5 enlaces:
+
+- **Portada**: etiqueta, titular, subtítulo, botones, tarjeta flotante y pie.
+- **Enfoque**: titular, bajada, las cuatro cifras y los dos párrafos
+  (admiten `**negrita**`).
+- **Sobre mí**: nombre, cargo, experiencia, ubicación y texto del botón de CV.
+- **Proyectos y contacto**: titulares, botones, línea de correo/teléfono.
+- **Pie y SEO**: texto del pie, título de la pestaña y descripción para
+  buscadores y redes.
+- **Enlaces**: correo, teléfono (solo dígitos), teléfono visible, LinkedIn y CV.
+
+Cómo funciona:
+
+- `index.html` marca cada texto con `data-content="clave"` y conserva el valor
+  actual como **respaldo**. `js/content.js` lee `data/content.json` con
+  `cache: 'no-store'` y sustituye solo lo configurado. Si el JSON falta o una
+  clave no es válida, la portada sigue viéndose exactamente igual.
+- Los campos «una línea por renglón» convierten cada salto en un `<br>`; los
+  párrafos interpretan `**negrita**`. Todo se construye con nodos de texto, nunca
+  con `innerHTML`, así que el contenido del panel no puede inyectar HTML.
+- El **número de la tercera cifra es automático** (cuenta los proyectos): no se
+  edita para no romper ese contador.
+- Correo y teléfono se propagan a todos los `mailto:`, `tel:`, WhatsApp, la
+  ficha de cada proyecto y los productos. Al guardar se validan formato de
+  correo, dígitos del teléfono y URLs `http(s)` de LinkedIn y CV.
+- Antes de cada escritura se crea `data/content.respaldo.json` (en `.gitignore`).
+  La vista tiene **Restaurar respaldo**.
+
+### Contrato de datos y verificación previa
+
+Para que «lo que guarda el admin» sea siempre «lo que muestra la web», ambos lados
+comparten las mismas reglas. `validateProjectsPayload()` en `admin.html` y
+`tools/validar.py` aplican el **mismo contrato** antes de escribir o publicar:
+
+| Regla | Por qué |
+|---|---|
+| `id` entero positivo y único | Va en `onclick="openModal(id)"` y se compara con `===`: un id de texto hace que la ficha no abra |
+| `category` solo `ingenieria` / `arquitectura` / `programacion` / `producto` | Son exactamente los `data-filter` de `index.html`; otra categoría deja el proyecto sin filtro |
+| `title`, `description`, `details` texto no vacío | La tarjeta y la composición de la ficha los necesitan |
+| `image` y `gallery` bajo `img/`, extensión de imagen, sin `..` | Evita rutas rotas y rutas que salgan del árbol publicado |
+| `image` debe estar dentro de `gallery` | Si no, la tarjeta y la cabecera de la ficha muestran fotos distintas |
+| `youtubeUrl` solo `http(s)` | No se inyectan esquemas `javascript:` en los enlaces de producto |
+
+Todo lo que el JSON interpola en el HTML se **escapa** (`js/script.js`,
+`js/viewer.js` y el propio listado de `admin.html`), así que un título con
+comillas, `<` o `>` escrito en el panel no rompe la portada. `js/site.js` acepta
+las mismas rutas que el admin (incluidas subcarpetas), de modo que una ruta
+guardada nunca se ignora en silencio.
+
+La vista **Verificación previa** del panel genera un informe de solo lectura
+antes de publicar: contraste de esquema, existencia real por HTTP de todas las
+imágenes (incluidas `placeholder.webp` y `og:image`), `data-site-image` y
+`data-filter` contra `index.html`, índices de `slots`, y avisos de composición
+(menos de 6 imágenes o menos de 3 bloques `##`). Los **errores** bloquean;
+los **avisos** no.
+
+**Detalles del proyecto:** el campo ya no indica `usa \n`, sino que pide bloques
+`##`. La ficha reparte el primer bloque en la tarjeta 1, el segundo en la
+tarjeta 2 y el resto en «Desarrollo». Con 3 o más bloques la composición se ve
+completa.
+
+**Integridad de `img/`:** reordenar y renombrar la galería ahora sí persisten en
+el JSON; los autoguardados no crean un proyecto nuevo sin pulsar *Guardar
+Proyecto*; las imágenes importadas se escriben **después** de validar el
+formulario (antes un título vacío dejaba archivos huérfanos). Quitar o
+auto-renombrar una imagen **nunca borra ni renombra un archivo que use otro
+proyecto o `data/site.json`**: se conserva o se crea una copia, para no romper
+la portada pública.
 
 ### Navegación móvil y botón atrás
 
@@ -301,19 +377,23 @@ en GitHub Pages:
 - `../WebPortafolioEstructuralV2026_backup_20261112_162153/` (antes de preparar el flujo de publicación)
 - `../WebPortafolioEstructuralV2026_backup_20261114_160346/` (antes de la conversión a WebP; 79 archivos verificados por MD5)
 
-Además, `admin.html` crea **`data/projects.respaldo.json`** y
-**`data/site.respaldo.json`** con el estado anterior antes de cada escritura de
-proyectos o de imágenes del sitio. Ambos están en `.gitignore`, así que nunca se
-publican. El de proyectos se recupera con el botón **Restaurar respaldo** de la
-vista *Exportar*; el de `site.json` se recupera copiando
-`data/site.respaldo.json` sobre `data/site.json` (son 4 rutas de texto, no hay
-botón porque esta configuración no puede borrar proyectos).
+Además, `admin.html` crea **`data/projects.respaldo.json`**,
+**`data/site.respaldo.json`** y **`data/content.respaldo.json`** con el estado
+anterior antes de cada escritura de proyectos, imágenes o textos. Los tres están
+en `.gitignore`, así que nunca se publican. Se recuperan con **Restaurar
+respaldo** (*Exportar*), **Restaurar respaldo de site.json** (*Imágenes del
+sitio*) y **Restaurar respaldo** (*Textos del sitio*).
 
 ## 🔁 Checklist: cada vez que cambies algo
 
 **La regla que evita confusiones:** `admin.html` escribe en **tu disco**, no en GitHub.
 Añadir un proyecto desde el panel **NO actualiza la web pública** hasta que ejecutas
 `publicar.sh`. Guardar ≠ publicar.
+
+**Atajo antes de publicar:** abre **Verificación previa** en el panel y pulsa
+*Ejecutar verificación*. Es de solo lectura y te dice si hay errores que
+bloquean o solo avisos de composición. Después, `python tools/validar.py`
+repite las mismas reglas desde la línea de comandos.
 
 ### A) Añadir o editar un proyecto (vía `admin.html`)
 
@@ -368,6 +448,27 @@ JSON → paso 5 (el validador detecta rutas rotas y huérfanas) → paso 6 → p
 **No editar `index.html` para cambiar estas imágenes**: el `src` del HTML es solo
 el respaldo y `js/site.js` lo sobrescribe con `data/site.json` en cada carga.
 
+### E) Cambiar textos, cifras o datos de contacto
+
+1. Servidor local + **Conectar carpeta del proyecto**.
+2. **Textos del sitio** → editar los campos → **Guardar textos**
+   (escribe `data/content.json`; `index.html` no se toca).
+3. `python tools/validar.py` → `bash publicar.sh`.
+
+Igual que con las imágenes: el HTML es el respaldo, `js/content.js` aplica el
+JSON en cada carga. Si algo sale mal, **Restaurar respaldo** vuelve al estado
+anterior.
+
+### F) Reordenar proyectos y limpiar imágenes
+
+- **Orden en la web**: en la lista de proyectos, las flechas ↑/↓ de cada fila
+  cambian el orden y lo escriben en `data/projects.json`. El orden del archivo
+  es el orden de la portada; el primero no puede subir ni el último bajar.
+- **Imágenes sin usar**: en **Verificación previa** → *Buscar imágenes sin usar*.
+  Lista las que no referencia ningún proyecto, `data/site.json` ni `index.html`.
+  El botón las **mueve a `img/_sin-usar/`** (no las borra) y esa carpeta está en
+  `.gitignore`, así que no se publica. Puedes devolverlas a `img/` cuando quieras.
+
 ### Herramientas de rescate (no son el flujo normal)
 
 - **Restaurar respaldo** (vista *Exportar*): vuelve al `data/projects.json`
@@ -380,10 +481,10 @@ el respaldo y `js/site.js` lo sobrescribe con `data/site.json` en cada carga.
 ## 🔄 Flujo de actualización (de dónde sale cada cosa)
 
 **Fuentes de verdad:** `data/projects.json` (proyectos), `data/site.json` (imágenes
-fijas) e `img/` (archivos). La portada lee ambos JSON con
-`fetch(..., { cache: 'no-store' })` y un query único, así que un `push` se refleja
-sin limpiar caché a mano. `admin.html` es una **herramienta de autoría local**: escribe
-en tu disco, nunca en la web publicada.
+fijas), `data/content.json` (textos y enlaces) e `img/` (archivos). La portada lee
+los tres JSON con `fetch(..., { cache: 'no-store' })` y un query único, así que un
+`push` se refleja sin limpiar caché a mano. `admin.html` es una **herramienta de
+autoría local**: escribe en tu disco, nunca en la web publicada.
 
 1. Levantar el servidor local desde la raíz del proyecto y abrir el panel
    (`http://localhost:8766/admin.html`; no `file://` ni la URL pública):
@@ -413,8 +514,10 @@ WebP quedan **65 imágenes referenciadas y 0 huérfanas**: las 15 sobrantes de l
 versión simple se movieron a `img/_originales/` junto con los originales JPG/PNG.
 `img/Ruben_traje.jpg` se conserva solo para `og:image`; el retrato, el hero y los
 bloques decorativos del HTML usan ya `.webp`. El validador revisa también
-`js/script.js` (para detectar si falta el `placeholder.webp`) y los cuatro huecos de
-`data/site.json`, de modo que una portada mal configurada detiene la publicación.
+`js/script.js` (para detectar si falta el `placeholder.webp`), los cuatro huecos de
+`data/site.json` y el **contrato de datos** (ids, categorías, rutas, `image` dentro
+de `gallery`), con las mismas reglas que el panel. Un dato que la web no pueda
+mostrar detiene la publicación.
 
 ### Estado actual: ✅ repositorio definido, listo para publicar
 
@@ -443,6 +546,16 @@ El repo remoto **ya tiene historial** del sitio anterior. Por eso el script:
 
 ## 🚀 Despliegue en GitHub Pages
 
+La vista **Publicar** del panel recuerda el flujo, permite copiar los comandos y
+lleva a la verificación previa. Hay dos formas de ejecutarlo:
+
+- **Windows (recomendada):** doble clic en **`publicar.bat`** en la raíz del
+  proyecto. Busca Git Bash, ejecuta `publicar.sh` y deja el resultado en pantalla.
+- **Git Bash:** `bash publicar.sh` desde la raíz.
+
+El navegador no puede hacer `git push` por seguridad: el panel escribe en disco y
+la publicación siempre es este último paso explícito.
+
 1. Desde Git Bash, en la raíz del proyecto: `bash publicar.sh`.
 2. Cuando Git pida credenciales, iniciar sesión. No escribir el token en ningún
    archivo del repositorio.
@@ -459,6 +572,11 @@ el script detecta el historial existente y solo sube los cambios nuevos.
 - [x] Poder cambiar portada y foto de perfil desde `admin.html` (hecho: vista *Imágenes del sitio*)
 - [x] Corregir el botón atrás del móvil y la X flotante (hecho: `OverlayNav` + barra fija)
 - [x] Limpiar etiquetas, categorías y botones de ampliar de las fichas (hecho)
+- [x] Contrato de datos + vista «Verificación previa» en el admin (hecho)
+- [x] Editar desde el admin los textos fijos y los enlaces del sitio (hecho: `data/content.json` + `js/content.js`)
+- [x] Reordenar proyectos desde el panel (hecho: flechas ↑/↓ que escriben en `data/projects.json`)
+- [x] Publicación asistida (hecho: `publicar.bat` + vista *Publicar* con comandos; el `push` sigue siendo local)
+- [x] Apartar imágenes huérfanas de `img/` desde el panel (hecho: se mueven a `img/_sin-usar/`, no se borran)
 - [ ] Agregar Progressive Web App (PWA)
 - [ ] Implementar Service Worker para offline
 - [ ] Agregar sección de testimonios

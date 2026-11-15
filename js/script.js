@@ -88,7 +88,8 @@ const WHATSAPP_CONFIG = {
 function generateWhatsAppLink(product) {
     const message = WHATSAPP_CONFIG.defaultMessage(product.title, product.productType || 'Producto');
     const encodedMessage = encodeURIComponent(message);
-    return `https://wa.me/${WHATSAPP_CONFIG.phoneNumber}?text=${encodedMessage}`;
+    const phone = window.SiteContent ? window.SiteContent.phone() : WHATSAPP_CONFIG.phoneNumber;
+    return `https://wa.me/${phone}?text=${encodedMessage}`;
 }
 
 // ===============================================
@@ -120,22 +121,42 @@ async function loadProjects() {
 // ===============================================
 // CREAR TARJETAS DE PROYECTO
 // ===============================================
+/* El JSON lo escribe el usuario desde admin.html: todo lo que se interpola en
+   HTML se escapa. Además solo se aceptan enlaces http(s) absolutos, para que
+   una URL pegada en el panel no pueda inyectar javascript:. */
+function safeExternalUrl(value) {
+    try {
+        const url = new URL(String(value || ''));
+        return (url.protocol === 'https:' || url.protocol === 'http:') ? escapeHtml(url.href) : '';
+    } catch (e) {
+        return '';
+    }
+}
+
+const SAFE_IMG_SRC = /^img\/[A-Za-z0-9._%\-/]+\.(?:webp|png|jpe?g|svg|gif)$/i;
+function safeImageSrc(value) {
+    return (typeof value === 'string' && !value.includes('..') && SAFE_IMG_SRC.test(value.trim()))
+        ? value.trim() : 'img/placeholder.webp';
+}
+
 function createProjectCard(project, index) {
     const isProduct = project.isProduct || project.category === 'producto';
     const aosDelay = (index % 6) * 80;
-    
+    const projectId = Number(project.id);
+    const demoUrl = isProduct ? safeExternalUrl(project.youtubeUrl) : '';
+
     const productBadge = isProduct ? `
         <div class="product-badge">
-            <i class="fas fa-tag"></i> ${project.price || 'Consultar'}
+            <i class="fas fa-tag"></i> ${escapeHtml(project.price || 'Consultar')}
         </div>
     ` : '';
-    
+
     const typeBadge = isProduct && project.productType ? `
         <div class="product-type-badge">
-            <i class="${getProductTypeIcon(project.productType)}"></i> ${project.productType}
+            <i class="${getProductTypeIcon(project.productType)}"></i> ${escapeHtml(project.productType)}
         </div>
     ` : '';
-    
+
     const whatsappButton = isProduct ? `
         <a href="${generateWhatsAppLink(project)}" 
            class="btn-whatsapp-product" 
@@ -147,8 +168,8 @@ function createProjectCard(project, index) {
         </a>
     ` : '';
 
-    const youtubeButton = isProduct && project.youtubeUrl ? `
-        <a href="${project.youtubeUrl}" 
+    const youtubeButton = demoUrl ? `
+        <a href="${demoUrl}"
            class="btn-youtube-product" 
            target="_blank" 
            rel="noopener noreferrer"
@@ -166,24 +187,24 @@ function createProjectCard(project, index) {
     ` : '';
 
     return `
-        <div class="project-card ${isProduct ? 'product-card' : ''}" 
-             onclick="openModal(${project.id})"
-             data-category="${project.category}"
+        <div class="project-card ${isProduct ? 'product-card' : ''}"
+             onclick="openModal(${Number.isFinite(projectId) ? projectId : 0})"
+             data-category="${escapeHtml(project.category)}"
              data-is-product="${isProduct}"
              data-aos="fade-up"
              data-aos-delay="${aosDelay}">
             ${productBadge}
             ${typeBadge}
-            <img class="project-image" 
-                 src="${project.image}" 
-                 alt="${project.title}" 
-                 width="300" 
+            <img class="project-image"
+                 src="${escapeHtml(project.image)}"
+                 alt="${escapeHtml(project.title)}"
+                 width="300"
                  height="200"
                  loading="lazy"
                  onerror="this.src='img/placeholder.webp'">
             <div class="project-info">
-                <h3 class="project-title">${project.title}</h3>
-                <p class="project-description">${project.description}</p>
+                <h3 class="project-title">${escapeHtml(project.title)}</h3>
+                <p class="project-description">${escapeHtml(project.description)}</p>
                 ${productButtons}
             </div>
         </div>
@@ -367,7 +388,8 @@ function openModal(projectId, fromHistory = false) {
 
     const contact = document.getElementById('sheetContact');
     if (contact) {
-        contact.href = `mailto:Ing.RubenValero@outlook.com?subject=${encodeURIComponent('Consulta sobre: ' + project.title)}`;
+        const email = window.SiteContent ? window.SiteContent.email() : 'Ing.RubenValero@outlook.com';
+        contact.href = `mailto:${email}?subject=${encodeURIComponent('Consulta sobre: ' + project.title)}`;
     }
 
     /* --- Portada: imagen limpia, sin botón ni leyenda --- */
@@ -376,7 +398,7 @@ function openModal(projectId, fromHistory = false) {
     if (heroFigure && heroImg) {
         if (slots.hero) {
             heroFigure.hidden = false;
-            heroImg.src = slots.hero.src;
+            heroImg.src = safeImageSrc(slots.hero.src);
             heroImg.alt = project.title;
             // Se mantiene la ampliación, pero pulsando la propia imagen.
             heroFigure.onclick = () => openLightbox(project, slots.hero.index);
@@ -403,7 +425,7 @@ function openModal(projectId, fromHistory = false) {
                     <div class="sheet-card-body">${renderMarkdown(chunk ? chunk.body : '')}</div>
                 </div>
                 ${img ? `<button type="button" class="sheet-card-media" aria-label="Ver imagen ${img.index + 1}">
-                    <img src="${img.src}" alt="${escapeHtml(project.title)} — imagen ${img.index + 1}" loading="lazy" decoding="async">
+                    <img src="${escapeHtml(img.src)}" alt="${escapeHtml(project.title)} — imagen ${img.index + 1}" loading="lazy" decoding="async">
                 </button>` : ''}
             `;
             if (img) {
@@ -453,7 +475,7 @@ function openModal(projectId, fromHistory = false) {
             btn.className = 'sheet-pair-item';
             btn.setAttribute('aria-label', `Ver imagen ${img.index + 1}`);
             btn.innerHTML = `
-                <img src="${img.src}" alt="${escapeHtml(project.title)} — imagen ${img.index + 1}" loading="lazy" decoding="async">
+                <img src="${escapeHtml(img.src)}" alt="${escapeHtml(project.title)} — imagen ${img.index + 1}" loading="lazy" decoding="async">
             `;
             btn.addEventListener('click', (e) => { e.stopPropagation(); openLightbox(project, img.index); });
             pairEl.appendChild(btn);
@@ -471,7 +493,7 @@ function openModal(projectId, fromHistory = false) {
         btn.setAttribute('aria-label', `Ver imagen ${img.index + 1} de ${gallery.length}`);
         btn.innerHTML = `
             <span class="sheet-cat-media">
-                <img src="${img.src}" alt="${escapeHtml(project.title)} — imagen ${img.index + 1}" loading="lazy" decoding="async">
+                <img src="${escapeHtml(img.src)}" alt="${escapeHtml(project.title)} — imagen ${img.index + 1}" loading="lazy" decoding="async">
             </span>
         `;
         btn.addEventListener('click', (e) => { e.stopPropagation(); openLightbox(project, img.index); });
@@ -502,8 +524,9 @@ function openModal(projectId, fromHistory = false) {
         productActions.innerHTML = '';
         const isProduct = project.isProduct || project.category === 'producto';
         if (isProduct) {
-            const youtubeButton = project.youtubeUrl ? `
-                <a href="${project.youtubeUrl}" class="btn-youtube-modal" target="_blank" rel="noopener noreferrer">
+            const modalDemoUrl = safeExternalUrl(project.youtubeUrl);
+            const youtubeButton = modalDemoUrl ? `
+                <a href="${modalDemoUrl}" class="btn-youtube-modal" target="_blank" rel="noopener noreferrer">
                     <i class="fab fa-youtube"></i> Ver Demostración
                 </a>` : '';
             productActions.innerHTML = `

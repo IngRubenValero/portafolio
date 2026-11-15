@@ -8,10 +8,13 @@ data/projects copy*.json
 # Respaldos automáticos que crea admin.html antes de cada escritura (solo locales)
 data/projects.respaldo.json
 data/site.respaldo.json
+data/content.respaldo.json
 
 # Originales JPG/PNG previos a la optimización WebP: se conservan en local,
 # pero NO se publican (GitHub Pages solo sirve lo que está en el repo).
 img/_originales/
+# Imágenes que el admin aparta por no estar referenciadas (se mueven, no se borran).
+img/_sin-usar/
 
 # Versiones antiguas de estilos y scripts
 *_v1.*

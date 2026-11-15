@@ -421,6 +421,17 @@
             background: rgba(248, 113, 113, 0.25);
         }
 
+        .table-action-btn:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
+
+        .row-order {
+            font-family: var(--mono, monospace);
+            font-size: 0.78rem;
+            color: var(--text-dim);
+        }
+
         /* ===== FORM ===== */
         .form-card {
             background: var(--surface);
@@ -815,6 +826,40 @@
             .site-slot-actions { grid-column: 1 / -1; flex-direction: row; flex-wrap: wrap; }
         }
 
+        /* ===== SITE CONTENT VIEW ===== */
+        .content-group {
+            border: 1px solid var(--border); border-radius: var(--radius-sm);
+            padding: 16px 18px 4px; margin: 0 0 18px;
+        }
+        .content-group legend {
+            font-size: 0.82rem; font-weight: 600; letter-spacing: 0.04em;
+            text-transform: uppercase; color: var(--primary); padding: 0 8px;
+        }
+        .content-group .form-group { margin-bottom: 14px; }
+        .content-group .label-hint { display: block; margin-top: 5px; font-size: 0.72rem; color: var(--text-dim); }
+
+        /* ===== PREFLIGHT REPORT ===== */
+        .check-report { margin-top: 18px; }
+        .check-summary {
+            padding: 12px 16px; border-radius: var(--radius); font-size: 0.9rem;
+            border: 1px solid var(--success); background: var(--success-glow, rgba(46,160,96,.12));
+            margin-bottom: 14px;
+        }
+        .check-summary.has-errors { border-color: var(--danger); background: var(--danger-glow, rgba(200,60,60,.12)); }
+        .check-report h4 { font-size: 0.86rem; margin: 16px 0 8px; }
+        .check-report h4.check-error { color: var(--danger); }
+        .check-report h4.check-warn { color: var(--warning); }
+        .check-report h4.check-ok { color: var(--success); }
+        .check-report ul { margin: 0; padding-left: 20px; }
+        .check-report li { font-size: 0.82rem; color: var(--text-muted); line-height: 1.8; word-break: break-word; }
+        .orphan-list {
+            list-style: none; margin: 10px 0 14px; padding: 10px 14px; max-height: 260px; overflow: auto;
+            border: 1px solid var(--border); border-radius: var(--radius-sm);
+            font-family: var(--mono, monospace); font-size: 0.78rem;
+        }
+        .orphan-list li { line-height: 2; }
+        .orphan-list label { display: flex; align-items: center; gap: 8px; cursor: pointer; }
+
         /* ===== EXPORT VIEW ===== */
         .export-card {
             background: var(--surface);
@@ -995,6 +1040,15 @@
                 <button class="sidebar-link" data-view="site">
                     <i class="fas fa-image"></i> Imágenes del sitio
                 </button>
+                <button class="sidebar-link" data-view="content">
+                    <i class="fas fa-font"></i> Textos del sitio
+                </button>
+                <button class="sidebar-link" data-view="check">
+                    <i class="fas fa-clipboard-check"></i> Verificación previa
+                </button>
+                <button class="sidebar-link" data-view="publish">
+                    <i class="fas fa-cloud-arrow-up"></i> Publicar
+                </button>
                 <button class="sidebar-link" data-view="export">
                     <i class="fas fa-file-export"></i> Exportar JSON
                 </button>
@@ -1051,10 +1105,11 @@
                         <thead>
                             <tr>
                                 <th style="width:60px"></th>
+                                <th style="width:44px">#</th>
                                 <th>Título</th>
                                 <th>Categoría</th>
                                 <th>Imágenes</th>
-                                <th style="width:100px">Acciones</th>
+                                <th style="width:170px">Acciones</th>
                             </tr>
                         </thead>
                         <tbody id="projectTableBody">
@@ -1103,8 +1158,9 @@
                         </div>
 
                         <div class="form-group">
-                            <label for="pDetails">Detalles del Proyecto <span class="label-hint">(usa \n para saltos de línea)</span></label>
-                            <textarea class="form-control" id="pDetails" rows="6" placeholder="Descripción detallada del proyecto...&#10;&#10;- Punto clave 1&#10;- Punto clave 2&#10;- Punto clave 3" required></textarea>
+                            <label for="pDetails">Detalles del Proyecto <span class="label-hint">(usa <code>##</code> para separar bloques: la ficha los reparte por la composición)</span></label>
+                            <textarea class="form-control" id="pDetails" rows="8" placeholder="## Alcance y criterio&#10;Texto del primer bloque (tarjeta 1).&#10;&#10;## Desarrollo técnico&#10;Texto del segundo bloque (tarjeta 2).&#10;&#10;## Memoria del proyecto&#10;Texto del bloque de desarrollo." required></textarea>
+                            <p class="inline-note">La ficha pública usa el primer bloque en la tarjeta 1, el segundo en la tarjeta 2 y el resto en «Desarrollo». Con <strong>3 o más bloques <code>##</code></strong> la composición se ve completa; admite markdown.</p>
                         </div>
 
                         <!-- Product-specific fields -->
@@ -1221,6 +1277,11 @@
                        si prefieres escribir a mano la ruta de una imagen que ya exista.</p>
                     <p id="siteConnectionNote" class="inline-note">Comprobando conexión…</p>
                     <div id="siteSlots"></div>
+                    <div class="export-actions" style="margin-top:14px">
+                        <button class="btn btn-warning" id="btnRestoreSiteBackup">
+                            <i class="fas fa-undo"></i> Restaurar respaldo de site.json
+                        </button>
+                    </div>
                     <p class="inline-note">
                         Al cambiar la <strong>foto de perfil</strong> también se regenera
                         <code>img/Ruben_traje.jpg</code>, que es la vista previa de WhatsApp/LinkedIn
@@ -1240,6 +1301,132 @@
                         <li>Subir la imagen o guardar una ruta existente</li>
                         <li>Ejecutar <code>python tools/validar.py</code> y <code>bash publicar.sh</code></li>
                     </ol>
+                </div>
+            </div>
+
+            <!-- ======= SITE CONTENT VIEW ======= -->
+            <div class="view" id="view-content">
+                <div class="page-header">
+                    <h1>Textos del sitio</h1>
+                    <p>Edita titulares, cifras y datos de contacto sin tocar el HTML</p>
+                </div>
+
+                <div class="export-card">
+                    <h3><i class="fas fa-font" style="color:var(--primary);margin-right:8px"></i> Contenido configurable</h3>
+                    <p>Los valores se guardan en <code>data/content.json</code> y <code>js/content.js</code> los aplica
+                       a <code>index.html</code>. El HTML conserva los textos actuales como respaldo: si el JSON
+                       falta, la portada sigue viéndose igual. <strong>No se reescribe nunca el HTML.</strong></p>
+                    <p class="inline-note">
+                        En los campos «una línea por renglón» cada salto de línea se convierte en un
+                        <code>&lt;br&gt;</code>. En los párrafos del bloque «Enfoque» puedes usar
+                        <code>**negrita**</code>. El número de proyectos de las cifras es automático
+                        y no se edita aquí.
+                    </p>
+                    <p id="contentConnectionNote" class="inline-note">Comprobando conexión…</p>
+                    <div id="contentFields"></div>
+                    <div class="form-actions" style="margin-top:18px">
+                        <button type="button" class="btn btn-success" id="btnSaveContent">
+                            <i class="fas fa-save"></i> Guardar textos
+                        </button>
+                        <button type="button" class="btn btn-warning" id="btnRestoreContent">
+                            <i class="fas fa-undo"></i> Restaurar respaldo
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ======= PREFLIGHT / CONTRATO ADMIN <-> WEB ======= -->
+            <div class="view" id="view-check">
+                <div class="page-header">
+                    <h1>Verificación previa</h1>
+                    <p>Comprueba que lo que guardó el panel es exactamente lo que la web puede mostrar</p>
+                </div>
+
+                <div class="export-card">
+                    <h3><i class="fas fa-clipboard-check" style="color:var(--primary);margin-right:8px"></i> Contrato entre el admin y la portada</h3>
+                    <p>Este informe es <strong>solo lectura</strong>: no modifica ningún archivo. Contrasta
+                       <code>data/projects.json</code>, <code>data/site.json</code>, las rutas de <code>img/</code>
+                       y los atributos <code>data-site-image</code> / <code>data-filter</code> de
+                       <code>index.html</code>. Ejecútalo antes de <code>publicar.sh</code>.</p>
+                    <button class="btn btn-primary" id="btnRunCheck">
+                        <i class="fas fa-play"></i> Ejecutar verificación
+                    </button>
+                    <div id="checkReport" class="check-report"><p class="inline-note">Pulsa «Ejecutar verificación» para generar el informe.</p></div>
+                </div>
+
+                <div class="export-card">
+                    <h3><i class="fas fa-upload" style="color:var(--warning);margin-right:8px"></i> Guardar ≠ publicar</h3>
+                    <p>El panel escribe en tu disco. Para que los cambios aparezcan en
+                       <code>https://ingrubenvalero.github.io/portafolio/</code>:</p>
+                    <ol style="color:var(--text-muted);font-size:0.9rem;padding-left:20px;line-height:2">
+                        <li><code>python tools/validar.py</code> (el validador usa las mismas reglas que este informe)</li>
+                        <li><code>bash publicar.sh</code></li>
+                        <li>Esperar 1–2 min a que GitHub Pages reconstruya el sitio</li>
+                    </ol>
+                </div>
+
+                <div class="export-card">
+                    <h3><i class="fas fa-broom" style="color:var(--primary);margin-right:8px"></i> Imágenes sin usar</h3>
+                    <p>Lista las imágenes de <code>img/</code> que ya no referencia ningún proyecto,
+                       <code>data/site.json</code> ni <code>index.html</code>. <strong>No se borran</strong>:
+                       se mueven a <code>img/_sin-usar/</code> (excluida por <code>.gitignore</code>),
+                       así que siempre puedes recuperarlas.</p>
+                    <button class="btn btn-ghost" id="btnFindOrphans">
+                        <i class="fas fa-magnifying-glass"></i> Buscar imágenes sin usar
+                    </button>
+                    <div id="orphanReport" class="check-report"><p class="inline-note">Conecta la carpeta del proyecto y pulsa el botón.</p></div>
+                </div>
+            </div>
+
+            <!-- ======= PUBLISH VIEW ======= -->
+            <div class="view" id="view-publish">
+                <div class="page-header">
+                    <h1>Publicar</h1>
+                    <p>El último paso: subir a GitHub Pages lo que ya guardaste en disco</p>
+                </div>
+
+                <div class="export-card">
+                    <h3><i class="fas fa-triangle-exclamation" style="color:var(--warning);margin-right:8px"></i> Guardar ≠ publicar</h3>
+                    <p>El panel escribe en <strong>tu disco</strong>. Hasta que no ejecutes la publicación,
+                       <a href="https://ingrubenvalero.github.io/portafolio/" target="_blank" rel="noopener noreferrer">la web pública</a>
+                       sigue mostrando la versión anterior. El navegador no puede hacer <code>git push</code> por seguridad,
+                       así que este paso se hace con un comando o con un doble clic.</p>
+                    <p class="inline-note" id="publishState">Comprobando conexión…</p>
+                </div>
+
+                <div class="export-card">
+                    <h3><i class="fas fa-window-maximize" style="color:var(--primary);margin-right:8px"></i> Opción 1 · Windows (recomendada)</h3>
+                    <p>Haz doble clic en <code>publicar.bat</code>, en la raíz del proyecto. Abre Git Bash,
+                       ejecuta la validación y sube los cambios. Al terminar deja la ventana abierta
+                       con el resultado.</p>
+                    <pre class="json-preview" style="max-height:none">publicar.bat</pre>
+                </div>
+
+                <div class="export-card">
+                    <h3><i class="fas fa-terminal" style="color:var(--primary);margin-right:8px"></i> Opción 2 · Git Bash</h3>
+                    <p>Desde la raíz del proyecto:</p>
+                    <pre class="json-preview" style="max-height:none">python tools/validar.py
+bash publicar.sh</pre>
+                    <div class="export-actions">
+                        <button class="btn btn-primary" id="btnCopyPublish">
+                            <i class="fas fa-copy"></i> Copiar comandos
+                        </button>
+                        <button class="btn btn-ghost" id="btnGoCheck">
+                            <i class="fas fa-clipboard-check"></i> Ejecutar verificación previa
+                        </button>
+                    </div>
+                </div>
+
+                <div class="export-card">
+                    <h3><i class="fas fa-circle-info" style="color:var(--primary);margin-right:8px"></i> Qué hace <code>publicar.sh</code></h3>
+                    <ol style="color:var(--text-muted);font-size:0.9rem;padding-left:20px;line-height:2">
+                        <li>Valida rutas, esquema y <code>data/site.json</code> / <code>data/content.json</code>; si algo falla, no hace commit.</li>
+                        <li>Conserva el historial remoto y guarda el estado anterior en la rama local <code>respaldo/sitio-anterior</code>.</li>
+                        <li>Hace <code>commit</code> y <code>push</code> normal, <strong>sin <code>--force</code></strong>.</li>
+                        <li>GitHub Pages reconstruye el sitio en 1–2 minutos.</li>
+                    </ol>
+                    <p class="inline-note">La primera vez Git puede pedir credenciales (Git Credential Manager o un token personal).
+                       No hay contraseñas guardadas en el proyecto.</p>
                 </div>
             </div>
 
@@ -1337,8 +1524,84 @@
     };
     const OG_IMAGE_NAME = 'Ruben_traje.jpg';
     const SITE_PATH_RE = /^img\/[A-Za-z0-9._%\-/]+\.(?:webp|png|jpe?g|svg|gif)$/i;
+    /* Debe coincidir con los data-filter de index.html: una categoría distinta
+       deja el proyecto invisible para todos los filtros. */
+    const ALLOWED_CATEGORIES = ['ingenieria', 'arquitectura', 'programacion', 'producto'];
+    function isValidImagePath(path) {
+        return typeof path === 'string' && !path.includes('..') && SITE_PATH_RE.test(path.trim());
+    }
     let siteConfig = { images: { ...SITE_DEFAULT_IMAGES } };
     let siteFileHandle = null;
+
+    /* --- Textos fijos del sitio (data/content.json) --- */
+    const CONTENT_FIELDS = [
+        { group: 'SEO y pestaña', fields: [
+            { key: 'pageTitle', label: 'Título de la pestaña y de las redes', type: 'text' },
+            { key: 'metaDescription', label: 'Descripción para buscadores', type: 'textarea' }
+        ]},
+        { group: 'Portada principal', fields: [
+            { key: 'heroKicker', label: 'Etiqueta superior', type: 'text' },
+            { key: 'heroTitle', label: 'Titular (una línea por renglón)', type: 'lines' },
+            { key: 'heroSub', label: 'Subtítulo (una línea por renglón)', type: 'lines' },
+            { key: 'heroPrimary', label: 'Botón principal', type: 'text' },
+            { key: 'heroSecondary', label: 'Botón secundario', type: 'text' },
+            { key: 'floatTitle', label: 'Tarjeta flotante · título', type: 'text' },
+            { key: 'floatText', label: 'Tarjeta flotante · texto', type: 'text' },
+            { key: 'floatLink', label: 'Tarjeta flotante · enlace', type: 'text' },
+            { key: 'heroCaption', label: 'Pie de la portada', type: 'text' }
+        ]},
+        { group: 'Enfoque y cifras', fields: [
+            { key: 'aboutKicker', label: 'Etiqueta de la sección', type: 'text' },
+            { key: 'aboutTitle', label: 'Titular (una línea por renglón)', type: 'lines' },
+            { key: 'aboutLead', label: 'Bajada del titular', type: 'textarea' },
+            { key: 'stat1Text', label: 'Cifra 1 · texto', type: 'text' },
+            { key: 'stat1Number', label: 'Cifra 1 · número', type: 'text' },
+            { key: 'stat1Caption', label: 'Cifra 1 · pie', type: 'text' },
+            { key: 'stat2Text', label: 'Cifra 2 · texto', type: 'text' },
+            { key: 'stat2Number', label: 'Cifra 2 · número', type: 'text' },
+            { key: 'stat2Caption', label: 'Cifra 2 · pie', type: 'text' },
+            { key: 'stat3Text', label: 'Cifra 3 · texto', type: 'text' },
+            { key: 'stat3Caption', label: 'Cifra 3 · pie (el número es automático)', type: 'text' },
+            { key: 'stat4Text', label: 'Cifra 4 · texto', type: 'text' },
+            { key: 'stat4Number', label: 'Cifra 4 · número', type: 'text' },
+            { key: 'stat4Caption', label: 'Cifra 4 · pie', type: 'text' },
+            { key: 'aboutBody1', label: 'Párrafo 1 (**negrita** admitida)', type: 'textarea' },
+            { key: 'aboutBody2', label: 'Párrafo 2 (**negrita** admitida)', type: 'textarea' }
+        ]},
+        { group: 'Sobre mí', fields: [
+            { key: 'dossierKicker', label: 'Etiqueta de la sección', type: 'text' },
+            { key: 'dossierName', label: 'Nombre', type: 'text' },
+            { key: 'dossierRole', label: 'Cargo / especialidad', type: 'text' },
+            { key: 'experience', label: 'Experiencia', type: 'text' },
+            { key: 'location', label: 'Ubicación', type: 'text' },
+            { key: 'cvLabel', label: 'Texto del botón de CV', type: 'text' }
+        ]},
+        { group: 'Proyectos y contacto', fields: [
+            { key: 'projectsKicker', label: 'Etiqueta de proyectos', type: 'text' },
+            { key: 'projectsTitle', label: 'Titular (una línea por renglón)', type: 'lines' },
+            { key: 'projectsCta', label: 'Botón «Solicitar presupuesto»', type: 'text' },
+            { key: 'ctaTitle', label: 'Titular del bloque de contacto (una línea por renglón)', type: 'lines' },
+            { key: 'ctaText', label: 'Texto del bloque de contacto', type: 'textarea' },
+            { key: 'ctaButton', label: 'Botón de consulta', type: 'text' },
+            { key: 'contactLine', label: 'Línea de correo y teléfono', type: 'text' },
+            { key: 'navCta', label: 'Botón de la navegación', type: 'text' }
+        ]},
+        { group: 'Pie de página', fields: [
+            { key: 'footerText', label: 'Texto del pie (una línea por renglón)', type: 'lines' },
+            { key: 'footerNote', label: 'Nota final', type: 'text' }
+        ]}
+    ];
+    const CONTENT_LINKS = [
+        { key: 'email', label: 'Correo de contacto', hint: 'Se usa en enlaces mailto:, en la ficha de proyecto y en la línea de contacto.' },
+        { key: 'phone', label: 'Teléfono (solo dígitos)', hint: 'Ej: 59176982955. Genera tel: y el enlace de WhatsApp.' },
+        { key: 'phoneLabel', label: 'Teléfono tal como se muestra', hint: 'Ej: +591 76982955' },
+        { key: 'linkedin', label: 'URL de LinkedIn', hint: 'Debe empezar por https://' },
+        { key: 'cv', label: 'URL de descarga del CV', hint: 'Debe empezar por https://' }
+    ];
+    const CONTENT_TEXT_KEYS = CONTENT_FIELDS.flatMap(g => g.fields.map(f => f.key));
+    const CONTENT_LINK_KEYS = CONTENT_LINKS.map(f => f.key);
+    let contentConfig = { texts: {}, links: {} };
+    let contentFileHandle = null;
 
     // ===== FILE SYSTEM HANDLE CACHE (IndexedDB) =====
     function openHandlesDB() {
@@ -1404,6 +1667,8 @@
             stateEl.style.color = isJsonConnected ? 'var(--success)' : 'var(--danger)';
         }
         updateSiteConnectionNote();
+        updateContentConnectionNote();
+        updatePublishState();
     }
 
     /* ============================================================
@@ -1579,6 +1844,14 @@
         const result = await convertToWebP(file);
         const ext = (result.file.name.split('.').pop() || 'webp').toLowerCase();
         const fileName = `sitio-${slotKey}.${ext}`;
+        // Validar ANTES de escribir el archivo: si la configuración no va a
+        // poder guardarse, no dejamos una imagen huérfana en img/.
+        const next = { images: { ...siteConfig.images, [slotKey]: `img/${fileName}` } };
+        const error = validateSiteConfig(next);
+        if (error) {
+            showToast(`No se actualizó la configuración: ${error}.`, 'error');
+            return;
+        }
         try {
             const handle = await imageDirectoryHandle.getFileHandle(fileName, { create: true });
             const writable = await handle.createWritable();
@@ -1605,12 +1878,6 @@
             }
         }
 
-        const next = { images: { ...siteConfig.images, [slotKey]: `img/${fileName}` } };
-        const error = validateSiteConfig(next);
-        if (error) {
-            showToast(`No se actualizó la configuración: ${error}.`, 'error');
-            return;
-        }
         const previous = siteConfig;
         siteConfig = next;
         const written = await persistSiteJSON();
@@ -1638,6 +1905,251 @@
         if (!written) siteConfig = previous;
         renderSiteSlots();
         if (written) showToast('Ruta guardada en data/site.json. Falta publicar.', 'success');
+    }
+
+    /* data/site.respaldo.json se crea antes de cada escritura. A diferencia de
+       projects.json, aquí no puede borrar proyectos, así que basta un botón
+       sencillo de restauración con confirmación. */
+    async function restoreSiteBackup() {
+        if (!dataDirectoryHandle || !siteFileHandle) {
+            showToast('Conecta «Carpeta del proyecto» antes de restaurar.', 'error');
+            return;
+        }
+        let data;
+        try {
+            const backup = await dataDirectoryHandle.getFileHandle('site.respaldo.json');
+            data = JSON.parse(await (await backup.getFile()).text());
+        } catch (e) {
+            showToast('No hay un respaldo válido en data/site.respaldo.json.', 'error');
+            return;
+        }
+        const error = validateSiteConfig(data);
+        if (error) {
+            showToast(`El respaldo no es válido: ${error}.`, 'error');
+            return;
+        }
+        showConfirm(
+            '¿Restaurar imágenes del sitio?',
+            'Se volverán a usar las 4 rutas anteriores de data/site.json. No se borra ningún archivo de img/.',
+            async () => {
+                const previous = siteConfig;
+                siteConfig = { images: { ...data.images } };
+                const written = await persistSiteJSON();
+                if (!written) siteConfig = previous;
+                renderSiteSlots();
+                if (written) showToast('data/site.json restaurado. Falta publicar.', 'success');
+            },
+            'Restaurar',
+            'btn-success'
+        );
+    }
+
+    /* ============================================================
+       TEXTOS DEL SITIO: config en data/content.json + escritura segura
+       ============================================================ */
+    function validateContentPayload(cfg) {
+        if (!cfg || typeof cfg.texts !== 'object' || !cfg.texts ||
+            typeof cfg.links !== 'object' || !cfg.links) return 'falta el objeto texts o links';
+        for (const key of CONTENT_TEXT_KEYS) {
+            if (typeof cfg.texts[key] !== 'string' || !cfg.texts[key].trim()) {
+                return `falta o está vacío el texto «${key}»`;
+            }
+        }
+        for (const key of CONTENT_LINK_KEYS) {
+            if (typeof cfg.links[key] !== 'string' || !cfg.links[key].trim()) {
+                return `falta o está vacío el enlace «${key}»`;
+            }
+        }
+        if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(cfg.links.email)) return 'el correo no tiene un formato válido';
+        if (!/^\+?[0-9 ()-]{8,}$/.test(cfg.links.phone)) return 'el teléfono debe tener al menos 8 dígitos';
+        for (const key of ['linkedin', 'cv']) {
+            try {
+                const url = new URL(cfg.links[key]);
+                if (!['http:', 'https:'].includes(url.protocol)) throw new Error('protocolo');
+            } catch (e) { return `«${key}» debe ser una URL http(s) válida`; }
+        }
+        return null;
+    }
+
+    function updateContentConnectionNote() {
+        const note = document.getElementById('contentConnectionNote');
+        if (!note) return;
+        const ready = !!dataDirectoryHandle;
+        note.textContent = ready
+            ? 'Conectado · los textos se escriben en data/content.json.'
+            : 'SIN CONEXIÓN: pulsa «Conectar carpeta del proyecto» (raíz con data/ e img/) para poder guardar.';
+        note.style.color = ready ? 'var(--success)' : 'var(--danger)';
+    }
+
+    function renderContentFields() {
+        const host = document.getElementById('contentFields');
+        if (!host) return;
+        const field = (f) => {
+            const id = `cf-${f.key}`;
+            const value = escapeAttr(contentConfig.texts[f.key] || '');
+            if (f.type === 'textarea' || f.type === 'lines') {
+                return `<div class="form-group">
+                    <label for="${id}">${escapeHTML(f.label)}</label>
+                    <textarea class="form-control" id="${id}" rows="${f.type === 'lines' ? 3 : 4}">${value}</textarea>
+                </div>`;
+            }
+            return `<div class="form-group">
+                <label for="${id}">${escapeHTML(f.label)}</label>
+                <input type="text" class="form-control" id="${id}" value="${value}">
+            </div>`;
+        };
+        const groups = CONTENT_FIELDS.map(g => `
+            <fieldset class="content-group">
+                <legend>${escapeHTML(g.group)}</legend>
+                ${g.fields.map(field).join('')}
+            </fieldset>`).join('');
+        const links = `<fieldset class="content-group"><legend>Enlaces y datos de contacto</legend>` +
+            CONTENT_LINKS.map(f => `
+                <div class="form-group">
+                    <label for="cl-${f.key}">${escapeHTML(f.label)}</label>
+                    <input type="text" class="form-control" id="cl-${f.key}"
+                           value="${escapeAttr(contentConfig.links[f.key] || '')}">
+                    <span class="label-hint">${escapeHTML(f.hint)}</span>
+                </div>`).join('') + `</fieldset>`;
+        host.innerHTML = groups + links;
+        updateContentConnectionNote();
+    }
+
+    async function loadContentConfig() {
+        try {
+            const res = await fetch(`data/content.json?t=${Date.now()}`, { cache: 'no-store' });
+            if (!res.ok) throw new Error('no disponible');
+            const data = await res.json();
+            const error = validateContentPayload(data);
+            if (error) showToast(`data/content.json no es válido: ${error}.`, 'warning');
+            else contentConfig = { texts: { ...data.texts }, links: { ...data.links } };
+        } catch (e) {
+            showToast('No se pudo leer data/content.json; el formulario aparece vacío.', 'warning');
+        }
+        renderContentFields();
+    }
+
+    async function adoptContentFromDisk() {
+        if (!contentFileHandle) return;
+        try {
+            const data = JSON.parse(await (await contentFileHandle.getFile()).text());
+            if (!validateContentPayload(data)) {
+                contentConfig = { texts: { ...data.texts }, links: { ...data.links } };
+                renderContentFields();
+            }
+        } catch (e) {
+            console.warn('data/content.json del disco no es válido; se conserva la config en memoria', e);
+        }
+    }
+
+    async function writeContentBackup() {
+        /* Si el archivo aún no existe no hay nada que respaldar. */
+        if (!dataDirectoryHandle || !contentFileHandle) return true;
+        try {
+            const text = await (await contentFileHandle.getFile()).text();
+            if (!text.trim()) return true;
+            if (validateContentPayload(JSON.parse(text))) return true;
+            const backup = await dataDirectoryHandle.getFileHandle('content.respaldo.json', { create: true });
+            const writable = await backup.createWritable();
+            await writable.write(text);
+            await writable.close();
+            return true;
+        } catch (e) {
+            console.warn('No se pudo crear data/content.respaldo.json', e);
+            return false;
+        }
+    }
+
+    async function persistContentJSON() {
+        if (!dataDirectoryHandle) {
+            showToast('NO se guardó: conecta «Carpeta del proyecto». data/content.json no se tocó.', 'error');
+            return false;
+        }
+        const error = validateContentPayload(contentConfig);
+        if (error) {
+            showToast(`No se escribió data/content.json: ${error}.`, 'error');
+            return false;
+        }
+        if (!await writeContentBackup()) {
+            showToast('No se pudo crear el respaldo; data/content.json no se tocó.', 'error');
+            return false;
+        }
+        try {
+            /* Aquí sí se permite crear el archivo: es un archivo nuevo con
+               contenido ya validado, no un JSON existente que se pueda vaciar. */
+            if (!contentFileHandle) {
+                contentFileHandle = await dataDirectoryHandle.getFileHandle('content.json', { create: true });
+            }
+            const writable = await contentFileHandle.createWritable();
+            await writable.write(JSON.stringify(contentConfig, null, 4) + '\n');
+            await writable.close();
+            return true;
+        } catch (e) {
+            console.error(e);
+            showToast('No se pudo actualizar data/content.json. Hay una copia en data/content.respaldo.json.', 'error');
+            return false;
+        }
+    }
+
+    function readContentForm() {
+        const texts = {}, links = {};
+        CONTENT_TEXT_KEYS.forEach(key => {
+            const el = document.getElementById(`cf-${key}`);
+            if (el) texts[key] = el.value;
+        });
+        CONTENT_LINK_KEYS.forEach(key => {
+            const el = document.getElementById(`cl-${key}`);
+            if (el) links[key] = el.value.trim();
+        });
+        return { texts, links };
+    }
+
+    async function saveContent() {
+        const next = readContentForm();
+        const error = validateContentPayload(next);
+        if (error) {
+            showToast(`No se guardó: ${error}.`, 'error');
+            return;
+        }
+        const previous = contentConfig;
+        contentConfig = next;
+        const written = await persistContentJSON();
+        if (!written) contentConfig = previous;
+        else showToast('Textos guardados en data/content.json. Falta ejecutar publicar.sh.', 'success');
+    }
+
+    async function restoreContentBackup() {
+        if (!dataDirectoryHandle) {
+            showToast('Conecta «Carpeta del proyecto» antes de restaurar.', 'error');
+            return;
+        }
+        let data;
+        try {
+            const backup = await dataDirectoryHandle.getFileHandle('content.respaldo.json');
+            data = JSON.parse(await (await backup.getFile()).text());
+        } catch (e) {
+            showToast('No hay un respaldo válido en data/content.respaldo.json.', 'error');
+            return;
+        }
+        const error = validateContentPayload(data);
+        if (error) {
+            showToast(`El respaldo no es válido: ${error}.`, 'error');
+            return;
+        }
+        showConfirm(
+            '¿Restaurar los textos?',
+            'Se volverán a usar los textos y enlaces anteriores de data/content.json.',
+            async () => {
+                const previous = contentConfig;
+                contentConfig = { texts: { ...data.texts }, links: { ...data.links } };
+                const written = await persistContentJSON();
+                if (!written) contentConfig = previous;
+                renderContentFields();
+                if (written) showToast('data/content.json restaurado. Falta publicar.', 'success');
+            },
+            'Restaurar',
+            'btn-success'
+        );
     }
 
     /* Delegación: las filas se regeneran al renderizar, así que los listeners
@@ -1688,8 +2200,11 @@
                     projectsFileHandle = projectsHandle;
                     try { siteFileHandle = await dataHandle.getFileHandle('site.json'); }
                     catch (e) { siteFileHandle = null; }
+                    try { contentFileHandle = await dataHandle.getFileHandle('content.json'); }
+                    catch (e) { contentFileHandle = null; }
                     setConnectedNotes(true, true);
                     adoptSiteFromDisk();
+                    adoptContentFromDisk();
                     return;
                 }
             }
@@ -1749,6 +2264,7 @@
 
         renderProjectList();
         await loadSiteConfig();
+        await loadContentConfig();
         setupEventListeners();
         setupSiteListeners();
         await restoreSavedConnections();
@@ -1780,6 +2296,15 @@
         if (viewId === 'site') {
             renderSiteSlots();
         }
+        if (viewId === 'content') {
+            renderContentFields();
+        }
+        if (viewId === 'check') {
+            runPreflightCheck();
+        }
+        if (viewId === 'publish') {
+            updatePublishState();
+        }
     }
 
     // ===== RENDER PROJECT LIST =====
@@ -1794,7 +2319,7 @@
         if (filtered.length === 0) {
             tbody.innerHTML = `
                 <tr>
-                    <td colspan="5" style="text-align:center;padding:40px;color:var(--text-dim)">
+                    <td colspan="6" style="text-align:center;padding:40px;color:var(--text-dim)">
                         <i class="fas fa-folder-open" style="font-size:2rem;display:block;margin-bottom:10px;color:var(--text-dim)"></i>
                         ${filter ? 'No se encontraron proyectos' : 'Aún no hay proyectos. ¡Agrega el primero!'}
                     </td>
@@ -1803,24 +2328,35 @@
             return;
         }
 
-        tbody.innerHTML = filtered.map(p => `
+        tbody.innerHTML = filtered.map(p => {
+            const id = Number(p.id) || 0;
+            const order = adminProjects.indexOf(p) + 1; // orden real, no el de la búsqueda
+            return `
             <tr>
-                <td><img class="table-thumb" src="${p.image}" alt="" onerror="this.style.display='none'"></td>
+                <td><img class="table-thumb" src="${escapeAttr(p.image)}" alt="" onerror="this.style.display='none'"></td>
+                <td class="row-order">${order}</td>
                 <td><span class="table-title">${escapeHTML(p.title)}</span></td>
-                <td><span class="table-category cat-${p.category}">${p.category}</span></td>
+                <td><span class="table-category cat-${escapeAttr(p.category)}">${escapeHTML(p.category)}</span></td>
                 <td style="color:var(--text-muted)">${p.gallery?.length || 0} <i class="fas fa-image" style="font-size:0.75rem"></i></td>
                 <td>
                     <div class="table-actions">
-                        <button class="table-action-btn edit" title="Editar" onclick="editProject(${p.id})">
+                        <button class="table-action-btn" title="Subir en la web" data-move="up" data-id="${id}" ${order === 1 ? 'disabled' : ''}>
+                            <i class="fas fa-arrow-up"></i>
+                        </button>
+                        <button class="table-action-btn" title="Bajar en la web" data-move="down" data-id="${id}" ${order === adminProjects.length ? 'disabled' : ''}>
+                            <i class="fas fa-arrow-down"></i>
+                        </button>
+                        <button class="table-action-btn edit" title="Editar" onclick="editProject(${id})">
                             <i class="fas fa-pen"></i>
                         </button>
-                        <button class="table-action-btn delete" title="Eliminar" onclick="confirmDeleteProject(${p.id})">
+                        <button class="table-action-btn delete" title="Eliminar" onclick="confirmDeleteProject(${id})">
                             <i class="fas fa-trash"></i>
                         </button>
                     </div>
                 </td>
             </tr>
-        `).join('');
+        `;
+        }).join('');
     }
 
     // ===== FORM HANDLING =====
@@ -1878,14 +2414,6 @@
         const category = document.getElementById('pCategory').value;
         const isProduct = category === 'producto';
 
-        if (importedImages.length > 0) {
-            await persistImportedImages();
-            // limpiarlas una vez guardadas a disco temporalmente para no volverlas a duplicar
-            importedImages.forEach(item => URL.revokeObjectURL(item.previewUrl));
-            importedImages = [];
-            updateImportedFilesUI();
-        }
-
         const projectData = {
             id: isEditing ? currentEditId : getNextId(),
             title: document.getElementById('pTitle').value.trim(),
@@ -1921,10 +2449,25 @@
             return false;
         }
 
-        // 2) Verificar que las imágenes referenciadas existen antes de tocar el JSON
+        // 2) Solo ahora que el formulario es válido se escriben las imágenes en
+        //    img/. Antes se escribían al principio: un título vacío dejaba
+        //    archivos huérfanos en disco aunque el JSON no se tocara.
+        const writtenImages = await persistImportedImages();
+        if (importedImages.length > 0) {
+            importedImages.forEach(item => URL.revokeObjectURL(item.previewUrl));
+            importedImages = [];
+            updateImportedFilesUI();
+        }
+
+        // 3) Verificar que las imágenes referenciadas existen antes de tocar el JSON
         const check = await validateProjectAssets(projectData);
         if (!check.ok) {
-            if (!quiet) showToast(`Hay ${check.missing.length} imagen(es) que no existen: ${check.missing.slice(0, 2).join(', ')}${check.missing.length > 2 ? '…' : ''}. Corrige las rutas antes de guardar.`, 'error');
+            if (!quiet) {
+                const extra = writtenImages
+                    ? ` Se escribieron ${writtenImages} imagen(es) en img/; corrige las rutas y vuelve a guardar sin volver a importarlas.`
+                    : '';
+                showToast(`Hay ${check.missing.length} imagen(es) que no existen: ${check.missing.slice(0, 2).join(', ')}${check.missing.length > 2 ? '…' : ''}.${extra}`, 'error');
+            }
             return false;
         }
 
@@ -1972,6 +2515,23 @@
         return true;
     }
 
+    /* Cambios de galería (orden, portada, renombrado, borrado) que deben
+       reflejarse en el JSON. Antes algunos no autoguardaban y otros creaban un
+       proyecto NUEVO con un autoguardado silencioso sin pulsar «Guardar».
+       Regla: solo se escribe en disco si ya se está editando un proyecto
+       existente; en un formulario nuevo se avisa y se espera al guardado. */
+    function quietSaveCurrent(actionLabel) {
+        if (!currentEditId) {
+            showToast(`${actionLabel}: cambio aplicado en el formulario. Pulsa «Guardar Proyecto» para escribirlo en el JSON.`, 'info');
+            return;
+        }
+        if (!document.getElementById('pTitle').value.trim()) {
+            showToast('Completa el título antes de guardar.', 'warning');
+            return;
+        }
+        saveProject(null, true);
+    }
+
     function editProject(id) {
         const project = adminProjects.find(p => p.id === id);
         if (!project) return;
@@ -1986,7 +2546,7 @@
 
         showConfirm(
             '¿Eliminar proyecto?',
-            `Se eliminará "${project.title}" permanentemente.`,
+            `Se eliminará "${project.title}" de data/projects.json. Sus imágenes NO se borran de img/ (pueden estar compartidas): tools/validar.py las listará como huérfanas.`,
             async () => {
                 const snapshot = [...adminProjects];
                 adminProjects = adminProjects.filter(p => p.id !== id);
@@ -2007,6 +2567,35 @@
     function getNextId() {
         if (adminProjects.length === 0) return 1;
         return Math.max(...adminProjects.map(p => p.id)) + 1;
+    }
+
+    /* El orden en que la web muestra los proyectos es el orden del array en
+       data/projects.json. Mover arriba/abajo lo persiste con el mismo respaldo
+       y la misma validación que el resto de escrituras. */
+    async function moveProject(id, direction) {
+        const index = adminProjects.findIndex(p => p.id === id);
+        const target = index + (direction === 'up' ? -1 : 1);
+        if (index === -1 || target < 0 || target >= adminProjects.length) return;
+
+        const snapshot = [...adminProjects];
+        [adminProjects[index], adminProjects[target]] = [adminProjects[target], adminProjects[index]];
+
+        const error = validateProjectsPayload(adminProjects);
+        if (error) {
+            adminProjects = snapshot;
+            showToast(`No se reordenó: ${error}.`, 'error');
+            return;
+        }
+        saveToStorage();
+        const written = await persistProjectsJSON();
+        if (!written) {
+            adminProjects = snapshot;
+            saveToStorage();
+            showToast('No se reordenó: el JSON no se modificó.', 'error');
+        } else {
+            showToast('Orden guardado en data/projects.json. Falta ejecutar publicar.sh.', 'success');
+        }
+        renderProjectList(document.getElementById('searchProjects').value);
     }
 
     // ===== GALLERY MANAGEMENT =====
@@ -2050,8 +2639,8 @@
                 <div class="gallery-left">
                     <span class="gallery-order">#${idx + 1}</span>
                     <span class="drag-handle" title="Arrastrar para ordenar"><i class="fas fa-grip-vertical"></i></span>
-                    <img src="${img}" alt="" onerror="this.style.display='none'">
-                    <span class="gallery-name">${getFileName(img)}${idx === 0 ? ' (primera)' : ''}</span>
+                    <img src="${escapeAttr(img)}" alt="" onerror="this.style.display='none'">
+                    <span class="gallery-name">${escapeHTML(getFileName(img))}${idx === 0 ? ' (primera)' : ''}</span>
                     <span class="gallery-slot" title="${idx === 0 ? 'Portada: el titular se superpone con un desvanecimiento oscuro desde la izquierda. Deja el motivo a la derecha y la zona izquierda despejada.' : 'Hueco que ocupa en la composición de la ficha'}">${getSlotLabel(idx, galleryImages.length)}</span>
                 </div>
                 <div class="gallery-actions">
@@ -2083,12 +2672,24 @@
         input.focus();
     }
 
+    /* Una imagen de galería puede ser también la portada de la web (site.json)
+       o estar compartida con otro proyecto. Borrar el archivo en esos casos
+       rompería la portada pública; se conserva y solo se quita de la galería. */
+    function imageUsedElsewhere(path, excludeId) {
+        const inProjects = adminProjects.some(p => p.id !== excludeId &&
+            (p.image === path || (p.gallery || []).includes(path)));
+        const inSite = Object.values(siteConfig.images || {}).includes(path);
+        const isProtected = Object.values(SITE_DEFAULT_IMAGES).includes(path) ||
+            path === `img/${OG_IMAGE_NAME}` || /^img\/sitio-/.test(path);
+        return { inProjects, inSite, isProtected, keep: inProjects || inSite || isProtected };
+    }
+
     function removeGalleryImage(index) {
         const removed = galleryImages[index];
 
         showConfirm(
             '¿Quitar imagen?',
-            `¿Estás seguro de quitar "${getFileName(removed)}"? \nSi la carpeta está conectada, el archivo también se eliminará físicamente del disco.`,
+            `¿Quitar "${getFileName(removed)}" de esta galería? El archivo solo se borrará del disco si no lo usa otro proyecto ni la portada del sitio.`,
             async () => {
                 galleryImages.splice(index, 1);
                 const importedIdx = importedImages.findIndex(item => item.relativePath === removed);
@@ -2098,11 +2699,16 @@
                     updateImportedFilesUI();
                 }
 
-                // Intentar eliminar del disco si está conectado
-                if (imageDirectoryHandle && removed.startsWith('img/')) {
+                // Solo se borra el archivo si nadie más lo referencia.
+                const usage = imageUsedElsewhere(removed, currentEditId);
+                if (usage.keep) {
+                    const reason = usage.inProjects ? 'otro proyecto'
+                        : usage.inSite ? 'la portada del sitio (data/site.json)'
+                        : 'la configuración por defecto del sitio';
+                    showToast(`Archivo conservado: también lo usa ${reason}.`, 'info');
+                } else if (imageDirectoryHandle && removed.startsWith('img/')) {
                     try {
-                        const fileName = getFileName(removed);
-                        await imageDirectoryHandle.removeEntry(fileName);
+                        await imageDirectoryHandle.removeEntry(getFileName(removed));
                         showToast('Archivo eliminado de la carpeta img/', 'info');
                     } catch (e) {
                         console.warn('No se pudo eliminar el archivo', e);
@@ -2116,10 +2722,7 @@
                 }
 
                 renderGallery();
-                
-                if (document.getElementById('pTitle').value.trim()) {
-                    saveProject(null, true);
-                }
+                quietSaveCurrent('Imagen quitada');
             }
         );
     }
@@ -2155,10 +2758,8 @@
         renderGallery();
         showToast('Imagen principal actualizada automanticamente', 'success');
 
-        // Disparar guardado automático silencioso (sin salir de la vista)
-        if (document.getElementById('pTitle').value.trim()) {
-            saveProject(null, true);
-        }
+        // Guardado silencioso solo si ya existe el proyecto en el JSON.
+        quietSaveCurrent('Imagen principal');
     }
 
     function startGalleryDrag(event, index) {
@@ -2204,6 +2805,9 @@
 
         renderGallery();
         endGalleryDrag();
+        // Sin esto el nuevo orden vivía solo en el formulario: el JSON (y por
+        // tanto la ficha pública) seguía con el orden anterior.
+        quietSaveCurrent('Orden de galería');
         showToast('Orden de galería actualizado', 'success');
     }
 
@@ -2231,7 +2835,7 @@
 
         let renamedInDisk = false;
         if (imageDirectoryHandle && oldPath.startsWith('img/') && newPath.startsWith('img/')) {
-            renamedInDisk = await renameImageInFolder(currentName, cleanName);
+            renamedInDisk = await renameImageInFolder(currentName, cleanName, oldPath);
         }
 
         const importedItem = importedImages.find(item => item.relativePath === oldPath);
@@ -2249,17 +2853,27 @@
         }
 
         renderGallery();
+        // Renombrar cambia el nombre del archivo en disco: si el JSON no se
+        // actualiza a la vez queda apuntando a una imagen que ya no existe.
+        quietSaveCurrent('Renombrado');
 
         if (!renamedInDisk && imageDirectoryHandle && oldPath.startsWith('img/')) {
             showToast('Ruta actualizada, pero no se pudo renombrar físicamente el archivo', 'info');
         } else if (!imageDirectoryHandle) {
             showToast('Ruta renombrada. Si el archivo físico existe, renómbralo también en img/', 'info');
+        } else if (renamedInDisk === 'copied') {
+            showToast('Copia creada: el original se conserva porque lo usa la portada u otro proyecto.', 'success');
         } else {
             showToast('Imagen renombrada correctamente', 'success');
         }
     }
 
-    async function renameImageInFolder(oldName, newName) {
+    /* Devuelve 'renamed', 'copied' o null. Si el archivo lo usa la portada del
+       sitio u otro proyecto NO se renombra (site.json apuntaría a un nombre que
+       ya no existe): se crea una copia con el nombre nuevo y se conserva el
+       original, de modo que ambas referencias sigan siendo válidas. */
+    async function renameImageInFolder(oldName, newName, oldPath) {
+        const usage = imageUsedElsewhere(oldPath || `img/${oldName}`, currentEditId);
         try {
             const oldFileHandle = await imageDirectoryHandle.getFileHandle(oldName, { create: false });
             const originalFile = await oldFileHandle.getFile();
@@ -2267,11 +2881,12 @@
             const writable = await newFileHandle.createWritable();
             await writable.write(originalFile);
             await writable.close();
+            if (usage.keep) return 'copied';
             await imageDirectoryHandle.removeEntry(oldName);
-            return true;
+            return 'renamed';
         } catch (error) {
-            console.warn('No se pudo renombrar archivo en disco', error);
-            return false;
+            console.warn('No se pudo renombrar/copiar archivo en disco', error);
+            return null;
         }
     }
 
@@ -2290,6 +2905,7 @@
             'Se renombrarán todas las imágenes basándose en el título y su orden actual. Si la carpeta img/ está conectada, se renombrarán también los archivos físicos.',
             async () => {
                 let renameCount = 0;
+                let copiedShared = 0;
                 const originalGallery = [...galleryImages];
 
                 for (let i = 0; i < originalGallery.length; i++) {
@@ -2306,9 +2922,12 @@
                     if (newPath !== oldPath) {
                         if (imageDirectoryHandle && oldPath.startsWith('img/') && newPath.startsWith('img/')) {
                             // Intentamos renombrar, pero evitamos si el newPath existe por un ciclo extraño
-                            const success = await renameImageInFolder(currentName, cleanName);
+                            const success = await renameImageInFolder(currentName, cleanName, oldPath);
                             if (!success) {
                                 console.warn(`Error al auto-renombrar en disco: ${currentName}`);
+                            } else if (success === 'copied') {
+                                console.info(`Archivo compartido conservado: ${currentName} -> copia ${cleanName}`);
+                                copiedShared++;
                             }
                         }
                         galleryImages[i] = newPath;
@@ -2330,8 +2949,11 @@
                     updateImportedFilesUI();
                     
                     // Auto Guardar (Silencioso para no sacar del editor)
-                    saveProject(null, true);
-                    showToast(`${renameCount} imágenes auto-renombradas`, 'success');
+                    quietSaveCurrent('Auto-renombrado');
+                    const shared = copiedShared
+                        ? ` · ${copiedShared} compartida(s) con la portada se copiaron sin borrar el original`
+                        : '';
+                    showToast(`${renameCount} imágenes auto-renombradas${shared}`, 'success');
                 } else {
                     showToast('Las imágenes ya estaban renombradas correctamente', 'info');
                 }
@@ -2594,6 +3216,11 @@
             // site.json también se lee desde disco: nunca se crea vacío.
             try { siteFileHandle = await dataHandle.getFileHandle('site.json'); }
             catch (e) { siteFileHandle = null; }
+            if (!siteFileHandle) {
+                showToast('Falta data/site.json en la carpeta elegida: los proyectos sí se guardarán, pero «Imágenes del sitio» no podrá escribir.', 'warning');
+            }
+            try { contentFileHandle = await dataHandle.getFileHandle('content.json'); }
+            catch (e) { contentFileHandle = null; }
             await saveHandle(WORKSPACE_HANDLE_KEY, workspaceHandle);
 
             // CONECTAR ES SOLO LECTURA: el disco manda y NO se escribe nada.
@@ -2607,6 +3234,7 @@
             renderProjectList();
             setConnectedNotes(true, true);
             adoptSiteFromDisk();
+            adoptContentFromDisk();
             showToast('Carpeta conectada. data/projects.json se leyó SIN modificarlo.', 'success');
         } catch (error) {
             if (error && error.name !== 'AbortError') {
@@ -2616,25 +3244,28 @@
     }
 
     async function persistImportedImages() {
-        if (importedImages.length === 0) return;
+        if (importedImages.length === 0) return 0;
 
         if (!imageDirectoryHandle) {
             showToast('Sin carpeta conectada: se guardan rutas, copia manualmente las imágenes a img/', 'info');
-            return;
+            return 0;
         }
 
+        let written = 0;
         try {
             for (const item of importedImages) {
                 const fileHandle = await imageDirectoryHandle.getFileHandle(item.fileName, { create: true });
                 const writable = await fileHandle.createWritable();
                 await writable.write(item.file);
                 await writable.close();
+                written++;
             }
-            showToast(`${importedImages.length} imagen(es) guardadas en carpeta img/`, 'success');
+            showToast(`${written} imagen(es) guardadas en carpeta img/`, 'success');
         } catch (error) {
             console.error(error);
-            showToast('No se pudieron guardar imágenes en la carpeta conectada', 'error');
+            showToast('No se pudieron guardar todas las imágenes en la carpeta conectada', 'error');
         }
+        return written;
     }
 
     /* Comprueba por HTTP que cada ruta referenciada existe realmente en img/.
@@ -2662,14 +3293,40 @@
         const seen = new Set();
         for (const p of projects) {
             if (!p || typeof p !== 'object') return 'hay una entrada que no es un proyecto válido';
-            if (p.id === undefined || p.id === null || p.id === '') return 'hay un proyecto sin id';
+            /* El id va en onclick="openModal(...)" y se compara con === en la ficha:
+               un id de texto haría que la ficha no abra nunca. */
+            if (!Number.isInteger(p.id) || p.id < 1) return `proyecto ${p.title || '(sin título)'}: el id debe ser un número entero positivo`;
             if (seen.has(p.id)) return `id duplicado: ${p.id}`;
             seen.add(p.id);
-            for (const field of ['title', 'image', 'category']) {
-                if (!p[field] || !String(p[field]).trim()) return `proyecto ${p.id}: falta '${field}'`;
+            for (const field of ['title', 'description', 'details', 'image', 'category']) {
+                if (typeof p[field] !== 'string' || !p[field].trim()) return `proyecto ${p.id}: falta o no es texto '${field}'`;
             }
+            if (!ALLOWED_CATEGORIES.includes(p.category)) {
+                return `proyecto ${p.id}: categoría '${p.category}' no existe en los filtros de la web`;
+            }
+            if (!isValidImagePath(p.image)) return `proyecto ${p.id}: la imagen principal no es una ruta img/ válida`;
             if (!Array.isArray(p.gallery) || p.gallery.length === 0) return `proyecto ${p.id}: galería vacía`;
-            if (p.gallery.some(path => !path || !String(path).trim())) return `proyecto ${p.id}: hay una ruta de imagen vacía`;
+            if (p.gallery.some(path => !isValidImagePath(path))) {
+                return `proyecto ${p.id}: la galería tiene una ruta vacía o no permitida`;
+            }
+            if (p.slots) {
+                if (!p.slots || typeof p.slots !== 'object' || Array.isArray(p.slots)) {
+                    return `proyecto ${p.id}: 'slots' debe ser un objeto`;
+                }
+                for (const key of ['cards', 'pair', 'catalog', 'details']) {
+                    if (p.slots[key] !== undefined && !Array.isArray(p.slots[key])) {
+                        return `proyecto ${p.id}: slots.${key} debe ser una lista de índices`;
+                    }
+                }
+            }
+            if (p.youtubeUrl) {
+                try {
+                    const url = new URL(p.youtubeUrl);
+                    if (!['http:', 'https:'].includes(url.protocol)) throw new Error('protocolo');
+                } catch (e) {
+                    return `proyecto ${p.id}: youtubeUrl debe ser una URL http(s) válida`;
+                }
+            }
         }
         return null;
     }
@@ -2863,6 +3520,284 @@
         reader.readAsText(file);
     }
 
+    // ===== VERIFICACIÓN PREVIA (solo lectura, no escribe ningún archivo) =====
+    async function headStatus(path) {
+        try {
+            const res = await fetch(`${path}?t=${Date.now()}`, { method: 'HEAD', cache: 'no-store' });
+            return res.ok ? 'ok' : 'missing';
+        } catch (e) {
+            return 'unknown';
+        }
+    }
+
+    async function runPreflightCheck() {
+        const host = document.getElementById('checkReport');
+        const button = document.getElementById('btnRunCheck');
+        if (!host) return;
+        if (button) button.disabled = true;
+        host.innerHTML = '<p class="inline-note">Verificando…</p>';
+
+        const errors = [], warnings = [], oks = [], paths = new Set();
+
+        if (projectsFileHandle && imageDirectoryHandle && siteFileHandle && dataDirectoryHandle) {
+            oks.push('Carpeta del proyecto conectada: data/projects.json, data/site.json e img/ son escribibles.');
+        } else {
+            warnings.push('Carpeta del proyecto no conectada por completo: el informe se genera sobre los datos en memoria.');
+        }
+
+        const schemaError = validateProjectsPayload(adminProjects);
+        if (schemaError) errors.push(`Contrato de projects.json: ${schemaError}`);
+        else oks.push(`Esquema de ${adminProjects.length} proyectos: ids enteros únicos, categorías con filtro, rutas img/ válidas y textos completos.`);
+
+        const seenIds = new Set();
+        adminProjects.forEach(p => {
+            const label = `Proyecto ${p.id} («${p.title || 'sin título'}»)`;
+            if (seenIds.has(p.id)) errors.push(`${label}: id duplicado.`);
+            seenIds.add(p.id);
+            const gallery = Array.isArray(p.gallery) ? p.gallery : [];
+            [p.image, ...gallery].filter(Boolean).forEach(v => paths.add(v));
+            if (gallery.length && p.image !== gallery[0]) {
+                warnings.push(`${label}: 'image' no es la primera de la galería (la tarjeta y la cabecera mostrarán fotos distintas).`);
+            }
+            if (gallery.length < 6) {
+                warnings.push(`${label}: ${gallery.length} imágenes; se recomiendan 6 o más para completar la composición de la ficha.`);
+            }
+            const sections = String(p.details || '').split(/^#{2,3}\s+/m).filter(x => x.trim()).length;
+            if (sections < 3) {
+                warnings.push(`${label}: ${sections} bloque(s) '##' en detalles; con 3 o más se reparten mejor las tarjetas y «Desarrollo».`);
+            }
+            if (p.slots) {
+                const idx = [];
+                if (typeof p.slots.hero === 'number') idx.push(p.slots.hero);
+                ['cards', 'pair', 'catalog', 'details'].forEach(k => {
+                    if (Array.isArray(p.slots[k])) idx.push(...p.slots[k]);
+                });
+                const bad = idx.filter(i => !Number.isInteger(i) || i < 0 || i >= gallery.length);
+                if (bad.length) errors.push(`${label}: slots apunta fuera de la galería (índices ${bad.join(', ')}).`);
+            }
+        });
+
+        const siteError = validateSiteConfig(siteConfig);
+        if (siteError) errors.push(`Contrato de site.json: ${siteError}`);
+        else oks.push('data/site.json: los 4 huecos están definidos con rutas válidas.');
+
+        const contentError = validateContentPayload(contentConfig);
+        if (contentError) errors.push(`Contrato de content.json: ${contentError}`);
+        else oks.push(`data/content.json: ${CONTENT_TEXT_KEYS.length} textos y ${CONTENT_LINK_KEYS.length} enlaces válidos.`);
+        Object.values(siteConfig.images || {}).forEach(v => { if (typeof v === 'string') paths.add(v); });
+        paths.add('img/placeholder.webp');           // fallback de js/script.js
+        paths.add(`img/${OG_IMAGE_NAME}`);           // og:image, debe seguir en JPG
+
+        const missing = [], unknown = [];
+        for (const path of paths) {
+            const status = await headStatus(path);
+            if (status === 'missing') missing.push(path);
+            else if (status === 'unknown') unknown.push(path);
+        }
+        if (missing.length) {
+            errors.push(`${missing.length} imagen(es) referenciadas no existen: ${missing.slice(0, 5).join(', ')}${missing.length > 5 ? '…' : ''}.`);
+        } else if (!unknown.length) {
+            oks.push(`${paths.size} rutas de imagen comprobadas por HTTP: todas existen.`);
+        }
+        if (unknown.length) {
+            warnings.push(`No se pudo comprobar ${unknown.length} ruta(s) por HTTP (¿servidor local apagado o panel abierto con file://?).`);
+        }
+
+        let html = '';
+        try {
+            const res = await fetch(`index.html?t=${Date.now()}`, { cache: 'no-store' });
+            if (res.ok) html = await res.text();
+        } catch (e) { /* se reporta abajo */ }
+        if (!html) {
+            warnings.push('No se pudo leer index.html: abre el panel desde el servidor local para contrastar huecos y filtros.');
+        } else {
+            const slotKeys = [...html.matchAll(/data-site-image="([^"]+)"/g)].map(m => m[1]);
+            const filters = [...html.matchAll(/data-filter="([^"]+)"/g)].map(m => m[1]).filter(v => v !== 'all');
+            slotKeys.forEach(k => {
+                if (!(k in (siteConfig.images || {}))) errors.push(`index.html usa data-site-image="${k}" pero data/site.json no lo define.`);
+            });
+            filters.forEach(f => {
+                if (!ALLOWED_CATEGORIES.includes(f)) warnings.push(`index.html tiene el filtro "${f}", que el admin no puede asignar.`);
+            });
+            ALLOWED_CATEGORIES.forEach(c => {
+                if (!filters.includes(c)) warnings.push(`La categoría "${c}" del admin no tiene botón de filtro en index.html.`);
+            });
+            const contentKeys = [...html.matchAll(/data-content="([A-Za-z][A-Za-z0-9]*)"/g)].map(m => m[1]);
+            contentKeys.forEach(k => {
+                if (!contentConfig.texts[k]) errors.push(`index.html usa data-content="${k}" pero data/content.json no lo define.`);
+            });
+            oks.push(`index.html contrastado: ${slotKeys.length} huecos, ${filters.length} filtros y ${contentKeys.length} textos.`);
+        }
+
+        const section = (title, items, cls) => items.length
+            ? `<h4 class="check-${cls}">${title} (${items.length})</h4><ul>${items.map(i => `<li>${escapeHTML(i)}</li>`).join('')}</ul>`
+            : '';
+        const summary = errors.length
+            ? `<strong>No publiques todavía:</strong> ${errors.length} error(es) y ${warnings.length} aviso(s).`
+            : `<strong>Listo para publicar:</strong> 0 errores, ${warnings.length} aviso(s) de composición (no bloquean).`;
+        host.innerHTML =
+            `<div class="check-summary ${errors.length ? 'has-errors' : ''}">${summary}</div>` +
+            section('Errores que impiden publicar', errors, 'error') +
+            section('Avisos de composición', warnings, 'warn') +
+            section('Comprobaciones correctas', oks, 'ok') +
+            '<p class="inline-note">Siguiente paso: <code>python tools/validar.py</code> y <code>bash publicar.sh</code>. Guardar en el panel NO actualiza GitHub Pages.</p>';
+        if (button) button.disabled = false;
+    }
+
+    /* ============================================================
+       IMÁGENES SIN USAR: se mueven a img/_sin-usar/, nunca se borran
+       ============================================================ */
+    let orphanCandidates = [];
+
+    function collectReferencedPaths() {
+        const refs = new Set();
+        adminProjects.forEach(p => {
+            if (p.image) refs.add(p.image);
+            (p.gallery || []).forEach(v => refs.add(v));
+        });
+        Object.values(siteConfig.images || {}).forEach(v => { if (typeof v === 'string') refs.add(v); });
+        Object.values(SITE_DEFAULT_IMAGES).forEach(v => refs.add(v)); // respaldos del HTML
+        refs.add('img/placeholder.webp');
+        refs.add(`img/${OG_IMAGE_NAME}`);
+        return refs;
+    }
+
+    async function htmlImageRefs() {
+        const refs = new Set();
+        try {
+            const res = await fetch(`index.html?t=${Date.now()}`, { cache: 'no-store' });
+            if (!res.ok) return refs;
+            const html = await res.text();
+            for (const match of html.matchAll(/img\/[A-Za-z0-9._%\-/]+\.(?:webp|png|jpe?g|svg|gif)/gi)) {
+                refs.add(match[0]);
+            }
+        } catch (e) { /* sin servidor local no se puede contrastar el HTML */ }
+        return refs;
+    }
+
+    async function findOrphans() {
+        const host = document.getElementById('orphanReport');
+        if (!host) return;
+        if (!imageDirectoryHandle) {
+            showToast('Conecta «Carpeta del proyecto» para poder leer img/.', 'error');
+            return;
+        }
+        host.innerHTML = '<p class="inline-note">Buscando…</p>';
+
+        const refs = collectReferencedPaths();
+        (await htmlImageRefs()).forEach(v => refs.add(v));
+
+        const files = [];
+        try {
+            for await (const [name, handle] of imageDirectoryHandle.entries()) {
+                if (handle.kind !== 'file') continue;
+                if (!/\.(webp|png|jpe?g|svg|gif)$/i.test(name)) continue;
+                files.push(name);
+            }
+        } catch (e) {
+            console.error(e);
+            host.innerHTML = '<p class="inline-note" style="color:var(--danger)">No se pudo leer la carpeta img/.</p>';
+            return;
+        }
+
+        const referencedNames = new Set([...refs].map(v => String(v).split('/').pop()));
+        orphanCandidates = files.filter(name => !referencedNames.has(name)).sort();
+        renderOrphans(host);
+    }
+
+    function renderOrphans(host) {
+        if (!orphanCandidates.length) {
+            host.innerHTML = '<div class="check-summary"><strong>Sin huérfanas:</strong> todas las imágenes de img/ están en uso.</div>';
+            return;
+        }
+        host.innerHTML = `
+            <div class="check-summary has-errors">
+                <strong>${orphanCandidates.length} imagen(es) sin usar.</strong>
+                Se moverán a <code>img/_sin-usar/</code>; no se borra nada.
+            </div>
+            <ul class="orphan-list">
+                ${orphanCandidates.map(name => `<li><label>
+                    <input type="checkbox" class="orphan-check" value="${escapeAttr(name)}" checked>
+                    ${escapeHTML(name)}</label></li>`).join('')}
+            </ul>
+            <div class="export-actions">
+                <button class="btn btn-warning" id="btnMoveOrphans">
+                    <i class="fas fa-box-archive"></i> Mover seleccionadas a _sin-usar
+                </button>
+            </div>`;
+        const button = document.getElementById('btnMoveOrphans');
+        if (button) button.addEventListener('click', moveOrphans);
+    }
+
+    async function moveOrphans() {
+        if (!imageDirectoryHandle) return;
+        const checked = [...document.querySelectorAll('.orphan-check:checked')].map(c => c.value);
+        if (!checked.length) {
+            showToast('No hay ninguna imagen seleccionada.', 'info');
+            return;
+        }
+        showConfirm(
+            '¿Mover imágenes sin usar?',
+            `Se moverán ${checked.length} archivo(s) a img/_sin-usar/. No se borra nada: puedes devolverlas a img/ cuando quieras.`,
+            async () => {
+                let moved = 0;
+                try {
+                    const target = await imageDirectoryHandle.getDirectoryHandle('_sin-usar', { create: true });
+                    for (const name of checked) {
+                        const source = await imageDirectoryHandle.getFileHandle(name);
+                        const file = await source.getFile();
+                        const destination = await target.getFileHandle(name, { create: true });
+                        const writable = await destination.createWritable();
+                        await writable.write(file);
+                        await writable.close();
+                        await imageDirectoryHandle.removeEntry(name);
+                        moved++;
+                    }
+                    showToast(`${moved} imagen(es) movidas a img/_sin-usar/. Falta publicar.`, 'success');
+                } catch (e) {
+                    console.error(e);
+                    showToast('No se pudieron mover todas las imágenes. Revisa img/ e img/_sin-usar/.', 'error');
+                }
+                orphanCandidates = orphanCandidates.filter(name => !checked.includes(name));
+                const host = document.getElementById('orphanReport');
+                if (host) renderOrphans(host);
+            },
+            'Mover',
+            'btn-warning'
+        );
+    }
+
+    /* ============================================================
+       PUBLICACIÓN ASISTIDA
+       ============================================================ */
+    function updatePublishState() {
+        const el = document.getElementById('publishState');
+        if (!el) return;
+        const ready = !!(projectsFileHandle && imageDirectoryHandle && siteFileHandle && dataDirectoryHandle);
+        el.textContent = ready
+            ? 'Conectado · los cambios de este panel ya están en disco; falta publicarlos.'
+            : 'SIN CONEXIÓN: conecta «Carpeta del proyecto» para que los cambios lleguen al disco.';
+        el.style.color = ready ? 'var(--success)' : 'var(--danger)';
+    }
+
+    function copyToClipboard(text, message) {
+        const done = () => showToast(message, 'success');
+        const fallback = () => {
+            const area = document.createElement('textarea');
+            area.value = text;
+            document.body.appendChild(area);
+            area.select();
+            try { document.execCommand('copy'); done(); }
+            catch (e) { showToast('No se pudo copiar al portapapeles', 'error'); }
+            document.body.removeChild(area);
+        };
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(text).then(done).catch(fallback);
+        } else {
+            fallback();
+        }
+    }
+
     // ===== UI HELPERS =====
     function showToast(message, type = 'info') {
         const container = document.getElementById('toastContainer');
@@ -2892,13 +3827,15 @@
         
         overlay.classList.add('active');
 
-        const handler = async () => {
-            await onConfirm();
+        /* Antes se usaba addEventListener y el handler solo se quitaba al
+           confirmar: si se cancelaba, el listener quedaba vivo y el siguiente
+           diálogo ejecutaba AMBAS acciones (p. ej. borrar dos proyectos).
+           Con onclick siempre hay un único handler vigente. */
+        btnOk.onclick = async () => {
+            btnOk.onclick = null;
             overlay.classList.remove('active');
-            btnOk.removeEventListener('click', handler);
+            await onConfirm();
         };
-
-        btnOk.addEventListener('click', handler);
     }
 
     function escapeHTML(str) {
@@ -3035,10 +3972,37 @@
             renderProjectList(e.target.value);
         });
 
-        // Export
+        // Reordenar proyectos (delegado: las filas se regeneran)
+        document.getElementById('projectTableBody').addEventListener('click', (e) => {
+            const button = e.target.closest('[data-move]');
+            if (button && !button.disabled) {
+                moveProject(Number(button.dataset.id), button.dataset.move);
+            }
+        });
+
+        // Export / verificación previa / respaldo de site.json
         document.getElementById('btnCopyJSON').addEventListener('click', copyJSON);
         document.getElementById('btnDownloadJSON').addEventListener('click', downloadJSON);
         document.getElementById('btnRestoreBackup').addEventListener('click', restoreProjectsBackup);
+        const btnRunCheck = document.getElementById('btnRunCheck');
+        if (btnRunCheck) btnRunCheck.addEventListener('click', runPreflightCheck);
+        const btnRestoreSite = document.getElementById('btnRestoreSiteBackup');
+        if (btnRestoreSite) btnRestoreSite.addEventListener('click', restoreSiteBackup);
+        const btnSaveContent = document.getElementById('btnSaveContent');
+        if (btnSaveContent) btnSaveContent.addEventListener('click', saveContent);
+        const btnRestoreContent = document.getElementById('btnRestoreContent');
+        if (btnRestoreContent) btnRestoreContent.addEventListener('click', restoreContentBackup);
+
+        // Publicación asistida e imágenes sin usar
+        const btnCopyPublish = document.getElementById('btnCopyPublish');
+        if (btnCopyPublish) {
+            btnCopyPublish.addEventListener('click', () =>
+                copyToClipboard('python tools/validar.py\nbash publicar.sh', 'Comandos copiados al portapapeles'));
+        }
+        const btnGoCheck = document.getElementById('btnGoCheck');
+        if (btnGoCheck) btnGoCheck.addEventListener('click', () => switchView('check'));
+        const btnFindOrphans = document.getElementById('btnFindOrphans');
+        if (btnFindOrphans) btnFindOrphans.addEventListener('click', findOrphans);
 
         // Import
         document.getElementById('btnImportJSON').addEventListener('click', () => {
@@ -3052,6 +4016,7 @@
         // Confirm dialog cancel
         document.getElementById('confirmCancel').addEventListener('click', () => {
             document.getElementById('confirmOverlay').classList.remove('active');
+            document.getElementById('confirmOk').onclick = null;
         });
     }
     </script>

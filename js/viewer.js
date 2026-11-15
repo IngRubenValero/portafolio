@@ -111,7 +111,13 @@
             btn.className = 'viewer-thumb';
             btn.type = 'button';
             btn.setAttribute('aria-label', `Ver imagen ${i + 1} de ${state.gallery.length}`);
-            btn.innerHTML = `<img src="${src}" alt="" loading="lazy" decoding="async">`;
+            // Sin innerHTML: la ruta viene del JSON que edita el usuario en el admin.
+            const thumb = document.createElement('img');
+            thumb.src = src;
+            thumb.alt = '';
+            thumb.loading = 'lazy';
+            thumb.decoding = 'async';
+            btn.appendChild(thumb);
             btn.addEventListener('click', () => show(i));
             thumbsEl.appendChild(btn);
         });

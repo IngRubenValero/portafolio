@@ -17,8 +17,14 @@ import sys
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DATA = os.path.join(ROOT, "data", "projects.json")
 SITE = os.path.join(ROOT, "data", "site.json")
+CONTENT = os.path.join(ROOT, "data", "content.json")
 IMG = os.path.join(ROOT, "img")
 SITE_KEYS = ("hero", "heroFloat", "portrait", "cta")
+# Mismo contrato que validateProjectsPayload() en admin.html. Si un dato lo
+# escribe el panel y el validador lo acepta con reglas distintas, la web puede
+# romperse en silencio (categoría sin filtro, id de texto, ruta con '..').
+CATEGORIES = {"arquitectura", "ingenieria", "programacion", "producto"}
+SAFE_PATH = re.compile(r"^img/[A-Za-z0-9._%\-/]+\.(?:png|jpe?g|webp|svg|gif)$", re.I)
 IMG_RE = re.compile(r"img/([A-Za-z0-9._%\-/]+\.(?:png|jpe?g|webp|svg|gif))", re.I)
 CSS_COMMENT = re.compile(r"/\*.*?\*/", re.S)
 HTML_COMMENT = re.compile(r"<!--.*?-->", re.S)
@@ -54,32 +60,57 @@ def main():
         print("ERROR: data/projects.json no contiene proyectos")
         return 1
 
+    def bad_path(path):
+        return (not isinstance(path, str) or ".." in path or not SAFE_PATH.match(path.strip()))
+
     ids = set()
     for project in projects:
         pid = project.get("id", "(sin id)")
+        if type(pid) is not int or pid < 1:
+            problems.append(f"proyecto {pid}: el id debe ser un entero positivo")
         if pid in ids:
             problems.append(f"id duplicado: {pid}")
         ids.add(pid)
-        for field in ("title", "image", "category"):
-            if not project.get(field):
-                problems.append(f"proyecto {pid}: falta '{field}'")
+        for field in ("title", "description", "details", "image", "category"):
+            value = project.get(field)
+            if not isinstance(value, str) or not value.strip():
+                problems.append(f"proyecto {pid}: falta o no es texto '{field}'")
+        category = project.get("category")
+        if isinstance(category, str) and category not in CATEGORIES:
+            problems.append(f"proyecto {pid}: categoría '{category}' no tiene filtro en la web")
 
-        paths = [project.get("image")] + list(project.get("gallery") or [])
+        gallery = project.get("gallery") or []
+        if not isinstance(gallery, list) or not gallery:
+            problems.append(f"proyecto {pid}: galería vacía")
+            gallery = []
+        paths = [project.get("image")] + list(gallery)
         for path in paths:
             if not path:
+                continue
+            if bad_path(path):
+                problems.append(f"proyecto {pid}: ruta no permitida '{path}'")
                 continue
             referenced.add(rel(path))
             if not os.path.isfile(os.path.join(ROOT, path)):
                 problems.append(f"proyecto {pid}: no existe {path}")
+        image = project.get("image")
+        if isinstance(image, str) and image and image not in gallery:
+            problems.append(f"proyecto {pid}: 'image' no está en 'gallery' (la tarjeta y la cabecera mostrarían fotos distintas)")
+        if project.get("youtubeUrl"):
+            url = project.get("youtubeUrl")
+            if not isinstance(url, str) or not url.startswith(("http://", "https://")):
+                problems.append(f"proyecto {pid}: youtubeUrl debe ser http(s)")
 
     # Imágenes configurables de la portada (data/site.json).
-    if os.path.isfile(SITE):
+    if not os.path.isfile(SITE):
+        problems.append("falta data/site.json (js/site.js no podría aplicar las imágenes de la portada)")
+    else:
         try:
             with open(SITE, encoding="utf-8") as fh:
                 site_images = json.load(fh).get("images", {})
             for key in SITE_KEYS:
                 path = site_images.get(key)
-                if not isinstance(path, str) or not path.startswith("img/"):
+                if bad_path(path):
                     problems.append(f"site.json: falta o es inválida la imagen '{key}'")
                     continue
                 referenced.add(rel(path))
@@ -87,6 +118,36 @@ def main():
                     problems.append(f"site.json: no existe {path}")
         except (OSError, ValueError) as exc:
             problems.append(f"data/site.json no es válido: {exc}")
+
+    # Textos configurables: las claves de content.json deben coincidir con los
+    # atributos data-content de index.html. Así el validador detecta un texto
+    # nuevo añadido al HTML que el admin todavía no puede editar.
+    if not os.path.isfile(CONTENT):
+        problems.append("falta data/content.json (js/content.js no podria aplicar los textos)")
+    else:
+        try:
+            with open(CONTENT, encoding="utf-8") as fh:
+                content = json.load(fh)
+            texts = content.get("texts", {})
+            links = content.get("links", {})
+            with open(os.path.join(ROOT, "index.html"), encoding="utf-8") as fh:
+                html_keys = set(re.findall(r'data-content="([A-Za-z][A-Za-z0-9]*)"', fh.read()))
+            for key in sorted(html_keys):
+                if not isinstance(texts.get(key), str) or not texts[key].strip():
+                    problems.append(f"content.json: falta o esta vacio el texto '{key}'")
+            for key in ("pageTitle", "metaDescription"):
+                if not isinstance(texts.get(key), str) or not texts[key].strip():
+                    problems.append(f"content.json: falta '{key}' (SEO)")
+            for key in ("email", "phone", "phoneLabel", "linkedin", "cv"):
+                if not isinstance(links.get(key), str) or not links[key].strip():
+                    problems.append(f"content.json: falta el enlace '{key}'")
+            if isinstance(links.get("email"), str) and "@" not in links["email"]:
+                problems.append("content.json: el correo no es valido")
+            for key in ("linkedin", "cv"):
+                if isinstance(links.get(key), str) and not links[key].startswith(("http://", "https://")):
+                    problems.append(f"content.json: '{key}' debe ser una URL http(s)")
+        except (OSError, ValueError) as exc:
+            problems.append(f"data/content.json no es válido: {exc}")
 
     # Referencias directas desde el HTML y el CSS (hero, retrato, CTA...)
     for source in ["index.html", os.path.join("js", "script.js")] + [
