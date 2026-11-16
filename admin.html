@@ -34,6 +34,33 @@
             --transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
+        /* ===== CONNECT BANNER (siempre visible) ===== */
+        .connect-banner {
+            display: flex; align-items: center; gap: 14px; flex-wrap: wrap;
+            margin: 0 0 18px; padding: 14px 16px; font-size: 0.82rem;
+            border: 1px solid var(--warning); border-radius: var(--radius);
+            background: var(--warning-glow); color: var(--text);
+        }
+        .connect-banner.connected {
+            border-color: var(--success); background: var(--success-glow);
+        }
+        .connect-banner-icon { color: var(--warning); font-size: 1.2rem; flex-shrink: 0; }
+        .connect-banner.connected .connect-banner-icon { color: var(--success); }
+        .connect-banner-copy { flex: 1; min-width: 240px; line-height: 1.6; }
+        .connect-banner-copy strong { display: block; font-size: 0.9rem; margin-bottom: 2px; }
+        .connect-banner-copy code {
+            background: var(--surface-3); padding: 1px 5px; border-radius: 4px;
+        }
+        .connected-folder {
+            display: block; margin-top: 4px; font-family: var(--mono, monospace);
+            font-size: 0.74rem; color: var(--success);
+        }
+        .connected-folder[hidden] { display: none; }
+        .connect-banner-actions {
+            display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+        }
+        .connect-state { font-size: 0.74rem; white-space: nowrap; }
+
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
         body {
@@ -1072,15 +1099,19 @@
         <!-- MAIN CONTENT -->
         <main class="main-content">
 
-            <div id="localToolBanner" style="display:flex;align-items:center;gap:12px;margin:0 0 18px;padding:12px 16px;border:1px solid var(--warning);border-radius:var(--radius);background:var(--warning-glow);color:var(--text);font-size:0.82rem;">
-                <i class="fas fa-laptop-code" style="color:var(--warning);font-size:1.1rem;flex-shrink:0;"></i>
-                <div style="flex:1;min-width:0;">
-                    <strong>Herramienta de autoría local.</strong> Este panel escribe en tu disco, no en la web publicada.
-                    Para que los cambios aparezcan en GitHub Pages ejecuta
-                    <code style="background:var(--surface-3);padding:1px 5px;border-radius:4px;">publicar.sh</code> (git commit + push).
-                    No renombres imágenes a mano: usa el renombrado automático.
+            <div id="localToolBanner" class="connect-banner disconnected">
+                <i class="fas fa-laptop-code connect-banner-icon"></i>
+                <div class="connect-banner-copy">
+                    <strong id="connectHeadline">Conecta la carpeta del proyecto para poder guardar</strong>
+                    <span id="connectDetail">Elige la carpeta que contiene <code>data/</code> e <code>img/</code>. Sin esto los cambios no se escriben en disco.</span>
+                    <span id="connectedFolderName" class="connected-folder" hidden></span>
                 </div>
-                <span id="localToolState" style="white-space:nowrap;font-size:0.75rem;color:var(--warning);">Comprobando…</span>
+                <div class="connect-banner-actions">
+                    <button type="button" class="btn btn-primary btn-sm" id="btnConnectTop">
+                        <i class="fas fa-folder-open"></i> Conectar carpeta
+                    </button>
+                    <span id="localToolState" class="connect-state">Comprobando…</span>
+                </div>
             </div>
 
             <!-- ======= LIST VIEW ======= -->
@@ -1218,9 +1249,6 @@
                                     <button type="button" class="btn btn-ghost btn-sm" id="btnConnectWorkspace">
                                         <i class="fas fa-plug"></i> Conectar carpeta del proyecto
                                     </button>
-                                    <button type="button" class="btn btn-ghost btn-sm" id="btnConnectImgFolder">
-                                        <i class="fas fa-link"></i> Conectar carpeta img/
-                                    </button>
                                     <button type="button" class="btn btn-ghost btn-sm" id="btnBatchRename" title="Renombra automáticamente las imágenes al formato actual del título del proyecto">
                                         <i class="fas fa-magic"></i> Auto-renombrar galería
                                     </button>
@@ -1229,7 +1257,7 @@
                                     </button>
                                 </div>
 
-                                <div class="inline-note" id="folderStatusNote">Carpeta img/: no conectada. Se guardarán solo rutas hasta conectar.</div>
+                                <div class="inline-note" id="folderStatusNote">Carpeta del proyecto no conectada. Usa el botón verde de arriba para conectarla.</div>
                                 <div class="inline-note" id="jsonStatusNote">JSON automático: no conectado. Se guarda en localStorage hasta conectar.</div>
 
                                 <div class="imported-list" id="importedImagesList">
@@ -1497,11 +1525,13 @@ bash publicar.sh</pre>
     const HANDLES_DB_NAME = 'portfolio_admin_handles';
     const HANDLES_STORE = 'fs_handles';
     const WORKSPACE_HANDLE_KEY = 'workspace_root';
-    const IMG_HANDLE_KEY = 'img_only';
+    /* Solo se guarda la raíz: img/ y data/ siempre se derivan de ella.
+       Así mover la carpeta no deja handle sueltos apuntando a la ubicación vieja. */
 
     let adminProjects = [];
     let galleryImages = [];
     let importedImages = [];
+    let workspaceRootHandle = null;
     let imageDirectoryHandle = null;
     let projectsFileHandle = null;
     let dataDirectoryHandle = null;
@@ -1642,14 +1672,44 @@ bash publicar.sh</pre>
     }
 
     function setConnectedNotes(isImgConnected, isJsonConnected) {
+        const connected = !!(isImgConnected && isJsonConnected);
         const folderNote = document.getElementById('folderStatusNote');
         const jsonNote = document.getElementById('jsonStatusNote');
 
+        /* Banner superior: siempre visible, con un solo botón para conectar
+           o cambiar de carpeta (útil si se ha movido el proyecto). */
+        const banner = document.getElementById('localToolBanner');
+        if (banner) banner.classList.toggle('connected', connected);
+        const headline = document.getElementById('connectHeadline');
+        if (headline) {
+            headline.textContent = connected
+                ? 'Carpeta conectada · puedes guardar con normalidad'
+                : 'Conecta la carpeta del proyecto para poder guardar';
+        }
+        const detail = document.getElementById('connectDetail');
+        if (detail) {
+            detail.innerHTML = connected
+                ? 'Los cambios se escriben en <code>data/</code>. Si moviste la carpeta, pulsa «Cambiar carpeta» y elige la nueva ubicación.'
+                : 'Elige la carpeta que contiene <code>data/</code> e <code>img/</code>. Sin esto los cambios no se escriben en disco.';
+        }
+        const folderName = document.getElementById('connectedFolderName');
+        if (folderName) {
+            folderName.hidden = !connected;
+            folderName.textContent = connected && workspaceRootHandle
+                ? `Carpeta actual: ${workspaceRootHandle.name}` : '';
+        }
+        const connectButton = document.getElementById('btnConnectTop');
+        if (connectButton) {
+            connectButton.innerHTML = connected
+                ? '<i class="fas fa-folder-open"></i> Cambiar carpeta'
+                : '<i class="fas fa-folder-open"></i> Conectar carpeta';
+        }
+
         if (folderNote) {
-            folderNote.textContent = isImgConnected
-                ? 'Carpeta img/: conectada. Las imágenes se copiarán al guardar.'
-                : 'Carpeta img/: no conectada. Se guardarán solo rutas hasta conectar.';
-            folderNote.style.color = isImgConnected ? 'var(--success)' : 'var(--warning)';
+            folderNote.textContent = connected
+                ? 'Carpeta del proyecto conectada: las imágenes se copiarán a img/ al guardar.'
+                : 'Carpeta del proyecto no conectada. Usa el botón de arriba para conectarla.';
+            folderNote.style.color = connected ? 'var(--success)' : 'var(--warning)';
         }
 
         if (jsonNote) {
@@ -2195,6 +2255,7 @@ bash publicar.sh</pre>
                         saveToStorage();
                         renderProjectList();
                     }
+                    workspaceRootHandle = workspaceHandle;
                     imageDirectoryHandle = imgHandle;
                     dataDirectoryHandle = dataHandle;
                     projectsFileHandle = projectsHandle;
@@ -2209,14 +2270,9 @@ bash publicar.sh</pre>
                 }
             }
 
-            const imgOnlyHandle = await getHandle(IMG_HANDLE_KEY);
-            if (imgOnlyHandle) {
-                const permission = await imgOnlyHandle.queryPermission({ mode: 'readwrite' });
-                if (permission === 'granted') {
-                    imageDirectoryHandle = imgOnlyHandle;
-                    setConnectedNotes(true, false);
-                }
-            }
+            /* Antes aquí se restauraba un handle suelto solo de img/. Eso
+               permitía un estado a medias (imágenes sí, JSON no). Ahora solo
+               existe la conexión a la raíz y desde ella se deriva todo. */
         } catch (error) {
             console.warn('No se pudieron restaurar conexiones guardadas', error);
         }
@@ -3162,31 +3218,6 @@ bash publicar.sh</pre>
         }
     }
 
-    async function connectImgFolder() {
-        if (!window.showDirectoryPicker) {
-            showToast('Tu navegador no soporta acceso directo a carpetas', 'error');
-            return;
-        }
-
-        try {
-            imageDirectoryHandle = await window.showDirectoryPicker({ mode: 'readwrite' });
-            await saveHandle(IMG_HANDLE_KEY, imageDirectoryHandle);
-            // Si se cambia la carpeta img/, la configuración del sitio ya no
-            // apunta al mismo árbol: exigir reconectar la raíz antes de escribirla.
-            siteFileHandle = null;
-            // No desactivar la conexión del JSON: conectar solo img/ no debe
-            // convertir el siguiente guardado en un "no se guardó en disco".
-            setConnectedNotes(true, !!projectsFileHandle);
-            showToast(projectsFileHandle
-                ? 'Carpeta img/ conectada. El JSON sigue sincronizándose.'
-                : 'Carpeta img/ conectada. Falta conectar la carpeta del proyecto para escribir el JSON.', 'success');
-        } catch (error) {
-            if (error && error.name !== 'AbortError') {
-                showToast('No se pudo conectar la carpeta', 'error');
-            }
-        }
-    }
-
     async function connectWorkspaceFolder() {
         if (!window.showDirectoryPicker) {
             showToast('Tu navegador no soporta acceso directo a carpetas', 'error');
@@ -3210,6 +3241,7 @@ bash publicar.sh</pre>
             }
 
             const hadLocal = adminProjects.length;
+            workspaceRootHandle = workspaceHandle;
             imageDirectoryHandle = imgHandle;
             dataDirectoryHandle = dataHandle;
             projectsFileHandle = projectsHandle;
@@ -3235,7 +3267,7 @@ bash publicar.sh</pre>
             setConnectedNotes(true, true);
             adoptSiteFromDisk();
             adoptContentFromDisk();
-            showToast('Carpeta conectada. data/projects.json se leyó SIN modificarlo.', 'success');
+            showToast(`Carpeta «${workspaceHandle.name}» conectada. data/projects.json se leyó SIN modificarlo.`, 'success');
         } catch (error) {
             if (error && error.name !== 'AbortError') {
                 showToast('No se pudo conectar: selecciona la RAÍZ del proyecto (donde están data/ e img/). El JSON no se modificó.', 'error');
@@ -3892,7 +3924,6 @@ bash publicar.sh</pre>
         const imageFileInput = document.getElementById('imageFileInput');
         const btnSelectImages = document.getElementById('btnSelectImages');
         const btnClearImported = document.getElementById('btnClearImported');
-        const btnConnectImgFolder = document.getElementById('btnConnectImgFolder');
         const btnConnectWorkspace = document.getElementById('btnConnectWorkspace');
         const btnBatchRename = document.getElementById('btnBatchRename');
 
@@ -3959,9 +3990,8 @@ bash publicar.sh</pre>
             });
         }
 
-        if (btnConnectImgFolder) {
-            btnConnectImgFolder.addEventListener('click', connectImgFolder);
-        }
+        const btnConnectTop = document.getElementById('btnConnectTop');
+        if (btnConnectTop) btnConnectTop.addEventListener('click', connectWorkspaceFolder);
 
         if (btnConnectWorkspace) {
             btnConnectWorkspace.addEventListener('click', connectWorkspaceFolder);

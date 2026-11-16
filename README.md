@@ -79,6 +79,7 @@ Portafolio profesional optimizado para GitHub Pages mostrando proyectos de ingen
 WebPortafolioEstructural/
 ├── index.html              # Página principal
 ├── admin.html              # Panel de edición de proyectos
+├── admin.bat               # Doble clic: servidor local + abrir el panel en Chrome/Edge
 ├── css/
 │   ├── styles.css         # Estilos base heredados (filtros, modal)
 │   ├── design.css         # Capa visual editorial clara
@@ -389,6 +390,25 @@ sitio*) y **Restaurar respaldo** (*Textos del sitio*).
 **La regla que evita confusiones:** `admin.html` escribe en **tu disco**, no en GitHub.
 Añadir un proyecto desde el panel **NO actualiza la web pública** hasta que ejecutas
 `publicar.sh`. Guardar ≠ publicar.
+
+**Arranque más simple (Windows):** doble clic en **`admin.bat`**, en la raíz del
+proyecto. Detecta Python (`py -3`), elige un puerto libre entre 8766 y 8770,
+abre `admin.html` en Chrome o Edge y deja el servidor corriendo en la ventana.
+Para detenerlo, cierra esa ventana o pulsa `Ctrl+C`. No necesitas escribir ningún
+comando. Las instrucciones manuales de abajo siguen siendo válidas.
+
+**Conectar la carpeta (y mover el proyecto):** el botón **Conectar carpeta** está
+siempre visible en la franja verde del panel; cuando ya estás conectado cambia a
+**Cambiar carpeta** y muestra el nombre de la carpeta elegida. Solo hay **una**
+conexión: la raíz del proyecto (la que contiene `data/` e `img/`). Ya no existe
+la conexión separada a `img/`.
+
+Puedes mover la carpeta del portafolio a cualquier ubicación fija sin tocar
+ningún archivo: `admin.bat`, `publicar.bat`, `publicar.sh` y las herramientas de
+`tools/` se resuelven a sí mismos, y todo en `data/*.json` e `index.html` usa
+rutas relativas (`img/…`). Después del movimiento, abre el panel y pulsa
+**Cambiar carpeta** para elegir la nueva ubicación; el navegador puede volver a
+pedir permiso.
 
 **Atajo antes de publicar:** abre **Verificación previa** en el panel y pulsa
 *Ejecutar verificación*. Es de solo lectura y te dice si hay errores que
