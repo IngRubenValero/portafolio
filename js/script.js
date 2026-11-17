@@ -95,6 +95,12 @@ function generateWhatsAppLink(product) {
 // ===============================================
 // CARGAR PROYECTOS
 // ===============================================
+function getPreviewId() {
+    const raw = new URLSearchParams(window.location.search).get('preview');
+    const id = Number(raw);
+    return Number.isInteger(id) && id > 0 ? id : 0;
+}
+
 async function loadProjects() {
     try {
         // Query única + no-store: tras un push, el navegador/CDN no sirve un JSON viejo
@@ -102,6 +108,22 @@ async function loadProjects() {
         if (!response.ok) throw new Error('Error al cargar los proyectos');
         const data = await response.json();
         projects = data.projects;
+
+        /* Vista previa del admin: ?preview=<id> sustituye ese proyecto por el
+           borrador guardado en sessionStorage. No escribe ni publica nada. */
+        const previewId = getPreviewId();
+        if (previewId) {
+            try {
+                const draft = JSON.parse(sessionStorage.getItem('portfolio_preview_project') || 'null');
+                if (draft && Number(draft.id) === previewId) {
+                    const index = projects.findIndex(p => p.id === previewId);
+                    if (index >= 0) projects[index] = draft;
+                    else projects.unshift(draft);
+                }
+            } catch (error) {
+                console.warn('No se pudo leer el borrador de vista previa', error);
+            }
+        }
         return projects;
     } catch (error) {
         console.error('Error cargando proyectos:', error);
@@ -247,7 +269,18 @@ document.addEventListener('DOMContentLoaded', async function() {
         
         if (loadingProjects) loadingProjects.style.display = 'none';
     }
-    
+
+    const previewId = getPreviewId();
+    if (previewId && projects.some(p => p.id === previewId)) {
+        const badge = document.createElement('div');
+        badge.className = 'preview-badge';
+        badge.textContent = 'Vista previa · cambios no guardados ni publicados';
+        document.body.appendChild(badge);
+        setTimeout(() => {
+            if (typeof openModal === 'function') openModal(previewId);
+        }, 250);
+    }
+
     initializeBackToTop();
     initializeThemeToggle();
     initializeKeyboardNavigation();

@@ -56,10 +56,32 @@
             font-size: 0.74rem; color: var(--success);
         }
         .connected-folder[hidden] { display: none; }
+        .publish-pending {
+            display: block; margin-top: 4px; font-size: 0.74rem;
+            font-family: var(--mono, monospace);
+        }
         .connect-banner-actions {
             display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
         }
         .connect-state { font-size: 0.74rem; white-space: nowrap; }
+
+        /* ===== IMAGE PICKER ===== */
+        .image-picker-dialog { width: min(760px, 92vw); max-height: 86vh; display: flex; flex-direction: column; }
+        .image-picker-dialog .form-control { margin: 12px 0; }
+        .image-picker-list {
+            overflow: auto; max-height: 48vh; min-height: 90px;
+            border: 1px solid var(--border); border-radius: var(--radius-sm);
+            padding: 8px 10px; margin-bottom: 14px;
+        }
+        .image-picker-item {
+            display: flex; align-items: center; gap: 10px; padding: 6px 4px;
+            border-bottom: 1px solid var(--border); font-size: 0.8rem;
+        }
+        .image-picker-item:last-child { border-bottom: 0; }
+        .image-picker-item img { width: 56px; height: 42px; object-fit: cover; border-radius: 6px; background: var(--surface-3); }
+        .image-picker-item label { display: flex; align-items: center; gap: 10px; flex: 1; cursor: pointer; min-width: 0; }
+        .image-picker-item span { word-break: break-all; }
+        .image-picker-item .picker-in-use { color: var(--text-dim); font-size: 0.72rem; white-space: nowrap; }
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -853,6 +875,14 @@
             .site-slot-actions { grid-column: 1 / -1; flex-direction: row; flex-wrap: wrap; }
         }
 
+        /* ===== SLOTS EDITOR ===== */
+        .slots-editor { border-top: 1px solid var(--border); padding-top: 16px; }
+        .slots-grid {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+            gap: 10px 16px; margin: 10px 0;
+        }
+        .slots-grid label { font-size: 0.74rem; color: var(--text-muted); }
+
         /* ===== SITE CONTENT VIEW ===== */
         .content-group {
             border: 1px solid var(--border); border-radius: var(--radius-sm);
@@ -1105,6 +1135,7 @@
                     <strong id="connectHeadline">Conecta la carpeta del proyecto para poder guardar</strong>
                     <span id="connectDetail">Elige la carpeta que contiene <code>data/</code> e <code>img/</code>. Sin esto los cambios no se escriben en disco.</span>
                     <span id="connectedFolderName" class="connected-folder" hidden></span>
+                    <span id="publishPending" class="publish-pending"></span>
                 </div>
                 <div class="connect-banner-actions">
                     <button type="button" class="btn btn-primary btn-sm" id="btnConnectTop">
@@ -1246,6 +1277,9 @@
                                     <button type="button" class="btn btn-ghost btn-sm" id="btnSelectImages">
                                         <i class="fas fa-folder-open"></i> Seleccionar imágenes
                                     </button>
+                                    <button type="button" class="btn btn-ghost btn-sm" id="btnPickExisting">
+                                        <i class="fas fa-images"></i> Elegir de img/
+                                    </button>
                                     <button type="button" class="btn btn-ghost btn-sm" id="btnConnectWorkspace">
                                         <i class="fas fa-plug"></i> Conectar carpeta del proyecto
                                     </button>
@@ -1278,9 +1312,35 @@
                             </div>
                         </div>
 
+                        <div class="form-group slots-editor">
+                            <label>Asignación manual de huecos <span class="label-hint">(opcional)</span></label>
+                            <p class="inline-note">
+                                Por defecto la ficha reparte la galería en orden. Escribe los índices que quieres en
+                                cada bloque (empiezan en <strong>0</strong>) o déjalo vacío para usar el reparto automático.
+                            </p>
+                            <div class="slots-grid">
+                                <div class="form-group"><label for="slotHero">Portada / hero</label>
+                                    <input type="text" class="form-control" id="slotHero" placeholder="0"></div>
+                                <div class="form-group"><label for="slotCards">Tarjetas de texto</label>
+                                    <input type="text" class="form-control" id="slotCards" placeholder="1, 2"></div>
+                                <div class="form-group"><label for="slotPair">Par de imágenes grandes</label>
+                                    <input type="text" class="form-control" id="slotPair" placeholder="3, 4"></div>
+                                <div class="form-group"><label for="slotCatalog">Catálogo oscuro</label>
+                                    <input type="text" class="form-control" id="slotCatalog" placeholder="5, 6, 7, 8"></div>
+                                <div class="form-group"><label for="slotDetails">Vistas adicionales</label>
+                                    <input type="text" class="form-control" id="slotDetails" placeholder="9, 10"></div>
+                            </div>
+                            <button type="button" class="btn btn-ghost btn-sm" id="btnResetSlots">
+                                <i class="fas fa-rotate-left"></i> Usar reparto automático
+                            </button>
+                        </div>
+
                         <div class="form-actions">
                             <button type="submit" class="btn btn-success" id="submitBtn">
                                 <i class="fas fa-save"></i> Guardar Proyecto
+                            </button>
+                            <button type="button" class="btn btn-primary" id="btnPreviewProject" title="Abre la ficha con los cambios actuales, sin guardar ni publicar">
+                                <i class="fas fa-eye"></i> Vista previa
                             </button>
                             <button type="button" class="btn btn-ghost" id="cancelForm">
                                 <i class="fas fa-arrow-left"></i> Cancelar
@@ -1420,6 +1480,7 @@
                        sigue mostrando la versión anterior. El navegador no puede hacer <code>git push</code> por seguridad,
                        así que este paso se hace con un comando o con un doble clic.</p>
                     <p class="inline-note" id="publishState">Comprobando conexión…</p>
+                    <p class="inline-note" id="publishPendingDetail">Comprobando última publicación…</p>
                 </div>
 
                 <div class="export-card">
@@ -1504,6 +1565,20 @@ bash publicar.sh</pre>
 
     <!-- Toast container -->
     <div class="toast-container" id="toastContainer"></div>
+
+    <!-- Image picker: imágenes ya subidas a img/ -->
+    <div class="confirm-overlay" id="imagePickerOverlay">
+        <div class="confirm-dialog image-picker-dialog">
+            <h3>Elegir imágenes de <code>img/</code></h3>
+            <p>Selecciona las que quieres añadir a la galería. Las que ya están se marcan como «en uso».</p>
+            <input type="text" class="form-control" id="imagePickerSearch" placeholder="Buscar por nombre de archivo…">
+            <div class="image-picker-list" id="imagePickerList"><p class="inline-note">Cargando…</p></div>
+            <div class="confirm-actions">
+                <button class="btn btn-ghost" id="imagePickerCancel">Cancelar</button>
+                <button class="btn btn-primary" id="imagePickerAdd">Añadir seleccionadas</button>
+            </div>
+        </div>
+    </div>
 
     <!-- Confirm dialog -->
     <div class="confirm-overlay" id="confirmOverlay">
@@ -1729,6 +1804,7 @@ bash publicar.sh</pre>
         updateSiteConnectionNote();
         updateContentConnectionNote();
         updatePublishState();
+        refreshPublishState();
     }
 
     /* ============================================================
@@ -1858,6 +1934,7 @@ bash publicar.sh</pre>
             const writable = await siteFileHandle.createWritable();
             await writable.write(JSON.stringify(siteConfig, null, 4) + '\n');
             await writable.close();
+            refreshPublishState();
             return true;
         } catch (e) {
             console.error(e);
@@ -2143,6 +2220,7 @@ bash publicar.sh</pre>
             const writable = await contentFileHandle.createWritable();
             await writable.write(JSON.stringify(contentConfig, null, 4) + '\n');
             await writable.close();
+            refreshPublishState();
             return true;
         } catch (e) {
             console.error(e);
@@ -2324,6 +2402,7 @@ bash publicar.sh</pre>
         setupEventListeners();
         setupSiteListeners();
         await restoreSavedConnections();
+        await refreshPublishState();
     });
 
     // ===== STORAGE =====
@@ -2360,6 +2439,7 @@ bash publicar.sh</pre>
         }
         if (viewId === 'publish') {
             updatePublishState();
+            refreshPublishState();
         }
     }
 
@@ -2425,6 +2505,7 @@ bash publicar.sh</pre>
         renderGallery();
         updateImportedFilesUI();
         document.getElementById('productFields').style.display = 'none';
+        fillSlotInputs(null);
         document.getElementById('formTitle').textContent = 'Nuevo Proyecto';
         document.getElementById('formSubtitle').textContent = 'Completa los campos para agregar un nuevo proyecto al portafolio';
         document.getElementById('submitBtn').innerHTML = '<i class="fas fa-save"></i> Guardar Proyecto';
@@ -2447,6 +2528,7 @@ bash publicar.sh</pre>
         document.getElementById('pYoutubeUrl').value = project.youtubeUrl || '';
 
         galleryImages = [...(project.gallery || [])];
+        fillSlotInputs(project.slots);
         clearImportedImages();
         renderGallery();
         updateImportedFilesUI();
@@ -2480,11 +2562,14 @@ bash publicar.sh</pre>
             gallery: galleryImages.length > 0 ? [...galleryImages] : [document.getElementById('pImage').value.trim()]
         };
 
-        // Conservar una asignación explícita de huecos (slots) si el proyecto la tenía
-        if (isEditing) {
-            const prev = adminProjects.find(p => p.id === currentEditId);
-            if (prev && prev.slots) projectData.slots = prev.slots;
+        // Huecos de composición: se usa el editor del formulario. Si está vacío
+        // no se escribe el campo y la ficha aplica el reparto automático.
+        const parsedSlots = readSlotInputs();
+        if (parsedSlots.error) {
+            if (!quiet) showToast(`No se guardó: ${parsedSlots.error}`, 'error');
+            return false;
         }
+        if (parsedSlots.slots) projectData.slots = parsedSlots.slots;
 
         if (isProduct) {
             projectData.isProduct = true;
@@ -3297,6 +3382,7 @@ bash publicar.sh</pre>
             console.error(error);
             showToast('No se pudieron guardar todas las imágenes en la carpeta conectada', 'error');
         }
+        if (written) refreshPublishState();
         return written;
     }
 
@@ -3345,9 +3431,18 @@ bash publicar.sh</pre>
                 if (!p.slots || typeof p.slots !== 'object' || Array.isArray(p.slots)) {
                     return `proyecto ${p.id}: 'slots' debe ser un objeto`;
                 }
+                const size = (p.gallery || []).length;
+                if (p.slots.hero !== undefined &&
+                    (!Number.isInteger(p.slots.hero) || p.slots.hero < 0 || p.slots.hero >= size)) {
+                    return `proyecto ${p.id}: slots.hero apunta fuera de la galería`;
+                }
                 for (const key of ['cards', 'pair', 'catalog', 'details']) {
-                    if (p.slots[key] !== undefined && !Array.isArray(p.slots[key])) {
+                    if (p.slots[key] === undefined) continue;
+                    if (!Array.isArray(p.slots[key])) {
                         return `proyecto ${p.id}: slots.${key} debe ser una lista de índices`;
+                    }
+                    if (p.slots[key].some(i => !Number.isInteger(i) || i < 0 || i >= size)) {
+                        return `proyecto ${p.id}: slots.${key} apunta fuera de la galería`;
                     }
                 }
             }
@@ -3428,6 +3523,7 @@ bash publicar.sh</pre>
             const writable = await projectsFileHandle.createWritable();
             await writable.write(generateJSON());
             await writable.close();
+            refreshPublishState();
             return true;
         } catch (error) {
             console.error(error);
@@ -3786,6 +3882,7 @@ bash publicar.sh</pre>
                         moved++;
                     }
                     showToast(`${moved} imagen(es) movidas a img/_sin-usar/. Falta publicar.`, 'success');
+                    refreshPublishState();
                 } catch (e) {
                     console.error(e);
                     showToast('No se pudieron mover todas las imágenes. Revisa img/ e img/_sin-usar/.', 'error');
@@ -3827,6 +3924,248 @@ bash publicar.sh</pre>
             navigator.clipboard.writeText(text).then(done).catch(fallback);
         } else {
             fallback();
+        }
+    }
+
+    /* ============================================================
+       SELECTOR DE IMÁGENES YA SUBIDAS A img/
+       ============================================================ */
+    let pickerFiles = [];
+
+    async function openImagePicker() {
+        const overlay = document.getElementById('imagePickerOverlay');
+        const list = document.getElementById('imagePickerList');
+        if (!overlay || !list) return;
+        if (!imageDirectoryHandle) {
+            showToast('Conecta la carpeta del proyecto para elegir imágenes de img/.', 'error');
+            return;
+        }
+        overlay.classList.add('active');
+        list.innerHTML = '<p class="inline-note">Leyendo img/…</p>';
+        try {
+            pickerFiles = [];
+            for await (const [name, handle] of imageDirectoryHandle.entries()) {
+                if (handle.kind !== 'file') continue;
+                if (!/\.(webp|png|jpe?g|svg|gif)$/i.test(name)) continue;
+                pickerFiles.push(name);
+            }
+            pickerFiles.sort((a, b) => a.localeCompare(b, 'es'));
+            renderPickerList();
+            const search = document.getElementById('imagePickerSearch');
+            if (search) search.value = '';
+        } catch (e) {
+            console.error(e);
+            list.innerHTML = '<p class="inline-note" style="color:var(--danger)">No se pudo leer la carpeta img/.</p>';
+        }
+    }
+
+    function renderPickerList(filter = '') {
+        const list = document.getElementById('imagePickerList');
+        if (!list) return;
+        const needle = filter.trim().toLowerCase();
+        const shown = pickerFiles.filter(name => !needle || name.toLowerCase().includes(needle));
+        if (!shown.length) {
+            list.innerHTML = '<p class="inline-note">No hay imágenes con ese nombre.</p>';
+            return;
+        }
+        list.innerHTML = shown.map(name => {
+            const path = `img/${name}`;
+            const used = galleryImages.includes(path);
+            return `<div class="image-picker-item">
+                <img src="${escapeAttr(path)}" alt="" loading="lazy" onerror="this.style.display='none'">
+                <label>
+                    <input type="checkbox" class="picker-check" value="${escapeAttr(path)}" ${used ? 'disabled checked' : ''}>
+                    <span>${escapeHTML(name)}</span>
+                </label>
+                ${used ? '<span class="picker-in-use">en la galería</span>' : ''}
+            </div>`;
+        }).join('');
+    }
+
+    function closeImagePicker() {
+        const overlay = document.getElementById('imagePickerOverlay');
+        if (overlay) overlay.classList.remove('active');
+    }
+
+    function addPickedImages() {
+        const selected = [...document.querySelectorAll('.picker-check:checked:not(:disabled)')]
+            .map(c => c.value)
+            .filter(path => !galleryImages.includes(path));
+        if (!selected.length) {
+            showToast('Selecciona imágenes que no estén ya en la galería.', 'info');
+            return;
+        }
+        selected.forEach(path => galleryImages.push(path));
+        if (!document.getElementById('pImage').value.trim() && galleryImages[0]) {
+            document.getElementById('pImage').value = galleryImages[0];
+        }
+        renderGallery();
+        closeImagePicker();
+        quietSaveCurrent('Imágenes elegidas');
+        showToast(`${selected.length} imagen(es) añadidas a la galería.`, 'success');
+    }
+
+    /* ============================================================
+       AVISO DE CAMBIOS SIN PUBLICAR
+       publicar.sh deja un sello local (fecha + commit) al terminar el push.
+       Se compara con la fecha de los JSON y de las imágenes para decir si
+       hay trabajo pendiente. Es informativo: no escribe nada.
+       ============================================================ */
+    async function getPublishStamp() {
+        try {
+            const res = await fetch(`data/.estado-publicacion.json?t=${Date.now()}`, { cache: 'no-store' });
+            if (!res.ok) return null;
+            const data = await res.json();
+            const ms = Date.parse(data.publicado_en);
+            return Number.isFinite(ms) ? { ms, commit: String(data.commit || '') } : null;
+        } catch (e) { return null; }
+    }
+
+    async function lastModifiedMs(path) {
+        try {
+            const res = await fetch(`${path}?t=${Date.now()}`, { method: 'HEAD', cache: 'no-store' });
+            const header = res.headers.get('Last-Modified');
+            if (!header) return 0;
+            const ms = Date.parse(header);
+            return Number.isFinite(ms) ? ms : 0;
+        } catch (e) { return 0; }
+    }
+
+    async function refreshPublishState() {
+        const stamp = await getPublishStamp();
+        const reasons = [];
+        if (!stamp) {
+            reasons.push('sin registro de publicación');
+        } else {
+            const tolerance = 1000; // Last-Modified tiene resolución de 1 segundo
+            for (const [label, path] of [
+                ['proyectos', 'data/projects.json'],
+                ['imágenes del sitio', 'data/site.json'],
+                ['textos', 'data/content.json']
+            ]) {
+                if (await lastModifiedMs(path) > stamp.ms + tolerance) reasons.push(label);
+            }
+            if (imageDirectoryHandle) {
+                let changed = 0;
+                try {
+                    for await (const [name, handle] of imageDirectoryHandle.entries()) {
+                        if (handle.kind !== 'file') continue;
+                        if (!/\.(webp|png|jpe?g|svg|gif)$/i.test(name)) continue;
+                        const file = await handle.getFile();
+                        if (file.lastModified > stamp.ms + tolerance) changed++;
+                    }
+                } catch (e) { /* sin handle legible, solo se comparan los JSON */ }
+                if (changed) reasons.push(`${changed} imagen(es)`);
+            }
+        }
+
+        const banner = document.getElementById('publishPending');
+        if (banner) {
+            banner.textContent = reasons.length
+                ? `Cambios sin publicar: ${reasons.join(', ')}`
+                : 'Todo lo guardado está publicado';
+            banner.style.color = reasons.length ? 'var(--warning)' : 'var(--success)';
+        }
+        const detail = document.getElementById('publishPendingDetail');
+        if (detail) {
+            detail.textContent = !stamp
+                ? 'No hay registro local de publicación: ejecuta publicar.sh al menos una vez desde esta carpeta.'
+                : reasons.length
+                    ? `Publicado el ${new Date(stamp.ms).toLocaleString()} (commit ${stamp.commit.slice(0, 7)}). Cambios posteriores: ${reasons.join(', ')}.`
+                    : `Última publicación: ${new Date(stamp.ms).toLocaleString()} (commit ${stamp.commit.slice(0, 7)}). No hay cambios pendientes.`;
+        }
+    }
+
+    /* ============================================================
+       EDITOR DE HUECOS (slots)
+       ============================================================ */
+    const SLOT_INPUTS = [
+        ['hero', 'slotHero'], ['cards', 'slotCards'], ['pair', 'slotPair'],
+        ['catalog', 'slotCatalog'], ['details', 'slotDetails']
+    ];
+
+    function readSlotInputs() {
+        const slots = {};
+        for (const [key, id] of SLOT_INPUTS) {
+            const el = document.getElementById(id);
+            if (!el) continue;
+            const raw = el.value.trim();
+            if (!raw) continue;
+            const nums = raw.split(',').map(v => v.trim()).filter(Boolean).map(v => Number(v));
+            if (nums.some(n => !Number.isInteger(n) || n < 0)) {
+                return { slots: null, error: `«${key}» solo admite índices enteros positivos separados por comas.` };
+            }
+            if (!nums.length) continue;
+            slots[key] = key === 'hero' ? nums[0] : nums;
+        }
+        return { slots: Object.keys(slots).length ? slots : null, error: null };
+    }
+
+    function fillSlotInputs(slots) {
+        for (const [key, id] of SLOT_INPUTS) {
+            const el = document.getElementById(id);
+            if (!el) continue;
+            const value = slots ? slots[key] : undefined;
+            el.value = value === undefined ? '' : (Array.isArray(value) ? value.join(', ') : String(value));
+        }
+    }
+
+    /* ============================================================
+       VISTA PREVIA: abre index.html con el borrador del formulario.
+       No escribe en disco: el borrador viaja en sessionStorage y solo
+       se usa cuando la URL lleva ?preview=<id>.
+       ============================================================ */
+    function previewProject() {
+        if (convertingImages) {
+            showToast('Espera a que terminen de convertirse las imágenes a WebP', 'warning');
+            return;
+        }
+        const isEditing = !!currentEditId;
+        const category = document.getElementById('pCategory').value;
+        const isProduct = category === 'producto';
+        const projectData = {
+            id: isEditing ? currentEditId : getNextId(),
+            title: document.getElementById('pTitle').value.trim(),
+            description: document.getElementById('pDescription').value.trim(),
+            image: document.getElementById('pImage').value.trim(),
+            category: category,
+            details: document.getElementById('pDetails').value.trim(),
+            gallery: galleryImages.length > 0 ? [...galleryImages] : [document.getElementById('pImage').value.trim()]
+        };
+
+        const parsedSlots = readSlotInputs();
+        if (parsedSlots.error) {
+            showToast(`No se puede previsualizar: ${parsedSlots.error}`, 'error');
+            return;
+        }
+        if (parsedSlots.slots) projectData.slots = parsedSlots.slots;
+
+        if (isProduct) {
+            const price = document.getElementById('pPrice').value.trim();
+            const pType = document.getElementById('pProductType').value;
+            const ytUrl = document.getElementById('pYoutubeUrl').value.trim();
+            projectData.isProduct = true;
+            if (price) projectData.price = price;
+            if (pType) projectData.productType = pType;
+            if (ytUrl) projectData.youtubeUrl = ytUrl;
+        }
+
+        const error = validateProjectsPayload([projectData]);
+        if (error) {
+            showToast(`No se puede previsualizar: ${error}`, 'error');
+            return;
+        }
+        try {
+            sessionStorage.setItem('portfolio_preview_project', JSON.stringify(projectData));
+        } catch (e) {
+            showToast('No se pudo guardar el borrador para la vista previa.', 'error');
+            return;
+        }
+        const tab = window.open(`index.html?preview=${projectData.id}`, '_blank');
+        if (!tab) {
+            showToast('El navegador bloqueó la pestaña nueva. Permite ventanas emergentes en localhost.', 'warning');
+        } else {
+            showToast('Vista previa abierta. No se ha guardado ni publicado nada.', 'info');
         }
     }
 
@@ -3992,6 +4331,20 @@ bash publicar.sh</pre>
 
         const btnConnectTop = document.getElementById('btnConnectTop');
         if (btnConnectTop) btnConnectTop.addEventListener('click', connectWorkspaceFolder);
+        const btnPickExisting = document.getElementById('btnPickExisting');
+        if (btnPickExisting) btnPickExisting.addEventListener('click', openImagePicker);
+        const btnPreviewProject = document.getElementById('btnPreviewProject');
+        if (btnPreviewProject) btnPreviewProject.addEventListener('click', previewProject);
+        const btnResetSlots = document.getElementById('btnResetSlots');
+        if (btnResetSlots) btnResetSlots.addEventListener('click', () => fillSlotInputs(null));
+        const imagePickerSearch = document.getElementById('imagePickerSearch');
+        if (imagePickerSearch) {
+            imagePickerSearch.addEventListener('input', (e) => renderPickerList(e.target.value));
+        }
+        const imagePickerCancel = document.getElementById('imagePickerCancel');
+        if (imagePickerCancel) imagePickerCancel.addEventListener('click', closeImagePicker);
+        const imagePickerAdd = document.getElementById('imagePickerAdd');
+        if (imagePickerAdd) imagePickerAdd.addEventListener('click', addPickedImages);
 
         if (btnConnectWorkspace) {
             btnConnectWorkspace.addEventListener('click', connectWorkspaceFolder);

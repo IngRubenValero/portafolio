@@ -10,6 +10,9 @@ data/projects.respaldo.json
 data/site.respaldo.json
 data/content.respaldo.json
 
+# Sello local de la ultima publicacion (lo escribe publicar.sh, no se sube)
+data/.estado-publicacion.json
+
 # Originales JPG/PNG previos a la optimización WebP: se conservan en local,
 # pero NO se publican (GitHub Pages solo sirve lo que está en el repo).
 img/_originales/

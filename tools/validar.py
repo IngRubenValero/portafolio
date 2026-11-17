@@ -83,6 +83,28 @@ def main():
         if not isinstance(gallery, list) or not gallery:
             problems.append(f"proyecto {pid}: galería vacía")
             gallery = []
+
+        slots = project.get("slots")
+        if slots:
+            if not isinstance(slots, dict):
+                problems.append(f"proyecto {pid}: slots debe ser un objeto")
+            else:
+                indexed = []
+                hero = slots.get("hero")
+                if hero is not None:
+                    indexed.append(("hero", hero))
+                for key in ("cards", "pair", "catalog", "details"):
+                    values = slots.get(key)
+                    if values is None:
+                        continue
+                    if not isinstance(values, list):
+                        problems.append(f"proyecto {pid}: slots.{key} debe ser una lista")
+                        continue
+                    indexed.extend((key, value) for value in values)
+                for key, value in indexed:
+                    if (type(value) is not int or value < 0 or value >= len(gallery)):
+                        problems.append(f"proyecto {pid}: slots.{key} apunta fuera de la galería ({value})")
+
         paths = [project.get("image")] + list(gallery)
         for path in paths:
             if not path:

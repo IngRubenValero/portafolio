@@ -287,6 +287,31 @@ auto-renombrar una imagen **nunca borra ni renombra un archivo que use otro
 proyecto o `data/site.json`**: se conserva o se crea una copia, para no romper
 la portada pública.
 
+### Herramientas de edición del panel
+
+- **Selector de imágenes ya subidas**: en *Nuevo Proyecto*, el botón **Elegir de
+  img/** lista los archivos de `img/` que hay en disco, permite buscar por nombre
+  y añadir los seleccionados a la galería. Los que ya están en la galería aparecen
+  marcados como «en uso». No copia ni renombra archivos: solo reutiliza rutas.
+- **Vista previa sin publicar**: el botón **Vista previa** abre la ficha en otra
+  pestaña con los cambios del formulario, sin escribir `projects.json` ni
+  subir nada. El borrador viaja en `sessionStorage` y la web lo aplica solo en
+  `index.html?preview=<id>`; la pestaña muestra un distintivo *«Vista previa»*.
+  Si has importado imágenes nuevas todavía no guardadas, es posible que no se
+  vean en la vista previa: primero hay que pulsar *Guardar Proyecto*.
+- **Aviso de cambios sin publicar**: `publicar.sh` deja un sello local en
+  `data/.estado-publicacion.json` (fecha UTC + commit, excluido por
+  `.gitignore`). El panel compara ese sello con la fecha de los tres JSON y de
+  las imágenes y muestra en la franja superior *«Cambios sin publicar: …»* o
+  *«Todo lo guardado está publicado»*. La vista *Publicar* da el detalle y el
+  commit de la última publicación. Es informativo: nunca escribe nada.
+- **Editor de huecos de composición**: en el formulario, la sección *Asignación
+  manual de huecos* permite escribir los índices de galería (empiezan en **0**)
+  que van a portada, tarjetas, par, catálogo y vistas adicionales. Si se deja
+  vacío, se usa el reparto automático descrito más arriba. El botón *Usar
+  reparto automático* limpia los campos. Tanto el panel como
+  `tools/validar.py` rechazan índices fuera de la galería.
+
 ### Navegación móvil y botón atrás
 
 En móvil (≤ 640 px) la ficha de proyecto sustituye la barra superior por una
@@ -433,12 +458,16 @@ repite las mismas reglas desde la línea de comandos.
    Espera a que desaparezca el aviso «Convirtiendo imágenes a WebP…».
    Respetar el orden de la galería: define los huecos de la ficha.
    **No renombrar imágenes a mano.**
-4. Pulsar **Guardar Proyecto**. El panel valida campos y rutas **antes** de escribir,
+4. Antes de guardar, **Vista previa** abre la ficha en otra pestaña con los cambios
+   del formulario. Es solo lectura: no escribe nada.
+5. Pulsar **Guardar Proyecto**. El panel valida campos y rutas **antes** de escribir,
    guarda el respaldo y actualiza `data/projects.json`. Si ves un aviso rojo o el
    estado dice `SIN CONEXIÓN`, **el JSON no se tocó**: no continúes.
-5. Comprobar: `python tools/validar.py` → debe terminar con `Listo para publicar`.
-6. Publicar: `bash publicar.sh` (Git pedirá credenciales la primera vez).
-7. Esperar 1–2 min y revisar `https://ingrubenvalero.github.io/portafolio/`.
+6. Comprobar: el panel debe decir *«Cambios sin publicar»* y `python tools/validar.py`
+   debe terminar con `Listo para publicar`.
+7. Publicar: doble clic en `publicar.bat` o `bash publicar.sh` (Git pedirá
+   credenciales la primera vez). Al terminar se renueva el sello local.
+8. Esperar 1–2 min y revisar `https://ingrubenvalero.github.io/portafolio/`.
    La portada usa `cache: 'no-store'`, así que no hace falta limpiar caché.
 
 ### B) Cambiar diseño, textos fijos o código
@@ -597,6 +626,7 @@ el script detecta el historial existente y solo sube los cambios nuevos.
 - [x] Reordenar proyectos desde el panel (hecho: flechas ↑/↓ que escriben en `data/projects.json`)
 - [x] Publicación asistida (hecho: `publicar.bat` + vista *Publicar* con comandos; el `push` sigue siendo local)
 - [x] Apartar imágenes huérfanas de `img/` desde el panel (hecho: se mueven a `img/_sin-usar/`, no se borran)
+- [x] Selector de imágenes ya subidas, vista previa sin publicar, aviso de cambios pendientes y editor de huecos (hecho)
 - [ ] Agregar Progressive Web App (PWA)
 - [ ] Implementar Service Worker para offline
 - [ ] Agregar sección de testimonios

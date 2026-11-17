@@ -520,6 +520,16 @@ header.hero {
     transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
     position: relative;
 }
+/* Distintivo de la vista previa que abre el admin (?preview=<id>) */
+.preview-badge {
+    position: fixed; left: 50%; bottom: 16px; transform: translateX(-50%);
+    z-index: 11000; padding: 0.6rem 1rem; border-radius: 999px;
+    background: #1E2220; color: #F7F7F4;
+    font-family: var(--mono); font-size: 0.6rem; letter-spacing: 0.1em;
+    text-transform: uppercase; box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+    pointer-events: none;
+}
+
 /* Sin etiqueta de categoría sobre la portada: en móvil tapaba la imagen
    y ocupaba espacio. El atributo data-category se conserva para el filtrado. */
 .project-card::before { display: none; content: none; }

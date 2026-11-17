@@ -113,6 +113,23 @@ if ! git push -u origin "$BRANCH"; then
 fi
 
 echo
+echo "==> Guardando el sello local de publicacion..."
+"$PY" - "$(pwd)" "$(git rev-parse HEAD)" <<'PY'
+import json, os, sys
+from datetime import datetime, timezone
+root, commit = sys.argv[1], sys.argv[2]
+stamp = {
+    "publicado_en": datetime.now(timezone.utc).isoformat(timespec="seconds"),
+    "commit": commit
+}
+path = os.path.join(root, "data", ".estado-publicacion.json")
+with open(path, "w", encoding="utf-8") as fh:
+    json.dump(stamp, fh, indent=2, ensure_ascii=False)
+    fh.write("\n")
+print("    Sello actualizado: data/.estado-publicacion.json")
+PY
+
+echo
 echo "Listo. GitHub Pages reconstruira el sitio en 1-2 minutos."
 echo "URL: https://ingrubenvalero.github.io/portafolio/"
 echo "Si Pages apunta a otra rama: Settings > Pages > Branch > $BRANCH / root"
